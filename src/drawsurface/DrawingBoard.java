@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
 
-public class Body {
+public class DrawingBoard {
 
+//---  Constants   ----------------------------------------------------------------------------
+	
+	private final static String BODY_WINDOW_NAME = "body";
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private int x;
@@ -23,7 +27,7 @@ public class Body {
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public Body(int inX, int inY, int wid, int hei, WindowFrame ref) {
+	public DrawingBoard(int inX, int inY, int wid, int hei, WindowFrame ref) {
 		x = inX;
 		y = inY;
 		width = wid;
@@ -47,6 +51,12 @@ public class Body {
 	
 	public void generateLayerDisplay(int xP, int yP, String filePath) {
 		
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getWindowName() {
+		return BODY_WINDOW_NAME;
 	}
 	
 }

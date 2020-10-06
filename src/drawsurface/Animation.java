@@ -4,7 +4,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 
 import visual.panel.CanvasPanel;
-import visual.panel.ElementPanel;
+import meta.HandlePanel;
 
 public class Animation implements Display{
 
@@ -29,10 +29,10 @@ public class Animation implements Display{
 //---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
-	public ElementPanel generateDisplay(int x, int y) {
+	public HandlePanel generateDisplay(int x, int y) {
 		int wid = (int)(scale * frames.get(0).getWidth());
 		int hei = (int)(scale * frames.get(0).getHeight());
-		ElementPanel p = new ElementPanel(x, y, wid, hei) {
+		HandlePanel p = new HandlePanel(x, y, wid, hei) {
 			@Override
 			public void keyBehaviour(char event) {
 				//TODO: Keyboard shortcuts for Animation

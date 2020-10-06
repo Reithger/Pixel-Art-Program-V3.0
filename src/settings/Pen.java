@@ -1,4 +1,4 @@
-package technical;
+package settings;
 
 public class Pen {
 

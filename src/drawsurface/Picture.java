@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import visual.panel.CanvasPanel;
-import visual.panel.ElementPanel;
+import meta.HandlePanel;
 
 public class Picture implements Display{
 	
@@ -41,10 +41,10 @@ public class Picture implements Display{
 //---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
-	public ElementPanel generateDisplay(int x, int y) {
+	public HandlePanel generateDisplay(int x, int y) {
 		int wid = (int)(scale * width);
 		int hei = (int)(scale * height);
-		ElementPanel p = new ElementPanel(x, y, wid, hei) {
+		HandlePanel p = new HandlePanel(x, y, wid, hei) {
 			@Override
 			public void keyBehaviour(char event) {
 				//TODO: Keyboard shortcuts for Picture

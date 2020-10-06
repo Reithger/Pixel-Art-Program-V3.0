@@ -3,8 +3,8 @@ package drawsurface;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import meta.HandlePanel;
 import visual.panel.CanvasPanel;
-import visual.panel.ElementPanel;
 
 public class Layer implements Comparable<Layer>, Display{
 
@@ -30,10 +30,10 @@ public class Layer implements Comparable<Layer>, Display{
 //---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
-	public ElementPanel generateDisplay(int x, int y) {
+	public HandlePanel generateDisplay(int x, int y) {
 		int wid = (int)(scale * colorData.length);
 		int hei = (int)(scale * colorData[0].length);
-		ElementPanel p = new ElementPanel(x, y, wid, hei) {
+		HandlePanel p = new HandlePanel(x, y, wid, hei) {
 			@Override
 			public void keyBehaviour(char event) {
 				//TODO: Keyboard shortcuts for Layer
