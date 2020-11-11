@@ -3,13 +3,13 @@ package manager.component.animation;
 import java.util.ArrayList;
 
 import manager.component.Component;
-import manager.component.picture.ArtPicture;
+import manager.component.picture.LayerPicture;
 
 public class ArtAnimation implements Component, Comparable<ArtAnimation>{
 
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private ArrayList<ArtPicture> frames;
+	private ArrayList<LayerPicture> frames;
 	private int layer;
 	
 //---  Constructors   -------------------------------------------------------------------------
@@ -29,7 +29,7 @@ public class ArtAnimation implements Component, Comparable<ArtAnimation>{
 	}
 	
 	public void moveFramePosition(int a, int b) {
-		ArtPicture hold = frames.get(a);
+		LayerPicture hold = frames.get(a);
 		frames.remove(a);
 		frames.add(b > a ? b - 1 : b, hold);
 	}
@@ -44,13 +44,13 @@ public class ArtAnimation implements Component, Comparable<ArtAnimation>{
 		frames.remove(ind);
 	}
 	
-	public void addAnimationFrame(ArtPicture p) {
+	public void addAnimationFrame(LayerPicture p) {
 		frames.add(p);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public ArrayList<ArtPicture> getAnimationFrames(){
+	public ArrayList<LayerPicture> getAnimationFrames(){
 		return frames;
 	}
 

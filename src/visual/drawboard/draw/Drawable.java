@@ -1,9 +1,13 @@
 package visual.drawboard.draw;
 
-import visual.panel.CanvasPanel;
+import java.awt.Color;
 
-public interface Drawable {
+import visual.drawboard.Corkboard;
+
+public interface Drawable extends Corkboard {
 	
-	public abstract CanvasPanel generateCanvas(int x, int y);
+	public abstract void generateCanvas(int width, int height);
+	
+	public abstract void updateCanvas(int x, int y, Color[][] cols);
 	
 }

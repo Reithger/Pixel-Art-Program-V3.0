@@ -1,39 +1,87 @@
 package visual.drawboard.draw;
 
-import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Image;
 
+import visual.drawboard.DrawingPage;
 import visual.panel.CanvasPanel;
 
 public class DrawPicture implements Drawable{
 
-	private double scale;
-	private int width;
-	private int height;
+	private int zoom;
+	private String name;
+	private CanvasPanel canvas;
+	private DrawingPage reference;
 	
-	public DrawPicture(double inScale, int inWidth, int inHeight) {
-		scale = inScale;
-		width = inWidth;
-		height = inHeight;
+	public DrawPicture(String nom, int inWidth, int inHeight, int inZoom, DrawingPage ref) {
+		zoom = inZoom;
+		reference = ref;
+		name = nom;
+		generateCanvas(inWidth, inHeight);
 	}
 	
 	@Override
-	public CanvasPanel generateCanvas(int x, int y) {
-		int wid = (int)(scale * width);
-		int hei = (int)(scale * height);
-		CanvasPanel c = new CanvasPanel(x, y, wid, hei) {
+	public void generateCanvas(int width, int height) {
+		int wid = (int)(zoom * width);
+		int hei = (int)(zoom * height);
+		canvas = new CanvasPanel(0, 0, wid, hei) {
 			@Override
-			public void keyEvent(char event) {
-				//TODO: Keyboard shortcuts for Picture (change draw layer)
+			public void clickEvent(int code, int x, int y) {
+				if(code == -1)
+					reference.passOnDraw(x, y, name);
+				else
+					reference.passOnCode(code, x, y, name);
 			}
-			
-			@Override
-			public void commandUnder(Graphics g) {
-				g.drawImage(generateImageSetLayers(0, activeLayer - 1), 0, 0, null);
-			}
-			
 		};
-		c.updateCanvas(layers.get(activeLayer).getColorData());
-		return c;
+	}
+
+	public void move(int x, int y) {
+		int oldX = canvas.getPanelXLocation();
+		int oldY = canvas.getPanelYLocation();
+		setLocation(oldX + x, oldY + y);
+	}
+	
+	public void setImage(Image in) {
+		int wid = in.getWidth(null);
+		int hei = in.getHeight(null);
+		Color[][] canv = new Color[wid][hei];
+		for(int i = 0; i < wid; i++) {
+			for(int j = 0; j < hei; j++) {
+				for(int k = 0; k < zoom; k++) {
+					for(int l = 0; l < zoom; l++) {
+						canvas.setPixelColor(i * zoom + k, j * zoom + l, canv[i][j]);
+					}
+				}
+			}
+		}
+	}
+	
+	public CanvasPanel getPanel() {
+		return canvas;
+	}
+
+	@Override
+	public void updateCanvas(int x, int y, Color[][] cols) {
+		for(int i = x; i < x + cols.length; i++) {
+			for(int j = y; j < y + cols[i].length; j++) {
+				canvas.setPixelColor(i,  j,  cols[i - x][j - y]);
+			}
+		}
+	}
+
+	@Override
+	public void setLocation(int x, int y) {
+		canvas.setLocation(x, y);
+	}
+
+	@Override
+	public int getWidth() {
+		return canvas.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return canvas.getHeight();
 	}
 	
 }

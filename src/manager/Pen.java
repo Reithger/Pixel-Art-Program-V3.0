@@ -8,6 +8,10 @@ public class Pen {
 
 	private Color col;
 	
+	public Pen() {
+		col = Color.black;
+	}
+	
 	public void setColor(Color in) {
 		col = in;
 	}

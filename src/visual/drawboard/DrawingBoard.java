@@ -1,13 +1,12 @@
 package visual.drawboard;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import visual.drawboard.display.DisplayAnimation;
-import visual.drawboard.display.Display;
-import visual.drawboard.display.Layer;
+import visual.View;
 import visual.frame.WindowFrame;
-import visual.panel.CanvasPanel;
-import visual.panel.ElementPanel;
 
 public class DrawingBoard {
 
@@ -25,61 +24,123 @@ public class DrawingBoard {
 	
 	private int height;
 	
-	private int count;
-	
-	private ArrayList<Display> displays;
-	//TODO: Allow multiple pages of edited Displays; have a paging system to use different windows to load in/out
-	private Display selected;
+	private HashMap<Integer, DrawingPage> pages;
+
+	private int active;
 	
 	private WindowFrame parent;
 	
+	private View reference;
+	
+	private int counter;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DrawingBoard(int inX, int inY, int wid, int hei, WindowFrame ref) {
+	public DrawingBoard(int inX, int inY, int wid, int hei, WindowFrame par, View ref) {
 		x = inX;
 		y = inY;
+		reference = ref;
 		width = wid;
 		height = hei;
-		displays = new ArrayList<Display>();
-		parent = ref;
+		pages = new HashMap<Integer, DrawingPage>();
+		addNewPage();
+		parent = par;
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void generateAnimationDisplay(int xP, int yP, String filePath) {
-		DisplayAnimation anim = new DisplayAnimation();
-		anim.importAnimation(filePath);
-		ElementPanel disp = anim.generateDisplay(x + xP,  y + yP);
-		parent.addPanelToWindow(BODY_WINDOW_NAME, "animation_" + filePath, disp);
+	//-- Input  -----------------------------------------------
+	
+	public void passOnDraw(int x, int y, String nom) {
+		reference.handOffClick(x, y, nom);
 	}
 	
-	public void generatePictureDisplay(int xP, int yP, String filePath) {
-		
+	public void passOnCode(int code) {
+		reference.handOffInt(code);
 	}
 	
-	public void generateLayerDisplay(int xP, int yP, String filePath) {
-		
+	//-- Page Management  -------------------------------------
+	
+	public void addNewPage() {
+		int next = pages.keySet().size();
+		pages.put(next, new DrawingPage(x, y, width, height, formPageName(counter++), parent, this));
+		parent.reserveWindow(formPageName(next));
+		active = next;
+		refresh();
 	}
 	
-	public void generatePictureCanvas(int xP, int yP, String filePath) {
-		
+	public void removePage(int index) {
+		pages.remove(index);
+		parent.removeWindow(formPageName(index));
+		ArrayList<DrawingPage> order = new ArrayList<DrawingPage>();
+		for(DrawingPage p : pages.values()) {
+			order.add(p);
+		}
+		pages = new HashMap<Integer, DrawingPage>();
+		for(int i = 0; i < pages.size(); i++) {
+			pages.put(i, order.get(i));
+		}
+		if(active >= index) {
+			active--;
+		}
+		refresh();
 	}
 	
-	public void generateLayerCanvas(int xP, int yP, String filePath) {
-		
+	public void refresh() {
+		for(int i : pages.keySet()) {
+			parent.hideActiveWindow(formPageName(i));
+		}
+		parent.showActiveWindow(formPageName(active));
 	}
 	
-	public void generateEmptyPictureCanvas(int xP, int yP) {
-		
+	//-- Generate Things  -------------------------------------
+	
+	public void generateAnimationDisplay(String nom, BufferedImage[] images) {
+		if(!getCurrentPage().generateAnimationDisplay(nom, images)) {
+			addNewPage();
+			getCurrentPage().generateAnimationDisplay(nom, images);
+		}
+	}
+
+	public void generatePictureDisplay(String nom, Image in) {
+		if(!getCurrentPage().generatePictureDisplay(nom, in)) {
+			addNewPage();
+			getCurrentPage().generatePictureDisplay(nom, in);
+		}
 	}
 	
-	public void generateEmptyLayerCanvas(int xP, int yP) {
-		Layer l = new Layer(300, 300, 0);
-		CanvasPanel use = l.generateCanvas(xP, yP);
-		parent.addPanelToWindow(BODY_WINDOW_NAME, "canvas_" + count++, use);
+	public void generatePictureCanvas(String nom, Image in) {
+		if(!getCurrentPage().generatePictureCanvas(nom, in)) {
+			addNewPage();
+			getCurrentPage().generatePictureCanvas(nom, in);
+		}
+	}
+	
+	public void generateEmptyPictureCanvas(String nom, int width, int height) {
+		if(!getCurrentPage().generateEmptyPictureCanvas(nom, width, height)) {
+			addNewPage();
+			getCurrentPage().generateEmptyPictureCanvas(nom, width, height);
+		}
+	}
+	
+	//-- Thing Management  ------------------------------------
+	
+//---  Setter Methods   -----------------------------------------------------------------------
+	
+	public void setActivePage(int in) {
+		active = in;
+		refresh();
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	private String formPageName(int index) {
+		return getWindowName() + "_" + index;
+	}
+	
+	private DrawingPage getCurrentPage() {
+		return pages.get(active);
+	}
 	
 	public String getWindowName() {
 		return BODY_WINDOW_NAME;

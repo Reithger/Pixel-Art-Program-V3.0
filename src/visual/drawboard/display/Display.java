@@ -1,10 +1,13 @@
 package visual.drawboard.display;
 
-import visual.composite.HandlePanel;
-import visual.panel.CanvasPanel;
+import java.awt.Image;
 
-public interface Display {
+import visual.drawboard.Corkboard;
 
-	public abstract HandlePanel generateDisplay(int x, int y);
+public interface Display extends Corkboard {
+
+	public abstract void generateDisplay(int width, int height);
+
+	public abstract void updateDisplay(Image ... image);
 
 }

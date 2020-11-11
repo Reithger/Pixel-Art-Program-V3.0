@@ -1,9 +1,7 @@
 package control;
 
 import manager.Manager;
-import visual.drawboard.DrawingBoard;
-import visual.frame.WindowFrame;
-import visual.settings.SettingsBar;
+import visual.View;
 
 /**
  * 
@@ -14,36 +12,50 @@ import visual.settings.SettingsBar;
  */
 
 public class PixelArtDrawer {
+
+	private final static String IMAGE_NAME = "new_image";
+	private final static String TEXT_WIDTH_REQUEST = "Please provide the width of the new image.";
+	private final static String TEXT_HEIGHT_REQUEST = "Please provide the height of the new image.";
 	
-	private final static int SCREEN_WIDTH = 1200;
+	private int counter;
 	
-	private final static int SCREEN_HEIGHT = 800;
-	
-	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
-	
-	private WindowFrame frame;
-	
-	private SettingsBar options;
-	
-	private DrawingBoard body;
+	private View view;
 	
 	private Manager manager;
 	
 	public PixelArtDrawer() {
-		makeModel();
-		makeView();
-	}
-	
-	private void makeModel() {
 		manager = new Manager();
+		view = new View(this);
 	}
 	
-	private void makeView() {
-		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
-		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame);
-		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame);
-		frame.reserveWindow(body.getWindowName());
-		frame.showActiveWindow(body.getWindowName());
+	/**
+	 * Set up Communication static String access
+	 * 
+	 * @param in
+	 */
+	
+	public void interpretCode(int in) {
+			switch(in) {
+				case CodeReference.CODE_NEW_PICTURE:
+					manager.makeNewPicture(IMAGE_NAME + "_" + counter++, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+					break;
+				case CodeReference.CODE_NEW_ANIMATION:
+					break;
+				case CodeReference.CODE_OPEN_FILE:
+					break;
+				case CodeReference.CODE_SAVE_THING:
+					break;
+				case CodeReference.CODE_SAVE_AS:
+					break;
+				case CodeReference.CODE_OPEN_META:
+					break;
+				case CodeReference.CODE_EXIT:
+					break;
+		}
 	}
 	
+	public void interpretDraw(int x, int y, String nom) {
+		
+	}
+
 }

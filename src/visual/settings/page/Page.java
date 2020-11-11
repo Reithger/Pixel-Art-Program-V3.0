@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import visual.composite.HandlePanel;
+import visual.settings.SettingsBar;
 import visual.settings.page.tile.Tile;
 
 public abstract class Page extends HandlePanel{
@@ -17,6 +18,7 @@ public abstract class Page extends HandlePanel{
 	
 	private ArrayList<Tile> tiles;
 	private String name;
+	private static SettingsBar reference;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -29,6 +31,10 @@ public abstract class Page extends HandlePanel{
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
+	
+	public static void assignReference(SettingsBar ref) {
+		reference = ref;
+	}
 	
 	public void addTile(Tile in) {
 		tiles.add(in);
@@ -67,7 +73,9 @@ public abstract class Page extends HandlePanel{
 		
 	}
 	
-	public abstract void processInput(int code);
+	protected void passCodeInput(int code) {
+		reference.passInputCode(code);
+	}
 
 //---  Setter Methods   -----------------------------------------------------------------------
 	
@@ -96,7 +104,7 @@ public abstract class Page extends HandlePanel{
 			default:
 				break;
 		}
-		processInput(code);
+		reference.passOnCode(code);
 		drawPage();
 	}
 	
