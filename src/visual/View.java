@@ -1,6 +1,10 @@
 package visual;
 
+import java.awt.Color;
+import java.awt.Image;
+
 import control.PixelArtDrawer;
+import visual.composite.popout.PopoutAlert;
 import visual.drawboard.DrawingBoard;
 import visual.frame.WindowFrame;
 import visual.settings.SettingsBar;
@@ -23,6 +27,7 @@ public class View {
 	
 	public View(PixelArtDrawer in) {
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
+		frame.setName("Test");
 		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
 		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame, this);
 		frame.reserveWindow(body.getWindowName());
@@ -32,7 +37,15 @@ public class View {
 
 	public int requestIntInput(String text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
-		
+		String out = piR.getSubmitted();
+		piR.dispose();
+		try {
+			return Integer.parseInt(out);
+		}
+		catch(Exception e) {
+			new PopoutAlert(300, 250, "Error in text entry: non-integer value provided");
+			return requestIntInput(text);
+		}
 	}
 	
 	public void handOffInt(int code) {
@@ -43,6 +56,16 @@ public class View {
 		reference.interpretDraw(x, y, nom);
 	}
 
+	public void updateAnimationDisplay(String nom, Image[] imgs) {
+		body.updateDisplay(nom, imgs);
+	}
 	
+	public void updatePictureDisplay(String nom, Image img) {
+		body.updateDisplay(nom, img);
+	}
+	
+	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
+		body.updatePictureCanvas(nom, x, y, cols);
+	}
 	
 }

@@ -17,11 +17,6 @@ public class ArtPicture implements Comparable<ArtPicture>{
 	
 	public ArtPicture(int wid, int hei, int lay) {
 		colorData = new Color[wid][hei];
-		for(int i = 0; i < wid; i++) {
-			for(int j = 0; j < hei; j++) {
-				
-			}
-		}
 		layer = lay;
 	}
 	

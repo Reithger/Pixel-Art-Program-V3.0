@@ -9,10 +9,4 @@ public class DrawingPage extends Page {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public void processInput(int code) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

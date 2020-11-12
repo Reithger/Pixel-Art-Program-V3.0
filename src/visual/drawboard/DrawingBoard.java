@@ -1,5 +1,6 @@
 package visual.drawboard;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -43,8 +44,8 @@ public class DrawingBoard {
 		width = wid;
 		height = hei;
 		pages = new HashMap<Integer, DrawingPage>();
-		addNewPage();
 		parent = par;
+		addNewPage();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -63,15 +64,15 @@ public class DrawingBoard {
 	
 	public void addNewPage() {
 		int next = pages.keySet().size();
+		parent.reserveWindow(formPageName(counter));
 		pages.put(next, new DrawingPage(x, y, width, height, formPageName(counter++), parent, this));
-		parent.reserveWindow(formPageName(next));
 		active = next;
 		refresh();
 	}
 	
 	public void removePage(int index) {
+		parent.removeWindow(pages.get(index).getWindowName());
 		pages.remove(index);
-		parent.removeWindow(formPageName(index));
 		ArrayList<DrawingPage> order = new ArrayList<DrawingPage>();
 		for(DrawingPage p : pages.values()) {
 			order.add(p);
@@ -88,14 +89,14 @@ public class DrawingBoard {
 	
 	public void refresh() {
 		for(int i : pages.keySet()) {
-			parent.hideActiveWindow(formPageName(i));
+			parent.hideActiveWindow(pages.get(i).getWindowName());
 		}
-		parent.showActiveWindow(formPageName(active));
+		parent.showActiveWindow(getCurrentPage().getWindowName());
 	}
 	
 	//-- Generate Things  -------------------------------------
 	
-	public void generateAnimationDisplay(String nom, BufferedImage[] images) {
+	public void generateAnimationDisplay(String nom, Image[] images) {
 		if(!getCurrentPage().generateAnimationDisplay(nom, images)) {
 			addNewPage();
 			getCurrentPage().generateAnimationDisplay(nom, images);
@@ -109,21 +110,22 @@ public class DrawingBoard {
 		}
 	}
 	
-	public void generatePictureCanvas(String nom, Image in) {
-		if(!getCurrentPage().generatePictureCanvas(nom, in)) {
+	public void generatePictureCanvas(String nom, Color[][] cols) {
+		if(!getCurrentPage().generatePictureCanvas(nom, cols)) {
 			addNewPage();
-			getCurrentPage().generatePictureCanvas(nom, in);
-		}
-	}
-	
-	public void generateEmptyPictureCanvas(String nom, int width, int height) {
-		if(!getCurrentPage().generateEmptyPictureCanvas(nom, width, height)) {
-			addNewPage();
-			getCurrentPage().generateEmptyPictureCanvas(nom, width, height);
+			getCurrentPage().generatePictureCanvas(nom, cols);
 		}
 	}
 	
 	//-- Thing Management  ------------------------------------
+	
+	public void updateDisplay(String nom, Image ... images) {
+		getCurrentPage().updateDisplay(nom, images);
+	}
+	
+	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
+		getCurrentPage().updatePictureCanvas(nom, x, y, cols);
+	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
 	

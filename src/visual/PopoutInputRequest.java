@@ -7,20 +7,46 @@ import visual.composite.popout.PopoutWindow;
 public class PopoutInputRequest extends PopoutWindow{
 
 	private final static int POPUP_WIDTH = 300;
-	private final static int POPUP_HEIGHT = 300;
+	private final static int POPUP_HEIGHT = 200;
 	private final static int CODE_SUBMIT = 5;
+	private final static String ELEMENT_NAME_ENTRY = "entry";
+	
+	private volatile boolean ready;
+	private String out;
 	
 	public PopoutInputRequest(String text) {
 		super(POPUP_WIDTH, POPUP_HEIGHT);
-		this.handleText("tex", false, POPUP_WIDTH / 2, POPUP_HEIGHT / 3, POPUP_WIDTH * 3 / 4, POPUP_HEIGHT / 2, null, text);
-		this.handleTextButton("subm", false, POPUP_WIDTH / 2, POPUP_HEIGHT * 2 / 3, POPUP_WIDTH / 3, POPUP_HEIGHT / 3, null, "Submit", CODE_SUBMIT, Color.white, Color.black);
+		ready = false;
+		int posX = POPUP_WIDTH / 2;
+		int posY = POPUP_HEIGHT / 6;
+		
+		int labelWidth = POPUP_WIDTH * 3 / 4;
+		int labelHeight = POPUP_HEIGHT / 3;
+		this.handleText("tex", false, posX, posY, labelWidth, labelHeight, null, text);
+		
+		posY += POPUP_HEIGHT / 3;
+		int entryWidth = POPUP_WIDTH / 2;
+		int entryHeight = POPUP_HEIGHT / 4;
+		this.handleTextEntry(ELEMENT_NAME_ENTRY, false, posX, posY, entryWidth, entryHeight, -55, null, "");
+		this.handleRectangle("rect", false, 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
+		
+		posY += POPUP_HEIGHT / 3;
+		int submitWidth = POPUP_WIDTH / 2;
+		int submitHeight = POPUP_HEIGHT / 4;
+		this.handleTextButton("subm", false, posX, posY, submitWidth, submitHeight, null, "Submit", CODE_SUBMIT, Color.white, Color.black);
 	}
 
 	@Override
 	public void clickAction(int arg0, int arg1, int arg2) {
 		if(arg0 == CODE_SUBMIT) {
-			//TODO Asynchronous problems, need to fix SVI
+			out = this.getStoredText(ELEMENT_NAME_ENTRY);
+			ready = true;
 		}
+	}
+	
+	public String getSubmitted() {
+		while(!ready) {};
+		return out;
 	}
 
 	@Override

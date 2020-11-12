@@ -5,8 +5,6 @@ import java.awt.Image;
 import visual.composite.HandlePanel;
 import visual.composite.ImageDisplay;
 
-//TODO: Can edit a Picture and select what layer you want to work on, or can generate a layer on its own to edit and reintegrate
-
 public class DisplayPicture implements Display{
 	
 //---  Instance Variables   -------------------------------------------------------------------

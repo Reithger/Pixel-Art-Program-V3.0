@@ -1,5 +1,8 @@
 package control;
 
+import java.awt.Color;
+import java.awt.Image;
+
 import manager.Manager;
 import visual.View;
 
@@ -52,10 +55,37 @@ public class PixelArtDrawer {
 				case CodeReference.CODE_EXIT:
 					break;
 		}
+		updateView(false);
 	}
 	
 	public void interpretDraw(int x, int y, String nom) {
-		
+		manager.drawToPicture(nom, x, y);
+		updateView(false);
 	}
 
+	public void updateView(boolean force) {
+		for(String dispAnim : manager.getSketchAnimationNames(force)) {
+			updateAnimationDisplay(dispAnim, manager.getAnimationFrames(dispAnim));
+		}
+		for(String dispPic : manager.getSketchPictureNames(force)) {
+			updatePictureDisplay(dispPic, manager.getPictureImage(dispPic));
+		}
+		for(String canvPic : manager.getSketchCanvasNames(force)) {
+			updateCanvasDisplay(canvPic, manager.getCanvasChangeStartX(canvPic), manager.getCanvasChangeStartY(canvPic), manager.getCanvasChangeColors(canvPic));
+		}
+		manager.disposeChanges();
+	}
+	
+	public void updateAnimationDisplay(String nom, Image[] imgs) {
+		view.updateAnimationDisplay(nom, imgs);
+	}
+	
+	public void updatePictureDisplay(String nom, Image img) {
+		view.updatePictureDisplay(nom, img);
+	}
+	
+	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
+		view.updateCanvasDisplay(nom, x, y, cols);
+	}
+	
 }

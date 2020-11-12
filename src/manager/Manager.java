@@ -1,69 +1,135 @@
 package manager;
 
-import java.awt.image.BufferedImage;
+import java.awt.Color;
+import java.awt.Image;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import manager.component.animation.LayerAnimation;
 import manager.component.picture.LayerPicture;
 
 public class Manager {
 
-//---  Constants   ----------------------------------------------------------------------------
-
-	private final static int SAVE_TYPE_PNG = 0;
-	private final static int SAVE_TYPE_JPG = 1;
+//---  Instance Variables   -------------------------------------------------------------------
 	
-	private HashMap<String, LayerAnimation> animations;
-	private HashMap<String, LayerPicture> pictures;
 	private Pen pen;
+	private Curator curator;
+	private HashMap<String, SketchPicture> pictures;
+	private HashMap<String, SketchAnimation> animations;
+	private HashMap<String, SketchCanvas> canvases;
+	
+	private int counter;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public Manager() {
-		animations = new HashMap<String, LayerAnimation>();
-		pictures = new HashMap<String, LayerPicture>();
 		pen = new Pen();
+		curator = new Curator();
+		pictures = new HashMap<String, SketchPicture>();
+		animations = new HashMap<String, SketchAnimation>();
+		canvases = new HashMap<String, SketchCanvas>();
 	}
 	
+//---  Operations   ---------------------------------------------------------------------------
+
+	//-- Animations  --------------------------------------------------------------------------
+	
+	//-- Pictures  ----------------------------------------------------------------------------
+	
 	public void savePicture(String name, String path, int scale, boolean composite) {
-		pictures.get(name).export(path, scale, composite);
+		savePicture(name, path, scale, composite);
 	}
 	
 	public void makeNewPicture(String name, int wid, int hei) {
-		LayerPicture lP = new LayerPicture(wid, hei);
-		lP.addLayer();
-		pictures.put(name, lP);
+		curator.makeNewPicture(name, wid, hei);
+		String sketchName = getNextSketchName(name);
+		SketchCanvas pic = new SketchCanvas(sketchName, name);
+		canvases.put(sketchName, pic);
+		pen.initializeCanvas(sketchName, curator.getLayerPicture(name).getLayer(pic.getActiveLayer()));
 	}
 	
 	public void loadInPicture(String name, String path) {
-		LayerPicture lP = new LayerPicture(path);
-		pictures.put(name, lP);
+		loadInPicture(name, path);
 	}
 	
 	public void addLayer(String name) {
-		pictures.get(name).addLayer();
+		addLayer(name);
 	}
 	
 	public void moveLayer(String name, int start, int end) {
-		pictures.get(name).moveLayers(start, end);
+		moveLayer(name, start, end);
 	}
 	
 	public void removeLayer(String name, int layer) {
-		pictures.get(name).removeLayer(layer);
+		removeLayer(name, layer);
+	}
+
+	//-- Drawing  -----------------------------------------------------------------------------
+	
+	public void drawToPicture(String name, int x, int y) {
+		SketchCanvas spic = canvases.get(name);
+		LayerPicture pic = curator.getLayerPicture(spic.getReference());
+		curator.toggleUpdated(spic.getReference());
+		pen.draw(name, pic.getLayer(spic.getActiveLayer()), x, y);
 	}
 	
-	public void drawToPicture(String name, int layer, int x, int y) {
-		pen.draw(pictures.get(name).getLayer(layer), x, y);
+	public void disposeChanges() {
+		pen.disposeChanges();
+		curator.resolveChanges();
 	}
 	
-	public BufferedImage producePictureLayer(String name, int layer) {
-		return pictures.get(name).getLayer(layer).generateImage();
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	private String getNextSketchName(String base) {
+		return base + "_" + counter++;
 	}
 	
-	public BufferedImage producePictureImage(String name) {
-		return pictures.get(name).generateImage();
+	public Image[] getAnimationFrames(String nom) {
+		SketchAnimation ska = animations.get(nom);	//TODO Sketch can subsection this
+		return curator.getAnimationFrames(ska.getReference(), ska.getLayerStart(), ska.getLayerEnd());
 	}
 	
-	public BufferedImage produceLayeredPictureImage(String name, int layStart, int layEnd) {
-		return pictures.get(name).generateImageSetLayers(layStart, layEnd);
+	public Image getPictureImage(String nom) {
+		SketchPicture pic = pictures.get(nom);
+		return curator.getPictureImage(pic.getReference(), pic.getLayerStart(), pic.getLayerEnd());
+	}
+	
+	public int getCanvasChangeStartX(String nom) {
+		return pen.getChangeX(nom);
+	}
+	
+	public int getCanvasChangeStartY(String nom) {
+		return pen.getChangeY(nom);
+	}
+	
+	public Color[][] getCanvasChangeColors(String nom){
+		return pen.getChangeColors(nom);
+	}
+	
+	public ArrayList<String> getSketchAnimationNames(boolean force){
+		ArrayList<String> out = new ArrayList<String>();
+		for(String s : animations.keySet()) {
+			if(force || curator.getUpdateStatus(animations.get(s).getReference()))
+				out.add(s);
+		}
+		return out;
+	}
+	
+	public ArrayList<String> getSketchPictureNames(boolean force){
+		ArrayList<String> out = new ArrayList<String>();
+		for(String s : pictures.keySet()) {
+			if(force || curator.getUpdateStatus(pictures.get(s).getReference()))
+				out.add(s);
+		}
+		return out;
+	}
+	
+	public ArrayList<String> getSketchCanvasNames(boolean force){
+		ArrayList<String> out = new ArrayList<String>();
+		for(String s : canvases.keySet()) {
+			if(force || curator.getUpdateStatus(canvases.get(s).getReference()))
+				out.add(s);
+		}
+		return out;
 	}
 	
 }

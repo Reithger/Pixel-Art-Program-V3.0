@@ -34,15 +34,9 @@ public class SettingsBar {
 		reference = ref;
 		formatPages(x, y, wid, hei);
 		menu = generateMenuBar(x, y, wid, hei);
+		drawMenuBar();
 		par.addPanelToWindow(getMenuBarWindowName(), "menu_bar", menu);
 		par.showActiveWindow(getMenuBarWindowName());
-		drawMenuBar();
-		activePage = 0;
-		pages = new ArrayList<Page>();
-		PageFactory.assignReference(this);
-		pages.add(PageFactory.generateFilePage());
-		pages.add(PageFactory.generateDrawingPage());
-		pages.add(PageFactory.generateSettingsPage());
 		par.showActiveWindow(pages.get(activePage).getName());
 	}
 	
@@ -55,6 +49,12 @@ public class SettingsBar {
 	}
 	
 	private void formatPages(int x, int y, int wid, int hei) {
+		pages = new ArrayList<Page>();
+		PageFactory.assignReference(this);
+		pages.add(PageFactory.generateFilePage());
+		pages.add(PageFactory.generateDrawingPage());
+		pages.add(PageFactory.generateSettingsPage());
+		activePage = 0;
 		for(Page p : pages) {
 			p.resize(wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
 			p.setLocation(x, y + (int)(hei * RATIO_MENU_SELECTION));
@@ -68,13 +68,9 @@ public class SettingsBar {
 			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
-				if(code >= 0 && code < pages.size()) {
-					parent.hideActiveWindow(getActivePageName());
-					setMenuIndex(code);
-					drawMenuBar();
-					parent.showActiveWindow(getActivePageName());
+				if(!changePage(code)) {
+					reference.handOffInt(code);
 				}
-				reference.handOffInt(code);
 			}
 			
 			@Override
@@ -90,6 +86,17 @@ public class SettingsBar {
 		};
 	}
 
+	private boolean changePage(int code) {
+		if(code >= 0 && code < pages.size()) {
+			parent.hideActiveWindow(getActivePageName());
+			setMenuIndex(code);
+			drawMenuBar();
+			parent.showActiveWindow(getActivePageName());
+			return true;
+		}
+		return false;
+	}
+	
 	private void drawMenuBar() {
 		if(pages.size() == 0) {
 			return;

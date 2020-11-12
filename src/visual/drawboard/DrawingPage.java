@@ -1,8 +1,8 @@
 package visual.drawboard;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import visual.drawboard.display.DisplayAnimation;
@@ -78,7 +78,7 @@ public class DrawingPage {
 				break;
 			case CODE_HEADER_HOLD:
 				if(dragging) {
-					getCorkboard(nom).move(x - lastX, y - lastX);
+					getCorkboard(nom).move(x - lastX, y - lastY);
 					lastX = x;
 					lastY = y;
 				}
@@ -93,9 +93,11 @@ public class DrawingPage {
 			reference.passOnCode(code);
 	}
 	
-	public boolean generateAnimationDisplay(String nom, BufferedImage[] images) {
-		DisplayAnimation anim = new DisplayAnimation(nom, images[0].getWidth(), images[0].getHeight(), images, this);
-		int[] coords = findOpenSpot(images[0].getWidth(), images[0].getHeight());
+	//-- Generate Things  -------------------------------------
+	
+	public boolean generateAnimationDisplay(String nom, Image[] images) {
+		DisplayAnimation anim = new DisplayAnimation(nom, images[0].getWidth(null), images[0].getHeight(null), images, this);
+		int[] coords = findOpenSpot(images[0].getWidth(null), images[0].getHeight(null));
 		if(coords == null)
 			return false;
 		anim.setLocation(x + coords[0],  y + coords[1]);
@@ -117,10 +119,12 @@ public class DrawingPage {
 		return true;
 	}
 	
-	public boolean generatePictureCanvas(String nom, Image in) {
-		DrawPicture pic = new DrawPicture(nom, in.getWidth(null), in.getHeight(null), 1, this);
-		pic.setImage(in);
-		int[] coords = findOpenSpot(in.getWidth(null), in.getHeight(null));
+	public boolean generatePictureCanvas(String nom, Color[][] cols) {
+		int wid = cols.length;
+		int hei = cols[0].length;
+		DrawPicture pic = new DrawPicture(nom, wid, hei, 1, this);
+		pic.updateCanvas(0, 0, cols);
+		int[] coords = findOpenSpot(wid, hei);
 		if(coords == null)
 			return false;
 		pic.setLocation(x + coords[0], y + coords[1]);
@@ -128,19 +132,32 @@ public class DrawingPage {
 		drawings.put(nom, pic);
 		parent.addPanelToWindow(windowName, "canvas_" + nom, canv);
 		return true;
+	}
+
+	//-- Thing Management  ------------------------------------
+	
+	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
+		if(drawings.get(nom) != null)
+			drawings.get(nom).updateCanvas(x, y, cols);
+		else {
+			generatePictureCanvas(nom, cols);
+		}
 	}
 	
-	public boolean generateEmptyPictureCanvas(String nom, int width, int height) {
-		DrawPicture pic = new DrawPicture(nom, width, height, 1, this);
-		int[] coords = findOpenSpot(width, height);
-		if(coords == null)
-			return false;
-		pic.setLocation(x + coords[0], y + coords[1]);
-		CanvasPanel canv = pic.getPanel();
-		drawings.put(nom, pic);
-		parent.addPanelToWindow(windowName, "canvas_" + nom, canv);
-		return true;
+	public void updateDisplay(String nom, Image ... images) {
+		if(displays.get(nom) != null)
+			displays.get(nom).updateDisplay(images);
+		else {
+			if(images.length > 1) {
+				generateAnimationDisplay(nom, images);
+			}
+			else {
+				generatePictureDisplay(nom, images[0]);
+			}
+		}
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	private Corkboard getCorkboard(String nom) {
 		if(displays.get(nom) != null){
@@ -150,6 +167,10 @@ public class DrawingPage {
 			return drawings.get(nom);
 		}
 		return null;
+	}
+	
+	public String getWindowName() {
+		return windowName;
 	}
 	
 	private int[] findOpenSpot(int width, int height) {

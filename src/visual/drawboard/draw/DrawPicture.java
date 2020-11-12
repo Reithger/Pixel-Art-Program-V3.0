@@ -24,7 +24,7 @@ public class DrawPicture implements Drawable{
 	public void generateCanvas(int width, int height) {
 		int wid = (int)(zoom * width);
 		int hei = (int)(zoom * height);
-		canvas = new CanvasPanel(0, 0, wid, hei) {
+		canvas = new CanvasPanel(0, 0, wid, hei, 1) {
 			@Override
 			public void clickEvent(int code, int x, int y) {
 				if(code == -1)
@@ -39,21 +39,6 @@ public class DrawPicture implements Drawable{
 		int oldX = canvas.getPanelXLocation();
 		int oldY = canvas.getPanelYLocation();
 		setLocation(oldX + x, oldY + y);
-	}
-	
-	public void setImage(Image in) {
-		int wid = in.getWidth(null);
-		int hei = in.getHeight(null);
-		Color[][] canv = new Color[wid][hei];
-		for(int i = 0; i < wid; i++) {
-			for(int j = 0; j < hei; j++) {
-				for(int k = 0; k < zoom; k++) {
-					for(int l = 0; l < zoom; l++) {
-						canvas.setPixelColor(i * zoom + k, j * zoom + l, canv[i][j]);
-					}
-				}
-			}
-		}
 	}
 	
 	public CanvasPanel getPanel() {

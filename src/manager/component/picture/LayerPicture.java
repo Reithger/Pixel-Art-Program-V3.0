@@ -1,6 +1,7 @@
 package manager.component.picture;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -11,9 +12,11 @@ public class LayerPicture {
 	private int width;  //TODO Should store composite image and use sub-images to make recompilation of it after change faster
 	private int height;
 	private ArrayList<ArtPicture> layers;	
+	private boolean changed;
 	
 	public LayerPicture(String path) {
 		File f = new File(path);
+		changed = true;
 		if(f.isDirectory()) {
 			
 		}
@@ -25,7 +28,20 @@ public class LayerPicture {
 	public LayerPicture(int inWid, int inHei) {
 		width = inWid;
 		height = inHei;
+		changed = true;
 		layers = new ArrayList<ArtPicture>();
+	}
+	
+	public boolean getUpdateStatus() {
+		return changed;
+	}
+	
+	public void designateUpdate() {
+		changed = true;
+	}
+	
+	public void resolvedUpdate() {
+		changed = false;
 	}
 	
 	public void export(String path, int scale, boolean composite) {
@@ -89,7 +105,7 @@ public class LayerPicture {
 		}
 	}
 	
-	public BufferedImage generateImage() {
+	public Image generateImage() {
 		BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Color[][] merge = new Color[width][height];
 		updateLayers();
@@ -117,7 +133,7 @@ public class LayerPicture {
 		return out;
 	}
 
-	public BufferedImage generateImageSetLayers(int startLay, int endLay) {
+	public Image generateImageSetLayers(int startLay, int endLay) {
 		if(startLay < 0 || startLay > endLay || endLay >= layers.size()) {
 			System.out.println("Error: Illegal start or end indexes for generating an Image using a specific series of Layers");
 			//TODO: Generate warning box
