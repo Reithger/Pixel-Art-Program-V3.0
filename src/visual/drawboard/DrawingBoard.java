@@ -1,22 +1,25 @@
 package visual.drawboard;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import visual.View;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
+import visual.settings.PopoutConfirm;
 
 public class DrawingBoard {
 
 //---  Constants   ----------------------------------------------------------------------------
 	
 	private final static String BODY_WINDOW_NAME = "body";
-	private final static int PROPORTION_TOP_SELECT = 10;
-	private final static int SELECT_BAR_MIN_SECTIONS = 8;
+	private final static int PROPORTION_TOP_SELECT = 25;
+	private final static int SELECT_BAR_MIN_SECTIONS = 12;
+	private final static Font MENU_FONT = new Font("Serif", Font.BOLD, 12);
+	private final static int CODE_NEW_PAGE = 500;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -48,12 +51,13 @@ public class DrawingBoard {
 		reference = ref;
 		width = wid;
 		height = hei;
-		selectBar = new HandlePanel(x, y, wid, hei / PROPORTION_TOP_SELECT);
-		drawSelectBar();
-		par.addPanelToWindow("drawing board", "select bar", selectBar);
 		pages = new HashMap<Integer, DrawingPage>();
 		parent = par;
+		generateSelectBar(inX, inY, wid, hei / PROPORTION_TOP_SELECT);
+		drawSelectBar();
 		addNewPage();
+		par.addPanelToWindow("drawing board", "select bar", selectBar);
+		par.showActiveWindow("drawing board");
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -70,10 +74,68 @@ public class DrawingBoard {
 	
 	//-- Page Management  -------------------------------------
 	
+	public void generateSelectBar(int x, int y, int wid, int hei) {
+		selectBar = new HandlePanel(x, y, wid, hei) {
+			private boolean dragging;
+			private int lastX;
+			private int lastY;
+			
+			@Override
+			public void clickBehaviour(int code, int x, int y) {
+				System.out.println(code);
+				if(code == CODE_NEW_PAGE) {
+					addNewPage();
+				}
+				else if(code >= 0 && code < pages.keySet().size()) {
+					active = code;
+					refresh();
+				}
+				else {
+					int offCode = code - pages.keySet().size();
+					if(offCode >= 0 && offCode < pages.keySet().size()) {
+						PopoutConfirm pC = new PopoutConfirm(200, 150, "Are you sure?");
+						boolean choice = pC.getChoice();
+						pC.dispose();
+						if(choice) {
+							removePage(offCode);
+						}
+					}
+				}
+			}
+			
+			@Override
+			public void clickPressBehaviour(int code, int x, int y) {
+				dragging = true;
+				lastX = x;
+				lastY = y;
+			}
+			
+			@Override
+			public void dragBehaviour(int code, int x, int y) {
+				if(dragging) {
+					int difX = x - lastX;
+					int difY = y - lastY;
+					setOffsetXBounded(getOffsetX() + difX);
+					setOffsetYBounded(getOffsetY() + difY);
+					lastX = x;
+					lastY = y;
+				}
+			}
+			
+			@Override
+			public void clickReleaseBehaviour(int code, int x, int y) {
+				dragging = false;
+			}
+		};
+		selectBar.setPriority(5);
+		selectBar.setScrollBarVertical(false);
+		selectBar.setScrollBarHorizontal(false);
+	}
+	
 	public void addNewPage() {
 		int next = pages.keySet().size();
 		parent.reserveWindow(formPageName(counter));
-		pages.put(next, new DrawingPage(x, y, width, height, formPageName(counter++), parent, this));
+		pages.put(next, new DrawingPage(x, y + height / PROPORTION_TOP_SELECT, width, height - height / PROPORTION_TOP_SELECT, formPageName(counter++), parent, this));
 		active = next;
 		refresh();
 	}
@@ -86,7 +148,7 @@ public class DrawingBoard {
 			order.add(p);
 		}
 		pages = new HashMap<Integer, DrawingPage>();
-		for(int i = 0; i < pages.size(); i++) {
+		for(int i = 0; i < order.size(); i++) {
 			pages.put(i, order.get(i));
 		}
 		if(active >= index) {
@@ -100,14 +162,23 @@ public class DrawingBoard {
 			parent.hideActiveWindow(pages.get(i).getWindowName());
 		}
 		parent.showActiveWindow(getCurrentPage().getWindowName());
+		drawSelectBar();
 	}
 	
 	public void drawSelectBar() {
-		int counter = 0;
 		int wid = selectBar.getWidth() / (pages.keySet().size() < SELECT_BAR_MIN_SECTIONS ? SELECT_BAR_MIN_SECTIONS : pages.keySet().size());
-		for(int i : pages.keySet()) {
-			
+
+		int posX = wid / 2;
+		int hei = selectBar.getHeight() * 14/15;
+		int butSize = hei / 2;
+		selectBar.removeElementPrefixed("page_");
+		for(int i = 0; i < pages.keySet().size(); i++) {
+			selectBar.handleTextButton("page_" + i, false, posX, hei / 2, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
+			selectBar.addImage("page_close_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, "/assets/placeholder.png", true);
+			selectBar.addButton("page_close_butt_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, null, i + pages.keySet().size(), true);
+			posX += wid;
 		}
+		selectBar.handleTextButton("add_page", false, posX, hei / 2, wid, hei, MENU_FONT, "+New Page", CODE_NEW_PAGE, Color.gray, Color.black);
 	}
 	
 	//-- Generate Things  -------------------------------------

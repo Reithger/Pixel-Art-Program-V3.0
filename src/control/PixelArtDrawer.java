@@ -37,17 +37,20 @@ public class PixelArtDrawer {
 	 * @param in
 	 */
 	
-	public void interpretCode(int in) {
+	public void interpretCode(int in, String active) {
 		System.out.println(in);
 			switch(in) {
 				case CodeReference.CODE_NEW_THING:
 					makeNewThing();
+					break;
+				case CodeReference.CODE_CLOSE_THING:
 					break;
 				case CodeReference.CODE_DUPLICATE_THING:
 					break;
 				case CodeReference.CODE_OPEN_FILE:
 					break;
 				case CodeReference.CODE_SAVE_THING:
+					manager.saveThing(active, view.requestFilePath("Where do you want to save this to?"), 1, true);
 					break;
 				case CodeReference.CODE_SAVE_AS:
 					break;

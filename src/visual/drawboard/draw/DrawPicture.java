@@ -64,11 +64,9 @@ public class DrawPicture implements Drawable{
 						}
 						break;
 					case CODE_ZOOM_IN:
-						System.out.println("H");
 						setZoom(getZoom() + 1);
 						break;
 					case CODE_ZOOM_OUT:
-						System.out.println("G");
 						setZoom(getZoom() - 1);
 						break;
 					case CODE_HEADER:
@@ -100,9 +98,7 @@ public class DrawPicture implements Drawable{
 			public void clickReleaseBehaviour(int code, int x, int y) {
 				if(draggingResize) {
 					draggingResize = false;
-					handPanel.resize(handPanel.getWidth() + (x - lastX), handPanel.getHeight() + (y - lastY));
-					canvas.updateElementSize(handPanel.getWidth(), handPanel.getHeight() - HEADER_HEIGHT);
-					updatePanel();
+					resizePanel(handPanel.getWidth() + (x - lastX), handPanel.getHeight() + (y - lastY));
 				}
 				if(code == CODE_HEADER) {
 					draggingHeader = false;
@@ -118,7 +114,7 @@ public class DrawPicture implements Drawable{
 				else if(draggingResize) {
 					//TODO: Transparent panel showing new corner size roughly
 				}
-				if(code == CANVAS_CODE) {
+				else if(code == CANVAS_CODE) {
 					clickBehaviour(code, x, y);
 				}
 			}
@@ -147,6 +143,14 @@ public class DrawPicture implements Drawable{
 		
 		handPanel.handleImageButton("imgB", true, handPanel.getWidth() - size, handPanel.getHeight() - size, size, size, "/assets/placeholder.png", CODE_RESIZE);
 	}
+	
+	public void resizePanel(int wid, int hei) {
+		wid = wid < MINIMUM_SIZE ? MINIMUM_SIZE : wid;
+		hei = hei < MINIMUM_SIZE ? MINIMUM_SIZE : hei;
+		handPanel.resize(wid, hei);
+		canvas.updateElementSize(handPanel.getWidth(), handPanel.getHeight() - HEADER_HEIGHT);
+		updatePanel();
+	}
 
 	public void move(int x, int y) {
 		int oldX = handPanel.getPanelXLocation();
@@ -167,15 +171,14 @@ public class DrawPicture implements Drawable{
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setZoom(int in) {
-		System.out.println("In: " + in);
 		openLock();
 		if(in <= 0) {
 			in = 1;
 		}
 		zoom = in;
 		canvas.setZoom(zoom);
-		updatePanel();
 		closeLock();
+		updatePanel();
 		System.out.println("Out: " + in);
 	}
 

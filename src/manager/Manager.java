@@ -39,13 +39,15 @@ public class Manager {
 		pen.closeLock();
 	}
 	
-	//-- Animations  --------------------------------------------------------------------------
+	//-- Things  ----------------------------------------------
 	
-	//-- Pictures  ----------------------------------------------------------------------------
-	
-	public void savePicture(String name, String path, int scale, boolean composite) {
-		savePicture(name, path, scale, composite);
+	public void saveThing(String name, String path, int scale, boolean composite) {
+		curator.saveThing(name, path, scale, composite);
 	}
+	//-- Animations  ------------------------------------------
+	
+	//-- Pictures  --------------------------------------------
+
 	
 	public void makeNewPicture(String name, int wid, int hei) {
 		curator.makeNewPicture(name, wid, hei);
@@ -56,19 +58,28 @@ public class Manager {
 	}
 	
 	public void loadInPicture(String name, String path) {
-		loadInPicture(name, path);
+		curator.loadInPicture(name, path);
+		String sketchName = getNextSketchName(name);
+		SketchPicture skPic = new SketchPicture(sketchName, name);
+		pictures.put(sketchName, skPic);
+	}
+	
+	public void pullCanvasLayer(String name, int layer) {
+		SketchPicture skPic = pictures.get(name);
+		SketchCanvas skC = skPic.produceCanvasLayer(layer);
+		canvases.put(skC.getName(), skC);
 	}
 	
 	public void addLayer(String name) {
-		addLayer(name);
+		curator.addLayer(name);
 	}
 	
 	public void moveLayer(String name, int start, int end) {
-		moveLayer(name, start, end);
+		curator.moveLayer(name, start, end);
 	}
 	
 	public void removeLayer(String name, int layer) {
-		removeLayer(name, layer);
+		curator.removeLayer(name, layer);
 	}
 
 	//-- Drawing  -----------------------------------------------------------------------------

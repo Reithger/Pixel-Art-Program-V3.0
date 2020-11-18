@@ -15,6 +15,10 @@ public class LayerAnimation {
 		animLayers = new ArrayList<ArtAnimation>();
 	}
 	
+	public void export(String path, double scale, boolean composite) {
+		
+	}
+	
 	public boolean getUpdateStatus() {
 		return changes;
 	}

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 
 import control.PixelArtDrawer;
+import filemeta.FileChooser;
 import visual.composite.popout.PopoutAlert;
 import visual.composite.popout.PopoutSelectList;
 import visual.drawboard.DrawingBoard;
@@ -64,8 +65,16 @@ public class View {
 		return out;
 	}
 	
+	public String requestFolderPath(String display) {
+		return FileChooser.promptSelectFile("./", true, false).toString();
+	}
+	
+	public String requestFilePath(String display) {
+		return FileChooser.promptSelectFile("./", true, true).toString();
+	}
+	
 	public void handOffInt(int code) {
-		reference.interpretCode(code);
+		reference.interpretCode(code, body.getActiveElement());
 	}
 	
 	public void handOffClick(int x, int y, String nom) {

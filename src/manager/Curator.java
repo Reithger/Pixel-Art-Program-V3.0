@@ -47,13 +47,20 @@ public class Curator {
 		}
 	}
 	
+	//-- Things  ----------------------------------------------
+	
+	public void saveThing(String name, String path, int scale, boolean composite) {
+		if(pictures.get(name) != null) {
+			pictures.get(name).export(path, scale, composite);
+		}
+		else if(animations.get(name) != null) {
+			animations.get(name).export(path, scale, composite);
+		}
+	}
 	//-- Animation Display  -------------------------------------------------------------------
 	
 	//-- Picture Display  ---------------------------------------------------------------------
-	
-	public void savePicture(String name, String path, int scale, boolean composite) {
-		pictures.get(name).export(path, scale, composite);
-	}
+
 	
 	public void makeNewPicture(String name, int wid, int hei) {
 		LayerPicture lP = new LayerPicture(wid, hei);

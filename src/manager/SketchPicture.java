@@ -49,4 +49,12 @@ public class SketchPicture {
 		return layerEnd;
 	}
 	
+	public SketchCanvas produceCanvasLayer(int layer) {
+		SketchCanvas out = new SketchCanvas(name + "_layer_" + layer, reference);
+		out.setActiveLayer(layer);
+		out.setLayerStart(layer);
+		out.setLayerEnd(layer);
+		return out;
+	}
+	
 }
