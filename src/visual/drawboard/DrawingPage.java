@@ -11,15 +11,15 @@ import visual.drawboard.draw.DrawPicture;
 import visual.drawboard.draw.Drawable;
 import visual.drawboard.display.Display;
 import visual.frame.WindowFrame;
-import visual.panel.CanvasPanel;
 import visual.panel.ElementPanel;
 
 public class DrawingPage {
 
-	public final static int CODE_HEADER_PRESS = 1;
-	public final static int CODE_HEADER_RELEASE = 2;
-	public final static int CODE_HEADER_HOLD = 3;
 	public final static Font DEFAULT_FONT = new Font("Serif", Font.BOLD, 12);
+	
+	public final static int CODE_HEADER_HOLD = 5;
+	public final static int CODE_HEADER_RELEASE = 5;
+	public final static int CODE_HEADER_PRESS = 5;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -41,11 +41,7 @@ public class DrawingPage {
 	
 	private String windowName;
 	
-	private int lastX;
-	
-	private int lastY;
-	
-	private boolean dragging;
+	private String active;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -64,31 +60,13 @@ public class DrawingPage {
 //---  Operations   ---------------------------------------------------------------------------
 	
 	public void passOnDraw(int x, int y, String nom) {
+		active = nom;
 		reference.passOnDraw(x, y, nom);
 	}
 	
 	public void passOnCode(int code, int x, int y, String nom) {
+		active = nom;
 		boolean letgo = true;
-		switch(code) {
-			case CODE_HEADER_PRESS:
-				dragging = true;
-				lastX = x;
-				lastY = y;
-				letgo = false;
-				break;
-			case CODE_HEADER_HOLD:
-				if(dragging) {
-					getCorkboard(nom).move(x - lastX, y - lastY);
-					lastX = x;
-					lastY = y;
-				}
-				letgo = false;
-				break;
-			case CODE_HEADER_RELEASE:
-				dragging = false;
-				letgo = false;
-				break;
-		}
 		if(letgo || code == -1)
 			reference.passOnCode(code);
 	}
@@ -108,7 +86,7 @@ public class DrawingPage {
 	}
 
 	public boolean generatePictureDisplay(String nom, Image in) {
-		DisplayPicture pic = new DisplayPicture(nom, in.getWidth(null), in.getHeight(null), in);
+		DisplayPicture pic = new DisplayPicture(nom, in.getWidth(null), in.getHeight(null), in, this);
 		int[] coords = findOpenSpot(pic.getWidth(), pic.getHeight());
 		if(coords == null)
 			return false;
@@ -122,13 +100,13 @@ public class DrawingPage {
 	public boolean generatePictureCanvas(String nom, Color[][] cols) {
 		int wid = cols.length;
 		int hei = cols[0].length;
-		DrawPicture pic = new DrawPicture(nom, wid, hei, 1, this);
+		DrawPicture pic = new DrawPicture(nom, wid, hei, this);
 		pic.updateCanvas(0, 0, cols);
 		int[] coords = findOpenSpot(wid, hei);
 		if(coords == null)
 			return false;
 		pic.setLocation(x + coords[0], y + coords[1]);
-		CanvasPanel canv = pic.getPanel();
+		ElementPanel canv = pic.getPanel();
 		drawings.put(nom, pic);
 		parent.addPanelToWindow(windowName, "canvas_" + nom, canv);
 		return true;
@@ -158,6 +136,10 @@ public class DrawingPage {
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getActiveElement() {
+		return active;
+	}
 	
 	private Corkboard getCorkboard(String nom) {
 		if(displays.get(nom) != null){

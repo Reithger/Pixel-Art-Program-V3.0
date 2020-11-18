@@ -4,12 +4,15 @@ import visual.composite.HandlePanel;
 
 public class TileGrid extends Tile{
 
-	private String[][] grid;
+	private String[][] imagePaths;	//Make helper class to represent each 'icon'
+	private int[][] codes;
 	private boolean border;
 	private String label;
 	
-	public TileGrid(String[][] inGr) {
-		grid = inGr;
+	public TileGrid(String[][] paths, String inLabel, int[][] inCodes) {
+		imagePaths = paths;
+		label = inLabel;
+		codes = inCodes;
 	}
 	
 	@Override
@@ -17,8 +20,8 @@ public class TileGrid extends Tile{
 		int posX = x;
 		int posY = y;
 		
-		for(int i = 0; i < grid.length; i++) {
-			for(int j = 0; j < grid[i].length; j++) {
+		for(int i = 0; i < imagePaths.length; i++) {
+			for(int j = 0; j < imagePaths[i].length; j++) {
 				
 			}
 		}

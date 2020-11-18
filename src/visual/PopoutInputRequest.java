@@ -26,7 +26,7 @@ public class PopoutInputRequest extends PopoutWindow{
 		
 		posY += POPUP_HEIGHT / 3;
 		int entryWidth = POPUP_WIDTH / 2;
-		int entryHeight = POPUP_HEIGHT / 4;
+		int entryHeight = POPUP_HEIGHT / 5;
 		this.handleTextEntry(ELEMENT_NAME_ENTRY, false, posX, posY, entryWidth, entryHeight, -55, null, "");
 		this.handleRectangle("rect", false, 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
 		
@@ -45,7 +45,9 @@ public class PopoutInputRequest extends PopoutWindow{
 	}
 	
 	public String getSubmitted() {
-		while(!ready) {};
+		while(!ready) {
+			Thread.onSpinWait();
+		};
 		return out;
 	}
 

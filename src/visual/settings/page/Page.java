@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import visual.composite.HandlePanel;
 import visual.settings.SettingsBar;
 import visual.settings.page.tile.Tile;
+import visual.settings.page.tile.TileFactory;
 
 public abstract class Page extends HandlePanel{
 
@@ -36,7 +37,15 @@ public abstract class Page extends HandlePanel{
 		reference = ref;
 	}
 	
-	public void addTile(Tile in) {
+	public void addTileBig(String label, String path, int code) {
+		addTile(TileFactory.generateTileBig(path, label, code));
+	}
+	
+	public void addTileGrid(String[][] paths, String label, int[][] codes) {
+		addTile(TileFactory.generateTileGrid(paths, label, codes));
+	}
+	
+	private void addTile(Tile in) {
 		tiles.add(in);
 		in.assignMaximumVerticalSpace(getHeight());
 	}

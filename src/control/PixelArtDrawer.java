@@ -38,11 +38,12 @@ public class PixelArtDrawer {
 	 */
 	
 	public void interpretCode(int in) {
+		System.out.println(in);
 			switch(in) {
-				case CodeReference.CODE_NEW_PICTURE:
-					manager.makeNewPicture(IMAGE_NAME + "_" + counter++, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+				case CodeReference.CODE_NEW_THING:
+					makeNewThing();
 					break;
-				case CodeReference.CODE_NEW_ANIMATION:
+				case CodeReference.CODE_DUPLICATE_THING:
 					break;
 				case CodeReference.CODE_OPEN_FILE:
 					break;
@@ -58,6 +59,17 @@ public class PixelArtDrawer {
 		updateView(false);
 	}
 	
+	private void makeNewThing() {
+		String choice = view.requestListChoice(new String[] {"Picture", "Animation"});
+		switch(choice) {
+			case "Picture":
+				manager.makeNewPicture(IMAGE_NAME + "_" + counter++, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+				break;
+			case "Animation":
+				break;
+		}
+	}
+	
 	public void interpretDraw(int x, int y, String nom) {
 		manager.drawToPicture(nom, x, y);
 		updateView(false);
@@ -70,10 +82,12 @@ public class PixelArtDrawer {
 		for(String dispPic : manager.getSketchPictureNames(force)) {
 			updatePictureDisplay(dispPic, manager.getPictureImage(dispPic));
 		}
+		manager.reservePen();
 		for(String canvPic : manager.getSketchCanvasNames(force)) {
 			updateCanvasDisplay(canvPic, manager.getCanvasChangeStartX(canvPic), manager.getCanvasChangeStartY(canvPic), manager.getCanvasChangeColors(canvPic));
 		}
 		manager.disposeChanges();
+		manager.releasePen();
 	}
 	
 	public void updateAnimationDisplay(String nom, Image[] imgs) {

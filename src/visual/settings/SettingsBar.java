@@ -18,6 +18,7 @@ public class SettingsBar {
 	private final static double RATIO_MENU_SELECTION = 1.0/6;
 	//TODO: Have a custom Page for Animation actions, Image actions, Layer actions that appears contextually
 	private final static Font MENU_FONT = new Font("Serif", Font.BOLD, 12);
+	private final static int SELECT_BAR_MIN_SECTIONS = 8;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -101,7 +102,7 @@ public class SettingsBar {
 		if(pages.size() == 0) {
 			return;
 		}
-		int distX = menu.getWidth() / pages.size();
+		int distX = menu.getWidth() / (pages.size() < SELECT_BAR_MIN_SECTIONS ? SELECT_BAR_MIN_SECTIONS : pages.size());
 		int posX = distX / 2;
 		menu.removeElementPrefixed("rect_title_");
 		for(int i = 0; i < pages.size(); i++) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import visual.View;
+import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 
 public class DrawingBoard {
@@ -14,6 +15,8 @@ public class DrawingBoard {
 //---  Constants   ----------------------------------------------------------------------------
 	
 	private final static String BODY_WINDOW_NAME = "body";
+	private final static int PROPORTION_TOP_SELECT = 10;
+	private final static int SELECT_BAR_MIN_SECTIONS = 8;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -26,6 +29,8 @@ public class DrawingBoard {
 	private int height;
 	
 	private HashMap<Integer, DrawingPage> pages;
+	
+	private HandlePanel selectBar;
 
 	private int active;
 	
@@ -43,6 +48,9 @@ public class DrawingBoard {
 		reference = ref;
 		width = wid;
 		height = hei;
+		selectBar = new HandlePanel(x, y, wid, hei / PROPORTION_TOP_SELECT);
+		drawSelectBar();
+		par.addPanelToWindow("drawing board", "select bar", selectBar);
 		pages = new HashMap<Integer, DrawingPage>();
 		parent = par;
 		addNewPage();
@@ -94,6 +102,14 @@ public class DrawingBoard {
 		parent.showActiveWindow(getCurrentPage().getWindowName());
 	}
 	
+	public void drawSelectBar() {
+		int counter = 0;
+		int wid = selectBar.getWidth() / (pages.keySet().size() < SELECT_BAR_MIN_SECTIONS ? SELECT_BAR_MIN_SECTIONS : pages.keySet().size());
+		for(int i : pages.keySet()) {
+			
+		}
+	}
+	
 	//-- Generate Things  -------------------------------------
 	
 	public void generateAnimationDisplay(String nom, Image[] images) {
@@ -135,6 +151,10 @@ public class DrawingBoard {
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getActiveElement() {
+		return getCurrentPage().getActiveElement();
+	}
 	
 	private String formPageName(int index) {
 		return getWindowName() + "_" + index;

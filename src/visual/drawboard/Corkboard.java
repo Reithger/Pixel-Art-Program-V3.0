@@ -3,6 +3,9 @@ package visual.drawboard;
 import visual.panel.Panel;
 
 public interface Corkboard {
+
+	public static final int HEADER_HEIGHT = 30;
+	public static final int SIDEBAR_WIDTH = 30;
 	
 	public abstract Panel getPanel();
 	

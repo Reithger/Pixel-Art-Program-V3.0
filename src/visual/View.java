@@ -5,11 +5,14 @@ import java.awt.Image;
 
 import control.PixelArtDrawer;
 import visual.composite.popout.PopoutAlert;
+import visual.composite.popout.PopoutSelectList;
 import visual.drawboard.DrawingBoard;
 import visual.frame.WindowFrame;
 import visual.settings.SettingsBar;
 
 public class View {
+	
+//---  Constants   ----------------------------------------------------------------------------
 	
 	private final static int SCREEN_WIDTH = 1200;
 	
@@ -17,6 +20,8 @@ public class View {
 	
 	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
 
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private PixelArtDrawer reference;
 	
 	private WindowFrame frame;
@@ -24,6 +29,8 @@ public class View {
 	private SettingsBar options;
 	
 	private DrawingBoard body;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public View(PixelArtDrawer in) {
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -35,6 +42,8 @@ public class View {
 		reference = in;
 	}
 
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public int requestIntInput(String text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
 		String out = piR.getSubmitted();
@@ -46,6 +55,13 @@ public class View {
 			new PopoutAlert(300, 250, "Error in text entry: non-integer value provided");
 			return requestIntInput(text);
 		}
+	}
+	
+	public String requestListChoice(String[] listIn) {
+		PopoutSelectList psL = new PopoutSelectList(300, 500, listIn, false);
+		String out = psL.getSelected();
+		psL.dispose();
+		return out;
 	}
 	
 	public void handOffInt(int code) {
@@ -66,6 +82,12 @@ public class View {
 	
 	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
 		body.updatePictureCanvas(nom, x, y, cols);
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getActiveElement() {
+		return body.getActiveElement();
 	}
 	
 }

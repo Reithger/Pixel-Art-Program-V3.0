@@ -7,8 +7,6 @@ import visual.composite.HandlePanel;
 import visual.drawboard.DrawingPage;
 
 public class DisplayAnimation implements Display{
-
-	private static final int HEADER_HEIGHT = 30;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	

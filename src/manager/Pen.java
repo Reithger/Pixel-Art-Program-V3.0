@@ -9,11 +9,21 @@ import manager.component.picture.ArtPicture;
 public class Pen {
 
 	private Color col;
-	private HashMap<String, Changes> changes;
+	private volatile HashMap<String, Changes> changes;
+	private volatile boolean mutex;
 	
 	public Pen() {
 		col = Color.black;
+		mutex = false;
 		changes = new HashMap<String, Changes>();
+	}
+	
+	public void openLock() {
+		mutex = true;
+	}
+	
+	public void closeLock() {
+		mutex = false;
 	}
 	
 	public void setColor(Color in) {
@@ -21,6 +31,8 @@ public class Pen {
 	}
 	
 	public void initializeCanvas(String nom, ArtPicture aP) {
+		while(mutex) {};
+		openLock();
 		if(changes.get(nom) == null) {
 			changes.put(nom, new Changes(nom));
 		}
@@ -28,17 +40,22 @@ public class Pen {
 		for(int i = 0; i < aP.getWidth(); i++) {
 			for(int j = 0; j < aP.getHeight(); j++) {
 				aP.setPixel(i, j, Color.white);
-				c.addChange(i, j,  new Color[][] {{Color.white}});
 			}
 		}
+
+		c.addChange(0, 0, aP.getColorData());
+		closeLock();
 	}
 	
 	public void draw(String nom, ArtPicture aP, int x, int y) {
+		while(mutex) {}
+		openLock();
 		aP.setPixel(x, y, col);	//Most basic form of drawing
 		if(changes.get(nom) == null) {
 			changes.put(nom, new Changes(nom));
 		}
 		changes.get(nom).addChange(x, y, new Color[][] {{col}});
+		closeLock();
 	}
 	
 	public ArrayList<String> getChangeNames() {
@@ -74,7 +91,7 @@ public class Pen {
 		
 		public Changes(String nom) {
 			name = nom;
-			cols = new Color[0][0];
+			cols = null;
 		}
 		
 		public int getX() {
@@ -94,28 +111,30 @@ public class Pen {
 		}
 		
 		public void addChange(int xIn, int yIn, Color[][] colsIn) {
-			int colsHeight = cols.length > 0 ? cols[0].length : 0;
-			if(xIn < x || yIn < y || (xIn - x + colsIn.length) >= cols.length || (yIn - y + colsIn[0].length) >= colsHeight) {
-				int difX = xIn - x;
-				int difY = yIn - y;
-				int wid = cols.length - difY;
-				wid = wid > colsIn.length + difX ? wid : colsIn.length + difX;
-				wid = wid > cols.length ? wid : cols.length;
-				int hei = colsHeight - difY;
-				hei = hei > colsIn[0].length + difY ? hei : colsIn[0].length + difY;
-				hei = hei > colsHeight ? hei : colsHeight;
+			if(cols == null) {
+				x = xIn;
+				y = yIn;
+				cols = colsIn;
+				return;
+			}
+			int minX = xIn < x ? xIn : x;
+			int minY = yIn < y ? yIn : y;
+			int maxX = xIn + colsIn.length > x + cols.length ? xIn + colsIn.length : x + cols.length;
+			int maxY = yIn + colsIn[0].length > y + cols[0].length ? yIn + colsIn.length : y + cols[0].length;
+			int wid = maxX - minX;
+			int hei = maxY - minY;
+			if(wid != cols.length || hei != cols[0].length) {
 				Color[][] newCol = new Color[wid][hei];
-				int chngX = (difX > 0 ? 0 : difX);
-				int chngY = (difY > 0 ? 0 : difY);
-				for(int i = 0; i < cols.length; i++) {
-					for(int j = 0; j < colsHeight; j++) {
-						newCol[i - chngX][j - chngY] = cols[i][j];
+				for(int i = x - minX; i < cols.length; i++) {
+					for(int j =  y - minY; j < cols[i].length; j++) {
+						newCol[i - (x - minX)][j - (y - minY)] = cols[i][j];
 					}
 				}
 				cols = newCol;
-				x += chngX;
-				y += chngY;
+				x = minX;
+				y = minY;
 			}
+			
 			for(int i = 0; i < colsIn.length; i++) {
 				for(int j = 0; j < colsIn[i].length; j++) {
 					if(colsIn[i][j] != null)
