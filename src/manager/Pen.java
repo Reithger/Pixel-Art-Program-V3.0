@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import manager.component.picture.ArtPicture;
+import manager.curator.picture.ArtPicture;
 
 public class Pen {
 

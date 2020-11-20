@@ -1,19 +1,19 @@
-package manager;
+package manager.curator;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import manager.component.animation.LayerAnimation;
-import manager.component.picture.LayerPicture;
+import manager.curator.animation.LayerAnimation;
+import manager.curator.picture.LayerPicture;
+
 
 public class Curator {
 
 //---  Constants   ----------------------------------------------------------------------------
 
-	private final static int SAVE_TYPE_PNG = 0;
-	private final static int SAVE_TYPE_JPG = 1;
+	private final static String SAVE_TYPE_PNG = ".png";
+	private final static String SAVE_TYPE_JPG = ".jpg";
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -50,12 +50,7 @@ public class Curator {
 	//-- Things  ----------------------------------------------
 	
 	public void saveThing(String name, String path, int scale, boolean composite) {
-		if(pictures.get(name) != null) {
-			pictures.get(name).export(path, scale, composite);
-		}
-		else if(animations.get(name) != null) {
-			animations.get(name).export(path, scale, composite);
-		}
+		getComponent(name).export(path, SAVE_TYPE_PNG, scale, composite);
 	}
 	//-- Animation Display  -------------------------------------------------------------------
 	
@@ -98,6 +93,16 @@ public class Curator {
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public Component getComponent(String nom) {
+		if(pictures.get(nom) != null) {
+			return pictures.get(nom);
+		}
+		if(animations.get(nom) != null) {
+			return animations.get(nom);
+		}
+		return null;
+	}
 	
 	public boolean getUpdateStatus(String nom) {
 		if(pictures.get(nom) != null) {

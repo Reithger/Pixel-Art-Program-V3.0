@@ -5,7 +5,11 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import manager.component.picture.LayerPicture;
+import manager.curator.picture.LayerPicture;
+import manager.curator.Curator;
+import manager.sketch.Sketch;
+import manager.sketch.SketchCanvas;
+import manager.sketch.SketchPicture;
 
 public class Manager {
 
@@ -13,9 +17,7 @@ public class Manager {
 	
 	private Pen pen;
 	private Curator curator;
-	private HashMap<String, SketchPicture> pictures;
-	private HashMap<String, SketchAnimation> animations;
-	private HashMap<String, SketchCanvas> canvases;
+	private HashMap<String, Sketch> sketches;
 	
 	private int counter;
 	
@@ -24,9 +26,7 @@ public class Manager {
 	public Manager() {
 		pen = new Pen();
 		curator = new Curator();
-		pictures = new HashMap<String, SketchPicture>();
-		animations = new HashMap<String, SketchAnimation>();
-		canvases = new HashMap<String, SketchCanvas>();
+		sketches = new HashMap<String, Sketch>();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -42,8 +42,20 @@ public class Manager {
 	//-- Things  ----------------------------------------------
 	
 	public void saveThing(String name, String path, int scale, boolean composite) {
-		curator.saveThing(name, path, scale, composite);
+		Sketch use = sketches.get(name);
+		curator.saveThing(use.getReference(), path, scale, composite);
 	}
+	
+	public void increaseZoom(String nom) {
+		Sketch k = sketches.get(nom);
+		k.setZoom(k.getZoom() + 1);
+	}
+	
+	public void decreaseZoom(String nom) {
+		Sketch k = sketches.get(nom);
+		k.setZoom(k.getZoom() - 1);
+	}
+	
 	//-- Animations  ------------------------------------------
 	
 	//-- Pictures  --------------------------------------------
@@ -51,23 +63,21 @@ public class Manager {
 	
 	public void makeNewPicture(String name, int wid, int hei) {
 		curator.makeNewPicture(name, wid, hei);
-		String sketchName = getNextSketchName(name);
-		SketchCanvas pic = new SketchCanvas(sketchName, name);
-		canvases.put(sketchName, pic);
-		pen.initializeCanvas(sketchName, curator.getLayerPicture(name).getLayer(pic.getActiveLayer()));
+		SketchCanvas pic = new SketchCanvas(name, name);
+		sketches.put(name, pic);
+		pen.initializeCanvas(name, curator.getLayerPicture(name).getLayer(pic.getActiveLayer()));
 	}
 	
 	public void loadInPicture(String name, String path) {
 		curator.loadInPicture(name, path);
 		String sketchName = getNextSketchName(name);
 		SketchPicture skPic = new SketchPicture(sketchName, name);
-		pictures.put(sketchName, skPic);
+		sketches.put(sketchName, skPic);
 	}
 	
-	public void pullCanvasLayer(String name, int layer) {
-		SketchPicture skPic = pictures.get(name);
-		SketchCanvas skC = skPic.produceCanvasLayer(layer);
-		canvases.put(skC.getName(), skC);
+	public void pullPictureLayers(String name, int layerSt, int layerEn) {
+		Sketch skCan = sketches.get(name).produceLayers(layerSt, layerEn);
+		sketches.put(skCan.getName(), skCan);
 	}
 	
 	public void addLayer(String name) {
@@ -85,10 +95,10 @@ public class Manager {
 	//-- Drawing  -----------------------------------------------------------------------------
 	
 	public void drawToPicture(String name, int x, int y) {
-		SketchCanvas spic = canvases.get(name);
+		Sketch spic = sketches.get(name);
 		LayerPicture pic = curator.getLayerPicture(spic.getReference());
+		pen.draw(name, pic.getLayer(spic.getActiveLayer()), x / spic.getZoom(), y / spic.getZoom());
 		curator.toggleUpdated(spic.getReference());
-		pen.draw(name, pic.getLayer(spic.getActiveLayer()), x, y);
 	}
 	
 	public void disposeChanges() {
@@ -98,17 +108,25 @@ public class Manager {
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
+	public int getSketchZoom(String nom) {
+		return sketches.get(nom).getZoom();
+	}
+	
 	private String getNextSketchName(String base) {
 		return base + "_" + counter++;
 	}
 	
-	public Image[] getAnimationFrames(String nom) {
-		SketchAnimation ska = animations.get(nom);	//TODO Sketch can subsection this
-		return curator.getAnimationFrames(ska.getReference(), ska.getLayerStart(), ska.getLayerEnd());
+	public boolean getSketchDrawable(String nom) {
+		return sketches.get(nom).getDrawable();
+	}
+	
+	public Image[] getSketchImages(String nom) {
+		Sketch ska = sketches.get(nom);	//TODO Sketch can subsection this
+		return ska.getUpdateImages(curator);
 	}
 	
 	public Image getPictureImage(String nom) {
-		SketchPicture pic = pictures.get(nom);
+		Sketch pic = sketches.get(nom);
 		return curator.getPictureImage(pic.getReference(), pic.getLayerStart(), pic.getLayerEnd());
 	}
 	
@@ -124,31 +142,23 @@ public class Manager {
 		return pen.getChangeColors(nom);
 	}
 	
-	public ArrayList<String> getSketchAnimationNames(boolean force){
+	public Sketch getSketch(String nom) {
+		return sketches.get(nom);
+	}
+	
+	public ArrayList<String> getSketchNames(boolean force){
 		ArrayList<String> out = new ArrayList<String>();
-		for(String s : animations.keySet()) {
-			if(force || curator.getUpdateStatus(animations.get(s).getReference()))
-				out.add(s);
+		for(Sketch k : sketches.values()) {
+			if(force || k.needsUpdate() || curator.getUpdateStatus(k.getReference())) {
+				k.releaseUpdate();
+				out.add(k.getName());
+			}
 		}
 		return out;
 	}
 	
-	public ArrayList<String> getSketchPictureNames(boolean force){
-		ArrayList<String> out = new ArrayList<String>();
-		for(String s : pictures.keySet()) {
-			if(force || curator.getUpdateStatus(pictures.get(s).getReference()))
-				out.add(s);
-		}
-		return out;
-	}
-	
-	public ArrayList<String> getSketchCanvasNames(boolean force){
-		ArrayList<String> out = new ArrayList<String>();
-		for(String s : canvases.keySet()) {
-			if(force || curator.getUpdateStatus(canvases.get(s).getReference()))
-				out.add(s);
-		}
-		return out;
+	public ArrayList<String> getDrawnChanges(){
+		return pen.getChangeNames();
 	}
 	
 }

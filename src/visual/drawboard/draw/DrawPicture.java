@@ -1,9 +1,12 @@
 package visual.drawboard.draw;
 
 import java.awt.Color;
+import java.awt.Image;
 
+import control.CodeReference;
 import visual.composite.HandlePanel;
 import visual.drawboard.DrawingPage;
+import visual.panel.element.Canvas;
 import visual.panel.element.DrawnCanvas;
 
 public class DrawPicture implements Drawable{
@@ -14,19 +17,21 @@ public class DrawPicture implements Drawable{
 	private final static int CANVAS_CODE = 55;
 	private final static int CODE_RESIZE = 54;
 	private final static int CODE_HEADER = 53;
-	private final static int CODE_ZOOM_IN = 52;
-	private final static int CODE_ZOOM_OUT = 51;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private int zoom;
 	private String name;
 	private HandlePanel handPanel;
-	private DrawnCanvas canvas;
+	private Canvas canvas;
+	private DrawnCanvas dCan;
 	private DrawingPage reference;
 	
 	private boolean draggingHeader;
 	private boolean draggingResize;
+	
+	private Image underlay;
+	
+	private Image overlay;
 	
 	private int lastX;
 	
@@ -37,13 +42,12 @@ public class DrawPicture implements Drawable{
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public DrawPicture(String nom, int inWidth, int inHeight, DrawingPage ref) {
-		zoom = 1;
 		reference = ref;
 		mutex = false;
 		name = nom;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
-		canvas = new DrawnCanvas(1, HEADER_HEIGHT + 1, wid, hei, CANVAS_CODE, inWidth, inHeight);
+		canvas = new Canvas(inWidth, inHeight);
 		generateCanvas(wid, hei);
 	}
 	
@@ -57,17 +61,11 @@ public class DrawPicture implements Drawable{
 				System.out.println(code);
 				switch(code) {
 					case CANVAS_CODE:
-						int canX = x - canvas.getX();
-						int canY = y - canvas.getY();
+						int canX = x - dCan.getX();
+						int canY = y - dCan.getY();
 						if(canX >= 0 && canY >= 0){
-							reference.passOnDraw(canX / zoom, canY / zoom, name);
+							reference.passOnDraw(canX, canY, name);
 						}
-						break;
-					case CODE_ZOOM_IN:
-						setZoom(getZoom() + 1);
-						break;
-					case CODE_ZOOM_OUT:
-						setZoom(getZoom() - 1);
 						break;
 					case CODE_HEADER:
 						break;
@@ -121,7 +119,8 @@ public class DrawPicture implements Drawable{
 		};
 		handPanel.setScrollBarHorizontal(false);
 		handPanel.setScrollBarVertical(false);
-		handPanel.addCanvas("canvas", canvas, true);
+		handPanel.addCanvas("canvas", 15, canvas, 1, HEADER_HEIGHT + 1, width, height, CANVAS_CODE, false);
+		dCan = handPanel.getCanvas("canvas");
 		int butWid = width * 9/10;
 		int butHei = HEADER_HEIGHT * 9/10;
 		handPanel.handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, DrawingPage.DEFAULT_FONT, name, CODE_HEADER, Color.white, Color.black);
@@ -130,16 +129,16 @@ public class DrawPicture implements Drawable{
 	
 	public void updatePanel() {
 		handPanel.removeElementPrefixed("thck");
-		int rA = canvas.getCanvasWidth() * zoom;
-		int tA = canvas.getY();
-		int bA = canvas.getY() + canvas.getCanvasHeight() * zoom;
+		int rA = canvas.getCanvasWidth() * canvas.getZoom();
+		int tA = dCan.getY();
+		int bA = dCan.getY() + canvas.getCanvasHeight() * canvas.getZoom();
 		handPanel.addLine("line1", 5, true, rA, tA, rA, bA, 1, Color.black);
 		handPanel.addLine("line2", 5, true, 0, bA, rA, bA, 1, Color.black);
 		handPanel.handleThickRectangle("thck", true, 0, HEADER_HEIGHT, handPanel.getWidth(), handPanel.getHeight(), Color.black, 2);
 		int size = 16;
 		
-		handPanel.handleImageButton("zoomIn", true, handPanel.getWidth() - size, HEADER_HEIGHT + size, size, size, "/assets/placeholder.png", CODE_ZOOM_IN);
-		handPanel.handleImageButton("zoomOut", true, handPanel.getWidth() - size, HEADER_HEIGHT + (int)(2.5 * size), size, size, "/assets/placeholder.png", CODE_ZOOM_OUT);
+		handPanel.handleImageButton("zoomIn", true, handPanel.getWidth() - size, HEADER_HEIGHT + size, size, size, "/assets/placeholder.png", CodeReference.CODE_INCREASE_ZOOM);
+		handPanel.handleImageButton("zoomOut", true, handPanel.getWidth() - size, HEADER_HEIGHT + (int)(2.5 * size), size, size, "/assets/placeholder.png", CodeReference.CODE_DECREASE_ZOOM);
 		
 		handPanel.handleImageButton("imgB", true, handPanel.getWidth() - size, handPanel.getHeight() - size, size, size, "/assets/placeholder.png", CODE_RESIZE);
 	}
@@ -148,7 +147,7 @@ public class DrawPicture implements Drawable{
 		wid = wid < MINIMUM_SIZE ? MINIMUM_SIZE : wid;
 		hei = hei < MINIMUM_SIZE ? MINIMUM_SIZE : hei;
 		handPanel.resize(wid, hei);
-		canvas.updateElementSize(handPanel.getWidth(), handPanel.getHeight() - HEADER_HEIGHT);
+		dCan.updateElementSize(handPanel.getWidth(), handPanel.getHeight() - HEADER_HEIGHT);
 		updatePanel();
 	}
 
@@ -160,14 +159,24 @@ public class DrawPicture implements Drawable{
 
 	@Override
 	public void updateCanvas(int x, int y, Color[][] cols) {
+		openLock();
 		for(int i = x; i < x + cols.length; i++) {
 			for(int j = y; j < y + cols[i - x].length; j++) {
 				if(cols[i -x][j - y] != null)
 					canvas.setCanvasColor(i,  j,  cols[i - x][j - y]);
 			}
 		}
+		closeLock();
 	}
 
+	public void updateCanvasMeta(Image[] imgs, int zoom) {
+		if(imgs.length > 0)
+			underlay = imgs[0];
+		if(imgs.length > 1)
+			overlay = imgs[1];
+		setZoom(zoom);
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setZoom(int in) {
@@ -175,11 +184,10 @@ public class DrawPicture implements Drawable{
 		if(in <= 0) {
 			in = 1;
 		}
-		zoom = in;
-		canvas.setZoom(zoom);
+		if(canvas.getZoom() != in)
+			canvas.setZoom(in);
 		closeLock();
 		updatePanel();
-		System.out.println("Out: " + in);
 	}
 
 	@Override
@@ -198,26 +206,22 @@ public class DrawPicture implements Drawable{
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public int getZoom() {
-		return zoom;
-	}
-
 	public HandlePanel getPanel() {
 		return handPanel;
 	}
 	
-	public DrawnCanvas getCanvas() {
+	public Canvas getCanvas() {
 		return canvas;
 	}
 
 	@Override
 	public int getWidth() {
-		return canvas.getWidth();
+		return handPanel.getWidth();
 	}
 
 	@Override
 	public int getHeight() {
-		return canvas.getHeight();
+		return handPanel.getHeight();
 	}
 	
 }

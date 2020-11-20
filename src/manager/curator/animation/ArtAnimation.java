@@ -1,11 +1,11 @@
-package manager.component.animation;
+package manager.curator.animation;
 
 import java.util.ArrayList;
 
-import manager.component.Component;
-import manager.component.picture.LayerPicture;
+import manager.curator.Component;
+import manager.curator.picture.LayerPicture;
 
-public class ArtAnimation implements Component, Comparable<ArtAnimation>{
+public class ArtAnimation implements Comparable<ArtAnimation>{
 
 //---  Instance Variables   -------------------------------------------------------------------
 	

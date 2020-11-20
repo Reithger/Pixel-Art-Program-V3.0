@@ -10,5 +10,7 @@ public class CodeReference {
 	public final static int CODE_EXIT = 57;
 	public final static int CODE_DUPLICATE_THING = 58;
 	public final static int CODE_CLOSE_THING = 59;
+	public final static int CODE_INCREASE_ZOOM = 60;
+	public final static int CODE_DECREASE_ZOOM = 61;
 	
 }

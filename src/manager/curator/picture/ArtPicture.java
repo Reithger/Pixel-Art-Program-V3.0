@@ -1,4 +1,4 @@
-package manager.component.picture;
+package manager.curator.picture;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -10,28 +10,21 @@ public class ArtPicture implements Comparable<ArtPicture>{
 
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private Color[][] colorData;
+	private Canvas canvas;		//TODO: Make this a Canvas like DrawnCanvas to update more easily, same to LayerPicture as a meta
 	private int layer;
+	private boolean update;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public ArtPicture(int wid, int hei, int lay) {
-		colorData = new Color[wid][hei];
+		canvas = new Canvas(wid, hei);
 		layer = lay;
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
 
 	public BufferedImage generateImage() {
-		int wid = colorData.length;
-		int hei = colorData[0].length;
-		BufferedImage out = new BufferedImage(wid, hei, BufferedImage.TYPE_INT_ARGB);
-		for(int i = 0; i < out.getWidth(); i++) {
-			for(int j = 0; j < out.getHeight(); j++) {
-				out.setRGB(i, j, colorData[i][j].getRGB());
-			}
-		}
-		return out;
+		return canvas.getImage();
 	}
 
 	public void export(String path, String saveType) {
@@ -50,68 +43,62 @@ public class ArtPicture implements Comparable<ArtPicture>{
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setWidth(int wid) {
-		Color[][] out = new Color[wid][colorData[0].length];
-		for(int i = 0; i < wid; i++) {
-			for(int j = 0; j < out[i].length; j++) {
-				if(i < colorData.length) {
-					out[i][j] = colorData[i][j];
-				}
-			}
-		}
-		colorData = out;
+		canvas.updateCanvasSize(wid, canvas.getCanvasHeight());
+		update = true;
 	}
 	
 	public void setHeight(int hei) {
-		Color[][] out = new Color[colorData.length][hei];
-		for(int i = 0; i < out.length; i++) {
-			for(int j = 0; j < hei; j++) {
-				if(j < colorData[i].length) {
-					out[i][j] = colorData[i][j];
-				}
-			}
-		}
-		colorData = out;
+		canvas.updateCanvasSize(canvas.getCanvasWidth(), hei);
+		update = true;
 	}
 	
 	public void setPixel(int x, int y, Color col) {
-		if(x < colorData.length && x >= 0 && y < colorData[x].length && y >= 0)
-			colorData[x][y] = col;
+		canvas.setPixelColor(x, y, col);
+		update = true;
 	}
 	
 	public void setRegion(int x, int y, Color[][] cols) {
-		for(int i = x; i < colorData.length; i++) {
-			for(int j = y; j < colorData[i].length; j++) {
-				setPixel(i, j, cols[i - x][j - y]);
+		for(int i = x; i < canvas.getCanvasWidth(); i++) {
+			for(int j = y; j < canvas.getCanvasHeight(); j++) {
+				canvas.setPixelColor(i, j, cols[i - x][j - y]);
 			}
 		}
+		update = true;
 	}
 	
 	public void setColorData(Color[][] data) {
-		colorData = data;
+		canvas.updateCanvas(data);
+		update = true;
 	}
 	
 	public void setLayer(int lay) {
 		layer = lay;
 	}
 	
+	public void releaseUpdate() {
+		update = false;
+	}
+	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
+	public boolean getUpdate() {
+		return update;
+	}
+	
 	public int getWidth() {
-		return colorData.length;
+		return canvas.getCanvasWidth();
 	}
 	
 	public int getHeight() {
-		return colorData[0].length;
+		return canvas.getCanvasHeight();
 	}
 
 	public Color getColor(int x, int y) {
-		if(x < colorData.length && x >= 0 && y < colorData[x].length && y >= 0)
-			return colorData[x][y];
-		return null;
+		return canvas.getPixelColor(x, y);
 	}
 
 	public Color[][] getColorData(){
-		return colorData;
+		return canvas.getColorData();
 	}
 
 	public int getLayer() {

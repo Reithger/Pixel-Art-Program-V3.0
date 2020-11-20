@@ -1,9 +1,11 @@
-package manager.component.animation;
+package manager.curator.animation;
 
 import java.awt.Image;
 import java.util.ArrayList;
 
-public class LayerAnimation {
+import manager.curator.Component;
+
+public class LayerAnimation implements Component{
 
 	private ArrayList<ArtAnimation> animLayers;
 	private boolean changes;
@@ -15,7 +17,7 @@ public class LayerAnimation {
 		animLayers = new ArrayList<ArtAnimation>();
 	}
 	
-	public void export(String path, double scale, boolean composite) {
+	public void export(String path, String type, int scale, boolean composite) {
 		
 	}
 	

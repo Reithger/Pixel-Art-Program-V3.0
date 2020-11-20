@@ -122,17 +122,14 @@ public class DrawingPage {
 		}
 	}
 	
-	public void updateDisplay(String nom, Image ... images) {
+	public void updateDisplay(String nom, Image[] images, int zoom) {
 		if(displays.get(nom) != null)
 			displays.get(nom).updateDisplay(images);
-		else {
-			if(images.length > 1) {
-				generateAnimationDisplay(nom, images);
-			}
-			else {
-				generatePictureDisplay(nom, images[0]);
-			}
-		}
+	}
+	
+	public void updateCanvas(String nom, Image[] images, int zoom) {
+		if(drawings.get(nom) != null)
+			drawings.get(nom).updateCanvasMeta(images, zoom);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

@@ -81,12 +81,16 @@ public class View {
 		reference.interpretDraw(x, y, nom);
 	}
 
-	public void updateAnimationDisplay(String nom, Image[] imgs) {
-		body.updateDisplay(nom, imgs);
+	public void updateDisplay(String nom, Image[] imgs, boolean drawable, int zoom) {
+		body.updateDisplay(nom, imgs, drawable, zoom);
 	}
 	
-	public void updatePictureDisplay(String nom, Image img) {
-		body.updateDisplay(nom, img);
+	public void addPicture(String nom, Image img, boolean drawable) {
+		body.addPicture(nom, img, drawable);
+	}
+	
+	public void addAnimation(String nom, Image[] img, boolean drawable) {
+		body.addAnimation(nom, img, drawable);
 	}
 	
 	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {

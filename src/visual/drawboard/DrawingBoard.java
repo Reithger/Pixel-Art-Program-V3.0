@@ -206,8 +206,26 @@ public class DrawingBoard {
 	
 	//-- Thing Management  ------------------------------------
 	
-	public void updateDisplay(String nom, Image ... images) {
-		getCurrentPage().updateDisplay(nom, images);
+	public void updateDisplay(String nom, Image[] images, boolean drawable, int zoom) {
+		if(drawable) {
+			getCurrentPage().updateCanvas(nom, images, zoom);
+		}
+		else {
+			getCurrentPage().updateDisplay(nom, images, zoom);
+		}
+	}
+	
+	public void addPicture(String nom, Image img, boolean drawable) {
+		if(drawable) {
+			generatePictureCanvas(nom, new Color[img.getWidth(null)][img.getHeight(null)]);
+		}
+		else {
+			generatePictureDisplay(nom, img);
+		}
+	}
+	
+	public void addAnimation(String nom, Image[] imgs, boolean drawable) {
+		//TODO
 	}
 	
 	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {

@@ -2,6 +2,8 @@ package control;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import manager.Manager;
 import visual.View;
@@ -20,7 +22,7 @@ public class PixelArtDrawer {
 	private final static String TEXT_WIDTH_REQUEST = "Please provide the width of the new image.";
 	private final static String TEXT_HEIGHT_REQUEST = "Please provide the height of the new image.";
 	
-	private int counter;
+	private volatile int counter;
 	
 	private View view;
 	
@@ -29,6 +31,13 @@ public class PixelArtDrawer {
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
+		/*Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				updateView(false);
+			}
+		}, 0, 1000 / 30);*/
 	}
 	
 	/**
@@ -42,6 +51,12 @@ public class PixelArtDrawer {
 			switch(in) {
 				case CodeReference.CODE_NEW_THING:
 					makeNewThing();
+					break;
+				case CodeReference.CODE_INCREASE_ZOOM:
+					manager.increaseZoom(active);
+					break;
+				case CodeReference.CODE_DECREASE_ZOOM:
+					manager.decreaseZoom(active);
 					break;
 				case CodeReference.CODE_CLOSE_THING:
 					break;
@@ -59,14 +74,16 @@ public class PixelArtDrawer {
 				case CodeReference.CODE_EXIT:
 					break;
 		}
-		updateView(false);
+			updateView(false);
 	}
 	
 	private void makeNewThing() {
 		String choice = view.requestListChoice(new String[] {"Picture", "Animation"});
 		switch(choice) {
 			case "Picture":
-				manager.makeNewPicture(IMAGE_NAME + "_" + counter++, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+				String nom = IMAGE_NAME + "_" + counter++;
+				manager.makeNewPicture(nom, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+				addPicture(nom, manager.getPictureImage(nom), manager.getSketchDrawable(nom));
 				break;
 			case "Animation":
 				break;
@@ -79,26 +96,27 @@ public class PixelArtDrawer {
 	}
 
 	public void updateView(boolean force) {
-		for(String dispAnim : manager.getSketchAnimationNames(force)) {
-			updateAnimationDisplay(dispAnim, manager.getAnimationFrames(dispAnim));
-		}
-		for(String dispPic : manager.getSketchPictureNames(force)) {
-			updatePictureDisplay(dispPic, manager.getPictureImage(dispPic));
+		for(String nom : manager.getSketchNames(force)) {
+			updateThing(nom, manager.getSketchImages(nom), manager.getSketchDrawable(nom), manager.getSketchZoom(nom));
 		}
 		manager.reservePen();
-		for(String canvPic : manager.getSketchCanvasNames(force)) {
+		for(String canvPic : manager.getDrawnChanges()) {
 			updateCanvasDisplay(canvPic, manager.getCanvasChangeStartX(canvPic), manager.getCanvasChangeStartY(canvPic), manager.getCanvasChangeColors(canvPic));
 		}
 		manager.disposeChanges();
 		manager.releasePen();
 	}
 	
-	public void updateAnimationDisplay(String nom, Image[] imgs) {
-		view.updateAnimationDisplay(nom, imgs);
+	public void updateThing(String nom, Image[] imgs, boolean drawable, int zoom) {
+		view.updateDisplay(nom, imgs, drawable, zoom);
 	}
 	
-	public void updatePictureDisplay(String nom, Image img) {
-		view.updatePictureDisplay(nom, img);
+	public void addAnimation(String nom, Image[] imgs, boolean drawable) {
+		view.addAnimation(nom, imgs, drawable);
+	}
+	
+	public void addPicture(String nom, Image img, boolean drawable) {
+		view.addPicture(nom, img, drawable);
 	}
 	
 	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
