@@ -1,6 +1,6 @@
 package manager.curator.picture;
 
-public class LayerSeries {
+public class LayerSeries implements Comparable<LayerSeries>{
 
 	private int layerStart;
 	private int layerEnd;
@@ -19,12 +19,27 @@ public class LayerSeries {
 	}
 	
 	public boolean contains(int in) {
-		return (in >= layerStart && in < layerEnd);
+		return (in >= layerStart && in <= layerEnd);
+	}
+	
+	@Override
+	public String toString() {
+		return layerStart + "_" + layerEnd;
 	}
 	
 	@Override
 	public int hashCode() {
-		return (layerStart + "_" + layerEnd).hashCode();
+		return (toString()).hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object in) {
+		return(toString().equals(in.toString()));
+	}
+	
+	@Override
+	public int compareTo(LayerSeries in) {
+		return(toString().compareTo(in.toString()));
 	}
 	
 }

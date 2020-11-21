@@ -3,13 +3,14 @@ package visual.drawboard;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import visual.PopoutConfirm;
 import visual.View;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
-import visual.settings.PopoutConfirm;
 
 public class DrawingBoard {
 
@@ -82,7 +83,6 @@ public class DrawingBoard {
 			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
-				System.out.println(code);
 				if(code == CODE_NEW_PAGE) {
 					addNewPage();
 				}
@@ -93,12 +93,7 @@ public class DrawingBoard {
 				else {
 					int offCode = code - pages.keySet().size();
 					if(offCode >= 0 && offCode < pages.keySet().size()) {
-						PopoutConfirm pC = new PopoutConfirm(200, 150, "Are you sure?");
-						boolean choice = pC.getChoice();
-						pC.dispose();
-						if(choice) {
-							removePage(offCode);
-						}
+						confirmPageDeletion(offCode);
 					}
 				}
 			}
@@ -131,7 +126,7 @@ public class DrawingBoard {
 		selectBar.setScrollBarVertical(false);
 		selectBar.setScrollBarHorizontal(false);
 	}
-	
+
 	public void addNewPage() {
 		int next = pages.keySet().size();
 		parent.reserveWindow(formPageName(counter));
@@ -155,6 +150,15 @@ public class DrawingBoard {
 			active--;
 		}
 		refresh();
+	}
+	
+	private void confirmPageDeletion(int offCode) {
+		PopoutConfirm pC = new PopoutConfirm(200, 150, "Are you sure?");
+		boolean choice = pC.getChoice();
+		pC.dispose();
+		if(choice) {
+			removePage(offCode);
+		}
 	}
 	
 	public void refresh() {
@@ -183,21 +187,21 @@ public class DrawingBoard {
 	
 	//-- Generate Things  -------------------------------------
 	
-	public void generateAnimationDisplay(String nom, Image[] images) {
+	public void generateAnimationDisplay(String nom, BufferedImage[] images) {
 		if(!getCurrentPage().generateAnimationDisplay(nom, images)) {
 			addNewPage();
 			getCurrentPage().generateAnimationDisplay(nom, images);
 		}
 	}
 
-	public void generatePictureDisplay(String nom, Image in) {
+	public void generatePictureDisplay(String nom, BufferedImage in) {
 		if(!getCurrentPage().generatePictureDisplay(nom, in)) {
 			addNewPage();
 			getCurrentPage().generatePictureDisplay(nom, in);
 		}
 	}
 	
-	public void generatePictureCanvas(String nom, Color[][] cols) {
+	public void generatePictureCanvas(String nom, BufferedImage cols) {
 		if(!getCurrentPage().generatePictureCanvas(nom, cols)) {
 			addNewPage();
 			getCurrentPage().generatePictureCanvas(nom, cols);
@@ -215,9 +219,9 @@ public class DrawingBoard {
 		}
 	}
 	
-	public void addPicture(String nom, Image img, boolean drawable) {
+	public void addPicture(String nom, BufferedImage img, boolean drawable) {
 		if(drawable) {
-			generatePictureCanvas(nom, new Color[img.getWidth(null)][img.getHeight(null)]);
+			generatePictureCanvas(nom, img);
 		}
 		else {
 			generatePictureDisplay(nom, img);
@@ -230,6 +234,10 @@ public class DrawingBoard {
 	
 	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
 		getCurrentPage().updatePictureCanvas(nom, x, y, cols);
+	}
+	
+	public void removeFromDisplay(String nom) {
+		getCurrentPage().removeFromDisplay(nom);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

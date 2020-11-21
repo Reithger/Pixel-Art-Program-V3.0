@@ -3,6 +3,7 @@ package visual.drawboard;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import visual.drawboard.display.DisplayAnimation;
@@ -67,48 +68,51 @@ public class DrawingPage {
 	public void passOnCode(int code, int x, int y, String nom) {
 		active = nom;
 		boolean letgo = true;
-		if(letgo || code == -1)
+		if(letgo && code != -1)
 			reference.passOnCode(code);
 	}
 	
 	//-- Generate Things  -------------------------------------
 	
-	public boolean generateAnimationDisplay(String nom, Image[] images) {
-		DisplayAnimation anim = new DisplayAnimation(nom, images[0].getWidth(null), images[0].getHeight(null), images, this);
+	public boolean generateAnimationDisplay(String nom, BufferedImage[] images) {
+		String useName = getUniqueName("animation_" + nom);
+		
+		DisplayAnimation anim = new DisplayAnimation(nom, useName, images[0].getWidth(null), images[0].getHeight(null), images, this);
 		int[] coords = findOpenSpot(images[0].getWidth(null), images[0].getHeight(null));
 		if(coords == null)
 			return false;
 		anim.setLocation(x + coords[0],  y + coords[1]);
 		ElementPanel disp = anim.getPanel();
 		displays.put(nom, anim);
-		parent.addPanelToWindow(windowName, "animation_" + nom, disp);
+		parent.addPanelToWindow(windowName, useName, disp);
 		return true;
 	}
 
-	public boolean generatePictureDisplay(String nom, Image in) {
-		DisplayPicture pic = new DisplayPicture(nom, in.getWidth(null), in.getHeight(null), in, this);
+	public boolean generatePictureDisplay(String nom, BufferedImage in) {
+		String useName = getUniqueName("picture_" + nom);
+		DisplayPicture pic = new DisplayPicture(nom, useName, in.getWidth(null), in.getHeight(null), in, this);
 		int[] coords = findOpenSpot(pic.getWidth(), pic.getHeight());
 		if(coords == null)
 			return false;
 		pic.setLocation(x + coords[0],  y + coords[1]);
 		ElementPanel disp = pic.getPanel();
 		displays.put(nom, pic);
-		parent.addPanelToWindow(windowName, "animation_" + nom, disp);
+		parent.addPanelToWindow(windowName, useName, disp);
 		return true;
 	}
 	
-	public boolean generatePictureCanvas(String nom, Color[][] cols) {
-		int wid = cols.length;
-		int hei = cols[0].length;
-		DrawPicture pic = new DrawPicture(nom, wid, hei, this);
-		pic.updateCanvas(0, 0, cols);
+	public boolean generatePictureCanvas(String nom, BufferedImage in) {
+		String useName = getUniqueName("canvas_" + nom);
+		int wid = in.getWidth(null);
+		int hei = in.getHeight(null);
+		DrawPicture pic = new DrawPicture(nom, useName, in, this);
 		int[] coords = findOpenSpot(wid, hei);
 		if(coords == null)
 			return false;
 		pic.setLocation(x + coords[0], y + coords[1]);
 		ElementPanel canv = pic.getPanel();
 		drawings.put(nom, pic);
-		parent.addPanelToWindow(windowName, "canvas_" + nom, canv);
+		parent.addPanelToWindow(windowName, useName, canv);
 		return true;
 	}
 
@@ -117,9 +121,6 @@ public class DrawingPage {
 	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
 		if(drawings.get(nom) != null)
 			drawings.get(nom).updateCanvas(x, y, cols);
-		else {
-			generatePictureCanvas(nom, cols);
-		}
 	}
 	
 	public void updateDisplay(String nom, Image[] images, int zoom) {
@@ -130,6 +131,12 @@ public class DrawingPage {
 	public void updateCanvas(String nom, Image[] images, int zoom) {
 		if(drawings.get(nom) != null)
 			drawings.get(nom).updateCanvasMeta(images, zoom);
+	}
+	
+	public void removeFromDisplay(String nom) {
+		parent.removeWindowPanel(windowName, getCorkboard(nom).getPanelName());
+		displays.remove(nom);
+		drawings.remove(nom);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -146,6 +153,15 @@ public class DrawingPage {
 			return drawings.get(nom);
 		}
 		return null;
+	}
+	
+	private String getUniqueName(String baseName) {
+		String useName = baseName;
+		int counter = 1;
+		while(displays.get(useName) != null || drawings.get(useName) != null) {
+			useName = baseName + "_" + counter++;
+		}
+		return useName;
 	}
 	
 	public String getWindowName() {

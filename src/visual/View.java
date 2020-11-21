@@ -1,7 +1,7 @@
 package visual;
 
 import java.awt.Color;
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import control.PixelArtDrawer;
 import filemeta.FileChooser;
@@ -45,6 +45,18 @@ public class View {
 
 //---  Operations   ---------------------------------------------------------------------------
 	
+	//-- Input Handling  --------------------------------------
+	
+	public void handOffInt(int code) {
+		reference.interpretCode(code, body.getActiveElement());
+	}
+	
+	public void handOffClick(int x, int y, String nom) {
+		reference.interpretDraw(x, y, nom);
+	}
+
+	//-- User Request  ----------------------------------------
+	
 	public int requestIntInput(String text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
 		String out = piR.getSubmitted();
@@ -58,38 +70,50 @@ public class View {
 		}
 	}
 	
+	public String requestStringInput(String text) {
+		PopoutInputRequest piR = new PopoutInputRequest(text);
+		String out = piR.getSubmitted();
+		piR.dispose();
+		return out;
+	}
+	
 	public String requestListChoice(String[] listIn) {
-		PopoutSelectList psL = new PopoutSelectList(300, 500, listIn, false);
+		PopoutSelectList psL = new PopoutSelectList(250, 200, listIn, false);
 		String out = psL.getSelected();
 		psL.dispose();
 		return out;
 	}
 	
-	public String requestFolderPath(String display) {
-		return FileChooser.promptSelectFile("./", true, false).toString();
+	public String requestFolderPath(String defDir, String display) {
+		return FileChooser.promptSelectFile(defDir, true, false).toString();
 	}
 	
-	public String requestFilePath(String display) {
-		return FileChooser.promptSelectFile("./", true, true).toString();
-	}
-	
-	public void handOffInt(int code) {
-		reference.interpretCode(code, body.getActiveElement());
-	}
-	
-	public void handOffClick(int x, int y, String nom) {
-		reference.interpretDraw(x, y, nom);
+	public String requestFilePath(String defDir, String display) {
+		return FileChooser.promptSelectFile(defDir, true, true).toString();
 	}
 
-	public void updateDisplay(String nom, Image[] imgs, boolean drawable, int zoom) {
+	public boolean requestConfirmation(String display) {
+		PopoutConfirm pC = new PopoutConfirm(200, 150, display);
+		boolean out = pC.getChoice();
+		pC.dispose();
+		return out;
+	}
+	
+	//-- Drawing Board Management  ----------------------------
+	
+	public void updateDisplay(String nom, BufferedImage[] imgs, boolean drawable, int zoom) {
 		body.updateDisplay(nom, imgs, drawable, zoom);
 	}
 	
-	public void addPicture(String nom, Image img, boolean drawable) {
+	public void removeFromDisplay(String nom) {
+		body.removeFromDisplay(nom);
+	}
+	
+	public void addPicture(String nom, BufferedImage img, boolean drawable) {
 		body.addPicture(nom, img, drawable);
 	}
 	
-	public void addAnimation(String nom, Image[] img, boolean drawable) {
+	public void addAnimation(String nom, BufferedImage[] img, boolean drawable) {
 		body.addAnimation(nom, img, drawable);
 	}
 	

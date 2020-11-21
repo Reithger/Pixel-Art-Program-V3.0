@@ -9,6 +9,8 @@ public interface Corkboard {
 	
 	public abstract Panel getPanel();
 	
+	public abstract String getPanelName();
+	
 	public abstract void setLocation(int x, int y);
 	
 	public abstract void move(int x, int y);

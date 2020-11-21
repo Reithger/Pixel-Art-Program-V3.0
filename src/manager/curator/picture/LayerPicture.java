@@ -1,32 +1,55 @@
 package manager.curator.picture;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
+
 import manager.curator.Component;
+import misc.Canvas;
 
 public class LayerPicture implements Component{
 
-	private int width;  //TODO Should store composite image and use sub-images to make recompilation of it after change faster
+//---  Instance Variables   -------------------------------------------------------------------
+	
+	private int width;
 	private int height;
 	private ArrayList<ArtPicture> layers;	
 	private HashMap<LayerSeries, Canvas> cache;
+	private String savePath;
 	private boolean changed;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public LayerPicture(String path) {
 		File f = new File(path);
 		changed = true;
+		savePath = f.getParentFile().getAbsolutePath();
 		cache = new HashMap<LayerSeries, Canvas>();
 		if(f.isDirectory()) {
-			
+			//TODO: Get width, height from valid image and use if any images are broken to assign empty canvas
+			//TODO: Or this is a manifest file/custom data type to decode? Probably want to error-proof this.
+			//TODO: Like, just write the bytes for a header and the individual images, read them back out as metadata and files?
 		}
 		else {
-			
+			try {
+				ArtPicture aP = new ArtPicture(f, 0);
+				width = aP.getWidth();
+				height = aP.getHeight();
+				changed = true;
+				layers = new ArrayList<ArtPicture>();
+				layers.add(aP);
+				cache = new HashMap<LayerSeries, Canvas>();
+				generateImage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("Failure during file reading to generate a single-layer LayerPicture");
+			}
 		}
 	}
 	
@@ -38,60 +61,23 @@ public class LayerPicture implements Component{
 		cache = new HashMap<LayerSeries, Canvas>();
 	}
 	
-	public boolean getUpdateStatus() {
-		return changed;
-	}
-	
-	public void designateUpdate() {
-		changed = true;
-		cache.clear();
-	}
-	
-	public void resolvedUpdate() {
-		changed = false;
-	}
-	
-	public void export(String path, String typ, int scale, boolean composite) {
-		//TODO: Export bufferedImage to path and, if true on composite, also save a folder of the layers
-	}
-	
-	public void setPixel(int x, int y, Color col, int layer) {
-		layers.get(layer).setPixel(x, y, col);
-		for(LayerSeries lS : cache.keySet()) {
-			if(lS.contains(layer)) {
-				cache.get(lS).setPixelColor(x, y, composeLayerColor(x, y, lS.getLayerStart(), lS.getLayerEnd()));
+//---  Operations   ---------------------------------------------------------------------------
+
+	public void export(String path, String name, String typ, int scale, boolean composite) {
+		File savePoint = new File(path + "/" + name + "." + typ);
+		if(savePoint.exists()) {
+			savePoint.delete();
+		}
+		try {
+			ImageIO.write(generateImage(), typ, savePoint);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		if(composite && layers.size() > 1) {
+			for(ArtPicture aP : layers) {
+				aP.export(path, name + "_layer_" + aP.getLayer(), typ);
 			}
-		}
-	}
-	
-	public void setRegion(int x, int y, Color[][] cols, int layer) {
-		for(int i = x; i < x + cols.length; i++) {
-			for(int j = y; j < cols[i].length; j++) {
-				setPixel(i, j, cols[i - x][j - y], layer);
-			}
-		}
-	}
-	
-	public void addLayer() {
-		addLayer(new ArtPicture(width, height, layers.size()));
-	}
-	
-	public void addLayer(ArtPicture in) {
-		if(in.getWidth() != width || in.getHeight() != height) {
-			System.out.println("Error: New ArtPicture object not of same size as composite Picture object");
-			return;
-		}
-		layers.add(in);
-		Collections.sort(layers);
-	}
-	
-	public void addLayer(ArtPicture in, int lH) {
-		if(lH <= layers.size()) {
-			layers.add(lH, in);
-			updateLayers();
-		}
-		else {
-			addLayer(in);
 		}
 	}
 
@@ -106,15 +92,6 @@ public class LayerPicture implements Component{
 		}
 	}
 	
-	public ArtPicture getLayer(int layer) {
-		return layers.get(layer);
-	}
-	
-	public void removeLayer(int ind) {
-		layers.remove(ind);
-		updateLayers();
-	}
-	
 	private void updateLayers() {
 		boolean change = false;
 		for(int i = 0; i < layers.size(); i++) {
@@ -124,22 +101,15 @@ public class LayerPicture implements Component{
 			}
 		}
 		if(change)
-			cache.clear();
+			clearCache();
 	}
 	
-	public Image generateImage() {
-		updateLayers();
-		LayerSeries lS = new LayerSeries(0, layers.size());
-		if(cache.get(lS) != null) {
-			return cache.get(lS).getImage();
-		}
-		Canvas can = new Canvas(composeColorCanvas(0, 0, width, height, 0, layers.size()));
-		cache.put(lS, can);
-		return can.getImage();
+	public BufferedImage generateImage() {
+		return generateImageSetLayers(0, layers.size() - 1);
 	}
 
-	public Image generateImageSetLayers(int startLay, int endLay) {
-		if(startLay < 0 || startLay > endLay || endLay >= layers.size()) {
+	public BufferedImage generateImageSetLayers(int startLay, int endLay) {
+		if(startLay < 0 || startLay > endLay || endLay > layers.size()) {
 			System.out.println("Error: Illegal start or end indexes for generating an Image using a specific series of Layers");
 			return null;
 		}
@@ -154,6 +124,9 @@ public class LayerPicture implements Component{
 	}
 	
 	private Color[][] composeColorCanvas(int stX, int stY, int enX, int enY, int lS, int lE){
+		if(lS < 0 || lE < 0) {
+			return null;
+		}
 		Color[][] out = new Color[enX - stX][enY - stY];
 		for(int i = stX; i < enX; i++) {
 			for(int j = stY; j < enY; j++) {
@@ -184,4 +157,111 @@ public class LayerPicture implements Component{
 		}
 	}
 	
+//---  Setter Methods   -----------------------------------------------------------------------
+	
+	private void clearCache() {
+		cache.clear();
+		ensureDefaultImage();
+	}
+	
+	private void ensureDefaultImage() {
+		if(cache.get(new LayerSeries(0, layers.size() - 1)) == null) {
+			Color[][] use = composeColorCanvas(0, 0, width, height, 0, layers.size() - 1);
+			if(use != null)
+				cache.put(new LayerSeries(0, layers.size() - 1), new Canvas(use));
+		}
+	}
+	
+	public void designateUpdate() {
+		changed = true;
+	}
+
+	public void resolvedUpdate() {
+		changed = false;
+	}
+
+	public void setPixel(int x, int y, Color col, int layer) {
+		layers.get(layer).setPixel(x, y, col);
+		ensureDefaultImage();
+		for(LayerSeries lS : cache.keySet()) {
+			if(lS.contains(layer)) {
+				cache.get(lS).setPixelColor(x, y, composeLayerColor(x, y, lS.getLayerStart(), lS.getLayerEnd()));
+			}
+		}
+	}
+	
+	public void setRegion(int x, int y, Color[][] cols, int layer) {
+		for(int i = x; i < x + cols.length; i++) {
+			for(int j = y; j < cols[i].length; j++) {
+				setPixel(i, j, cols[i - x][j - y], layer);
+			}
+		}
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public int getNumLayers() {
+		return layers.size();
+	}
+	
+	public String getDefaultFilePath() {
+		return savePath;
+	}
+	
+	public boolean getUpdateStatus() {
+		return changed;
+	}
+
+	public ArtPicture getLayer(int layer) {
+		return layers.get(layer);
+	}
+	
+	public Color[][] getColorData(int layer){
+		return getLayer(layer).getColorData();
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+//---  Adder Methods   ------------------------------------------------------------------------
+	
+	public void addLayer() {
+		addLayer(new ArtPicture(width, height, layers.size()));
+		clearCache();
+	}
+	
+	public void addLayer(ArtPicture in) {
+		if(in.getWidth() != width || in.getHeight() != height) {
+			System.out.println("Error: New ArtPicture object not of same size as composite Picture object");
+			return;
+		}
+		layers.add(in);
+		Collections.sort(layers);
+		clearCache();
+	}
+	
+	public void addLayer(ArtPicture in, int lH) {
+		if(lH <= layers.size()) {
+			layers.add(lH, in);
+			updateLayers();
+		}
+		else {
+			addLayer(in);
+		}
+		clearCache();
+	}
+
+//---  Remove Methods   -----------------------------------------------------------------------
+	
+	public void removeLayer(int ind) {
+		layers.remove(ind);
+		updateLayers();
+		clearCache();
+	}
+
 }

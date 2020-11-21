@@ -2,11 +2,12 @@ package visual.drawboard.draw;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import control.CodeReference;
+import misc.Canvas;
 import visual.composite.HandlePanel;
 import visual.drawboard.DrawingPage;
-import visual.panel.element.Canvas;
 import visual.panel.element.DrawnCanvas;
 
 public class DrawPicture implements Drawable{
@@ -33,6 +34,8 @@ public class DrawPicture implements Drawable{
 	
 	private Image overlay;
 	
+	private String panelName;
+	
 	private int lastX;
 	
 	private int lastY;
@@ -41,13 +44,27 @@ public class DrawPicture implements Drawable{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DrawPicture(String nom, int inWidth, int inHeight, DrawingPage ref) {
+	public DrawPicture(String nom, String inPanel, int inWidth, int inHeight, DrawingPage ref) {
 		reference = ref;
+		panelName = inPanel;
 		mutex = false;
 		name = nom;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
 		canvas = new Canvas(inWidth, inHeight);
+		generateCanvas(wid, hei);
+	}
+	
+	public DrawPicture(String nom, String inPanel, BufferedImage in, DrawingPage ref) {
+		reference = ref;
+		panelName = inPanel;
+		mutex = false;
+		name = nom;
+		int inWidth = in.getWidth(null);
+		int inHeight = in.getHeight(null);
+		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
+		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
+		canvas = new Canvas(in);
 		generateCanvas(wid, hei);
 	}
 	
@@ -72,8 +89,7 @@ public class DrawPicture implements Drawable{
 					case CODE_RESIZE:
 						break;
 					default:
-						if(code != -1)
-							reference.passOnCode(code, x, y, name);
+						reference.passOnCode(code, x, y, name);
 						break;
 				}
 			}
@@ -180,14 +196,15 @@ public class DrawPicture implements Drawable{
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setZoom(int in) {
-		openLock();
 		if(in <= 0) {
 			in = 1;
 		}
-		if(canvas.getZoom() != in)
+		if(canvas.getZoom() != in){
+			openLock();
 			canvas.setZoom(in);
-		closeLock();
-		updatePanel();
+			closeLock();
+			updatePanel();
+		}
 	}
 
 	@Override
@@ -205,6 +222,10 @@ public class DrawPicture implements Drawable{
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getPanelName() {
+		return panelName;
+	}
 	
 	public HandlePanel getPanel() {
 		return handPanel;

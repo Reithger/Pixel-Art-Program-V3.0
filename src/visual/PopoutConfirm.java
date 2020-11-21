@@ -1,4 +1,4 @@
-package visual.settings;
+package visual;
 
 import java.awt.Color;
 

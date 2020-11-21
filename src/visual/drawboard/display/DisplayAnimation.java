@@ -16,13 +16,15 @@ public class DisplayAnimation implements Display{
 	private double scale;
 	private HandlePanel p;
 	private String name;
+	private String panelName;
 	private DrawingPage reference;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayAnimation(String nom, int width, int height, Image[] inFrames, DrawingPage ref) {
+	public DisplayAnimation(String nom, String inPanel, int width, int height, Image[] inFrames, DrawingPage ref) {
 		scale = 1;
 		name = nom;
+		panelName = inPanel;
 		generateDisplay(width, height);
 		reference = ref;
 		updateDisplay(inFrames);
@@ -84,6 +86,10 @@ public class DisplayAnimation implements Display{
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public String getPanelName() {
+		return panelName;
+	}
 	
 	public HandlePanel getPanel() {
 		return p;

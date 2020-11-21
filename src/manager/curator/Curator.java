@@ -2,6 +2,7 @@ package manager.curator;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 
 import manager.curator.animation.LayerAnimation;
@@ -12,8 +13,10 @@ public class Curator {
 
 //---  Constants   ----------------------------------------------------------------------------
 
-	private final static String SAVE_TYPE_PNG = ".png";
-	private final static String SAVE_TYPE_JPG = ".jpg";
+	private final static String SAVE_TYPE_PNG = "png";
+	private final static String SAVE_TYPE_JPG = "jpg";
+	private final static String DEFAULT_ANIMATION_SAVE_TYPE = "gif";
+	private final static String DEFAULT_PICTURE_SAVE_TYPE = SAVE_TYPE_PNG;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -47,11 +50,28 @@ public class Curator {
 		}
 	}
 	
+	public void saveAllBackup() {
+		int counter = 0;
+		File f = new File("./backup");
+		f.mkdir();
+		for(String s : animations.keySet()) {
+			animations.get(s).export(f.getAbsolutePath(), "backup_" + counter++, DEFAULT_ANIMATION_SAVE_TYPE, 1, true);
+		}
+		for(String s : pictures.keySet()) {
+			pictures.get(s).export(f.getAbsolutePath(), "backup_" + counter++, DEFAULT_PICTURE_SAVE_TYPE, 1, true);
+		}
+	}
+	
 	//-- Things  ----------------------------------------------
 	
 	public void saveThing(String name, String path, int scale, boolean composite) {
-		getComponent(name).export(path, SAVE_TYPE_PNG, scale, composite);
+		getComponent(name).export(path, name, SAVE_TYPE_PNG, scale, composite);
 	}
+	
+	public void saveThing(String name, String savName, String path, int scale, boolean composite) {
+		getComponent(name).export(path, savName, SAVE_TYPE_PNG, scale, composite);
+	}
+	
 	//-- Animation Display  -------------------------------------------------------------------
 	
 	//-- Picture Display  ---------------------------------------------------------------------
@@ -84,15 +104,23 @@ public class Curator {
 		return pictures.get(name).getLayer(layer).generateImage();
 	}
 	
-	public Image producePictureImage(String name) {
+	public BufferedImage producePictureImage(String name) {
 		return pictures.get(name).generateImage();
 	}
 	
-	public Image produceLayeredPictureImage(String name, int layStart, int layEnd) {
+	public BufferedImage produceLayeredPictureImage(String name, int layStart, int layEnd) {
 		return pictures.get(name).generateImageSetLayers(layStart, layEnd);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public int getNumLayers(String nom) {
+		return getComponent(nom).getNumLayers();
+	}
+	
+	public String getDefaultPath(String nom) {
+		return getComponent(nom).getDefaultFilePath();
+	}
 	
 	public Component getComponent(String nom) {
 		if(pictures.get(nom) != null) {
@@ -118,11 +146,11 @@ public class Curator {
 		return pictures.get(nom);
 	}
 	
-	public Image getPictureImage(String nom, int layerSt, int layerEn) {
+	public BufferedImage getPictureImage(String nom, int layerSt, int layerEn) {
 		return pictures.get(nom).generateImageSetLayers(layerSt, layerEn);
 	}
 
-	public Image[] getAnimationFrames(String nom, int layerSt, int layerEn) {
+	public BufferedImage[] getAnimationFrames(String nom, int layerSt, int layerEn) {
 		return animations.get(nom).getImages();
 	}
 	

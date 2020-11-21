@@ -1,6 +1,7 @@
 package manager.sketch;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import manager.curator.Curator;
 
@@ -27,8 +28,20 @@ public class SketchAnimation extends Sketch{
 		return sk;
 	}
 	
-	public Image[] getUpdateImages(Curator c) {
+	public BufferedImage[] getUpdateImages(Curator c) {
 		return c.getAnimationFrames(getReference(), getLayerStart(), getLayerEnd());
+	}
+
+	@Override
+	public Sketch copy() {
+		SketchAnimation sk = new SketchAnimation(getName() + "(copy)", getReference());
+		sk.setActiveLayer(getActiveLayer());
+		sk.setLayerStart(getLayerStart());
+		sk.setLayerEnd(getLayerEnd());
+		sk.setZoom(getZoom());
+		sk.setDrawable(getDrawable());
+		sk.flagUpdate();
+		return sk;
 	}
 	
 }

@@ -1,10 +1,11 @@
 package manager;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import manager.curator.picture.ArtPicture;
+import manager.curator.picture.LayerPicture;
 
 public class Pen {
 
@@ -19,6 +20,7 @@ public class Pen {
 	}
 	
 	public void openLock() {
+		while(mutex) {}
 		mutex = true;
 	}
 	
@@ -30,27 +32,19 @@ public class Pen {
 		col = in;
 	}
 	
-	public void initializeCanvas(String nom, ArtPicture aP) {
-		while(mutex) {};
+	public void initializeCanvas(LayerPicture lP, int layer) {
 		openLock();
-		if(changes.get(nom) == null) {
-			changes.put(nom, new Changes(nom));
-		}
-		Changes c = changes.get(nom);
-		for(int i = 0; i < aP.getWidth(); i++) {
-			for(int j = 0; j < aP.getHeight(); j++) {
-				aP.setPixel(i, j, Color.white);
+		for(int i = 0; i < lP.getWidth(); i++) {
+			for(int j = 0; j < lP.getHeight(); j++) {
+				lP.setPixel(i, j, Color.white, layer);
 			}
 		}
-
-		c.addChange(0, 0, aP.getColorData());
 		closeLock();
 	}
 	
-	public void draw(String nom, ArtPicture aP, int x, int y) {
-		while(mutex) {}
+	public void draw(String nom, LayerPicture lP, int layer, int x, int y) {
 		openLock();
-		aP.setPixel(x, y, col);	//Most basic form of drawing
+		lP.setPixel(x, y, col, layer);	//Most basic form of drawing
 		if(changes.get(nom) == null) {
 			changes.put(nom, new Changes(nom));
 		}

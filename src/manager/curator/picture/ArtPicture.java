@@ -3,8 +3,11 @@ package manager.curator.picture;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
+
+import misc.Canvas;
 
 public class ArtPicture implements Comparable<ArtPicture>{
 
@@ -21,19 +24,24 @@ public class ArtPicture implements Comparable<ArtPicture>{
 		layer = lay;
 	}
 	
+	public ArtPicture(File in, int lay) throws IOException {
+		canvas = new Canvas(in);
+		layer = lay;
+	}
+	
 //---  Operations   ---------------------------------------------------------------------------
 
 	public BufferedImage generateImage() {
 		return canvas.getImage();
 	}
 
-	public void export(String path, String saveType) {
-		File savePoint = new File(path);
+	public void export(String path, String name, String saveType) {
+		File savePoint = new File(path + "/" + name + "." + saveType);
 		if(savePoint.exists()) {
 			savePoint.delete();
 		}
 		try {
-			ImageIO.write(generateImage(), saveType, savePoint);
+			System.out.println(ImageIO.write(generateImage(), saveType, savePoint));
 		}
 		catch(Exception e) {
 			e.printStackTrace();

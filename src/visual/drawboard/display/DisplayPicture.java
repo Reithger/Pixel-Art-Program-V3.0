@@ -14,12 +14,14 @@ public class DisplayPicture implements Display{
 	private HandlePanel p;
 	private ImageDisplay iD;
 	private String name;
+	private String panelName;
 	private DrawingPage reference;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayPicture(String nom, int wid, int hei, Image inImg, DrawingPage ref) {
+	public DisplayPicture(String nom, String inPanel, int wid, int hei, Image inImg, DrawingPage ref) {
 		reference = ref;
+		panelName = inPanel;
 		generateDisplay(wid, hei);
 		name = nom;
 		iD = new ImageDisplay(inImg, p);
@@ -73,7 +75,11 @@ public class DisplayPicture implements Display{
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
-
+	
+	public String getPanelName() {
+		return panelName;
+	}
+	
 	public HandlePanel getPanel() {
 		return p;
 	}
