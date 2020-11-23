@@ -48,6 +48,20 @@ public class Manager {
 	
 	//-- Things  ----------------------------------------------
 	
+	public String rename(String old, String newName) {
+		Sketch sk = sketches.get(old);
+		System.out.println(old);
+		sketches.remove(sk.getName());
+		int count = 0;
+		String use = newName;
+		while(sketches.get(use) != null) {
+			use = newName + "_" + count++;
+		}
+		sk.setName(use);
+		sketches.put(sk.getName(), sk);
+		return sk.getName();
+	}
+	
 	public void removeThing(String name) {
 		sketches.remove(name);
 	}
@@ -72,11 +86,12 @@ public class Manager {
 		k.setZoom(k.getZoom() - 1);
 	}
 	
-	public void duplicate(String nom) {
+	public String duplicate(String nom) {
 		Sketch sk = sketches.get(nom).copy();
 		String skName = getNextSketchName(sk.getName());
 		sk.setName(skName);
 		sketches.put(skName, sk);
+		return skName;
 	}
 	
 	//-- Animations  ------------------------------------------
@@ -146,6 +161,10 @@ public class Manager {
 	}
 	
 	public String getDefaultFilePath(String nom) {
+		System.out.println(nom);
+		if(sketches.get(nom) == null) {
+			return null;
+		}
 		return curator.getDefaultPath(sketches.get(nom).getReference());
 	}
 	

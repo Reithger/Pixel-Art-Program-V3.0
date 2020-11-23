@@ -41,7 +41,7 @@ public abstract class Page extends HandlePanel{
 		addTile(TileFactory.generateTileBig(path, label, code));
 	}
 	
-	public void addTileGrid(String[][] paths, String label, int[][] codes) {
+	public void addTileGrid(String[] paths, String label, int[] codes) {
 		addTile(TileFactory.generateTileGrid(paths, label, codes));
 	}
 	

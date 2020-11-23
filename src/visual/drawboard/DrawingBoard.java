@@ -79,7 +79,6 @@ public class DrawingBoard {
 		selectBar = new HandlePanel(x, y, wid, hei) {
 			private boolean dragging;
 			private int lastX;
-			private int lastY;
 			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
@@ -102,18 +101,14 @@ public class DrawingBoard {
 			public void clickPressBehaviour(int code, int x, int y) {
 				dragging = true;
 				lastX = x;
-				lastY = y;
 			}
 			
 			@Override
 			public void dragBehaviour(int code, int x, int y) {
 				if(dragging) {
 					int difX = x - lastX;
-					int difY = y - lastY;
 					setOffsetXBounded(getOffsetX() + difX);
-					setOffsetYBounded(getOffsetY() + difY);
 					lastX = x;
-					lastY = y;
 				}
 			}
 			
@@ -210,13 +205,16 @@ public class DrawingBoard {
 	
 	//-- Thing Management  ------------------------------------
 	
-	public void updateDisplay(String nom, Image[] images, boolean drawable, int zoom) {
-		if(drawable) {
-			getCurrentPage().updateCanvas(nom, images, zoom);
-		}
-		else {
-			getCurrentPage().updateDisplay(nom, images, zoom);
-		}
+	public void rename(String old, String newName) {
+		getCurrentPage().rename(old, newName);
+	}
+	
+	public void duplicateThing(String old, String nom) {
+		getCurrentPage().duplicate(old, nom);
+	}
+	
+	public void updateDisplay(String nom, BufferedImage[] images, boolean drawable, int zoom) {
+		getCurrentPage().updateDisplay(nom, images, zoom);
 	}
 	
 	public void addPicture(String nom, BufferedImage img, boolean drawable) {

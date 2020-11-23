@@ -1,5 +1,7 @@
 package visual.settings.page.tile;
 
+import java.awt.Font;
+
 import visual.composite.HandlePanel;
 
 public abstract class Tile {
@@ -7,10 +9,11 @@ public abstract class Tile {
 //---  Constants   ----------------------------------------------------------------------------
 	
 	private final static double SPACE_RATIO_VERTICAL = 4.0 / 5;
+	protected final static Font SMALL_LABEL_FONT = new Font("Serif", Font.BOLD, 12);
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	protected int height;
+	private int height;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -29,5 +32,9 @@ public abstract class Tile {
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	public abstract int getTileWidth();
+	
+	public int getHeight() {
+		return height;
+	}
 	
 }

@@ -2,25 +2,19 @@ package visual.drawboard;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-import visual.drawboard.display.DisplayAnimation;
-import visual.drawboard.display.DisplayPicture;
-import visual.drawboard.draw.DrawPicture;
-import visual.drawboard.draw.Drawable;
-import visual.drawboard.display.Display;
+import visual.drawboard.corkboard.Corkboard;
+import visual.drawboard.corkboard.DisplayAnimation;
+import visual.drawboard.corkboard.DisplayPicture;
+import visual.drawboard.corkboard.DrawPicture;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
 
 public class DrawingPage {
 
 	public final static Font DEFAULT_FONT = new Font("Serif", Font.BOLD, 12);
-	
-	public final static int CODE_HEADER_HOLD = 5;
-	public final static int CODE_HEADER_RELEASE = 5;
-	public final static int CODE_HEADER_PRESS = 5;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -32,9 +26,7 @@ public class DrawingPage {
 	
 	private int height;
 	
-	private HashMap<String, Display> displays;
-	
-	private HashMap<String, Drawable> drawings;
+	private HashMap<String, Corkboard> displays;
 	
 	private WindowFrame parent;
 	
@@ -53,8 +45,7 @@ public class DrawingPage {
 		reference = ref;
 		width = wid;
 		height = hei;
-		displays = new HashMap<String, Display>();
-		drawings = new HashMap<String, Drawable>();
+		displays = new HashMap<String, Corkboard>();
 		parent = par;
 	}
 	
@@ -111,54 +102,86 @@ public class DrawingPage {
 			return false;
 		pic.setLocation(x + coords[0], y + coords[1]);
 		ElementPanel canv = pic.getPanel();
-		drawings.put(nom, pic);
-		parent.addPanelToWindow(windowName, useName, canv);
+		displays.put(nom, pic);
+		parent.addPanelToWindow(windowName, pic.getPanelName(), canv);
 		return true;
 	}
 
 	//-- Thing Management  ------------------------------------
 	
-	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
-		if(drawings.get(nom) != null)
-			drawings.get(nom).updateCanvas(x, y, cols);
+	public void rename(String old, String newName) {
+		Corkboard c = getCorkboard(old);
+		displays.remove(c.getName());
+		c.setName(newName);
+		displays.put(c.getName(), c);
+		parent.removeWindowPanel(windowName, c.getPanelName());
+		c.setPanelName(getUniqueName(c.getName()));
+		parent.addPanelToWindow(windowName, c.getPanelName(), c.getPanel());
+		c.updatePanel();
+		if(active.equals(old)) {
+			active = newName;
+		}
 	}
 	
-	public void updateDisplay(String nom, Image[] images, int zoom) {
+	public void resetLocation(String name) {
+		if(getCorkboard(name) != null)
+			getCorkboard(name).setLocation(x, y);
+	}
+	
+	public void duplicate(String old, String nom) {
+		Corkboard d = displays.get(old);
+		Corkboard n = d.duplicate(nom, getUniqueName(nom));
+		ElementPanel disp = n.getPanel();
+		disp.setLocation(x,  y);
+		displays.put(nom, n);
+		parent.addPanelToWindow(windowName, n.getPanelName(), disp);
+	}
+
+	public void updateDisplay(String nom, BufferedImage[] images, int zoom) {
 		if(displays.get(nom) != null)
-			displays.get(nom).updateDisplay(images);
+			displays.get(nom).updateImages(images, zoom);
 	}
 	
-	public void updateCanvas(String nom, Image[] images, int zoom) {
-		if(drawings.get(nom) != null)
-			drawings.get(nom).updateCanvasMeta(images, zoom);
+	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
+		if(displays.get(nom) != null)	//TODO: Figure out how to do this without a cast
+			((DrawPicture)(displays.get(nom))).updateCanvas(x, y, cols);
 	}
-	
+
 	public void removeFromDisplay(String nom) {
 		parent.removeWindowPanel(windowName, getCorkboard(nom).getPanelName());
 		displays.remove(nom);
-		drawings.remove(nom);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public int getOriginX() {
+		return x;
+	}
+	
+	public int getOriginY() {
+		return y;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
 	
 	public String getActiveElement() {
 		return active;
 	}
 	
 	private Corkboard getCorkboard(String nom) {
-		if(displays.get(nom) != null){
-			return displays.get(nom);
-		}
-		if(drawings.get(nom) != null){
-			return drawings.get(nom);
-		}
-		return null;
+		return displays.get(nom);
 	}
 	
 	private String getUniqueName(String baseName) {
 		String useName = baseName;
 		int counter = 1;
-		while(displays.get(useName) != null || drawings.get(useName) != null) {
+		while(displays.get(useName) != null) {
 			useName = baseName + "_" + counter++;
 		}
 		return useName;

@@ -9,7 +9,7 @@ public class TileFactory {
 		return new TileBig(path, label, code);
 	}
 	
-	public static TileGrid generateTileGrid(String[][] paths, String label, int[][] code) {
+	public static TileGrid generateTileGrid(String[] paths, String label, int[] code) {
 		return new TileGrid(paths, label, code);
 	}
 	

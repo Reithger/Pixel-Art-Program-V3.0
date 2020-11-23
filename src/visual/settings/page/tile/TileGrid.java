@@ -1,15 +1,17 @@
 package visual.settings.page.tile;
 
+import java.awt.Color;
+
 import visual.composite.HandlePanel;
 
 public class TileGrid extends Tile{
 
-	private String[][] imagePaths;	//Make helper class to represent each 'icon'
-	private int[][] codes;
+	private String[] imagePaths;	//Make helper class to represent each 'icon'
+	private int[] codes;	//1D array, 3 tall columns
 	private boolean border;
 	private String label;
 	
-	public TileGrid(String[][] paths, String inLabel, int[][] inCodes) {
+	public TileGrid(String[] paths, String inLabel, int[] inCodes) {
 		imagePaths = paths;
 		label = inLabel;
 		codes = inCodes;
@@ -17,20 +19,25 @@ public class TileGrid extends Tile{
 	
 	@Override
 	public void drawTile(int x, int y, HandlePanel p) {
+		p.handleText("gr_" + x + "_" + y, false, x + getTileWidth() / 2, y + getHeight() * 5 / 8, getTileWidth(), getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 		int posX = x;
-		int posY = y;
+		int posY = y - getHeight() / 4;
+		int size = getHeight() / 4;
 		
 		for(int i = 0; i < imagePaths.length; i++) {
-			for(int j = 0; j < imagePaths[i].length; j++) {
-				
+			if(i % 3 == 0 && i != 0) {
+				posX += size;
+				posY = y - size;
 			}
+			p.handleRectangle("gr_r_" + posX + "_" + posY + "_" + i, false, 5, posX, posY, size, size, Color.white, Color.black);
+			p.handleImageButton("gr_" + posX + "_" + posY + "_" + i, false, posX, posY, size, size, imagePaths[i], codes[i]);
+			posY += size;
 		}
 	}
 
 	@Override
 	public int getTileWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getHeight() / 4 * (imagePaths.length / 3);
 	}
 
 }

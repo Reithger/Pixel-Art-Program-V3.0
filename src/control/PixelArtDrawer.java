@@ -62,25 +62,51 @@ public class PixelArtDrawer {
 				case CodeReference.CODE_NEW_THING:
 					makeNewThing();
 					break;
+				case CodeReference.CODE_RENAME:
+					if(active == null) {
+						return;
+					}
+					String newName = view.requestStringInput("Please provide the new image name");
+					newName = manager.rename(active, newName);
+					view.rename(active, newName);
+					break;
 				case CodeReference.CODE_INCREASE_ZOOM:
+					if(active == null) {
+						return;
+					}
 					manager.increaseZoom(active);
 					break;
 				case CodeReference.CODE_DECREASE_ZOOM:
+					if(active == null) {
+						return;
+					}
 					manager.decreaseZoom(active);
 					break;
 				case CodeReference.CODE_CLOSE_THING:
+					if(active == null) {
+						return;
+					}
 					removeThing(active);
 					break;
 				case CodeReference.CODE_DUPLICATE_THING:
-					manager.duplicate(active);
+					if(active == null) {
+						return;
+					}
+					view.duplicateThing(active, manager.duplicate(active));
 					break;
 				case CodeReference.CODE_OPEN_FILE:
 					loadFile();
 					break;
-				case CodeReference.CODE_SAVE_THING:	//TODO: Check if thing already has default save location
+				case CodeReference.CODE_SAVE_THING:
+					if(active == null) {
+						return;
+					}
 					saveThing(active);
 					break;
 				case CodeReference.CODE_SAVE_AS:
+					if(active == null) {
+						return;
+					}
 					saveThingAs(active);
 					break;
 				case CodeReference.CODE_OPEN_META:

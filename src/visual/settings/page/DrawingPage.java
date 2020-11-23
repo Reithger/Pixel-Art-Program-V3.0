@@ -6,7 +6,7 @@ public class DrawingPage extends Page {
 	
 	public DrawingPage() {
 		super(PAGE_NAME);
-		// TODO Auto-generated constructor stub
+		addTileGrid(new String[] {"/assets/placeholder.png", "/assets/placeholder.png","/assets/placeholder.png","/assets/placeholder.png",}, "lab", new int[] {0, 0, 0, 0});
 	}
 
 }

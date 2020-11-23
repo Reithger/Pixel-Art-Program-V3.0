@@ -12,5 +12,8 @@ public class CodeReference {
 	public final static int CODE_CLOSE_THING = 59;
 	public final static int CODE_INCREASE_ZOOM = 60;
 	public final static int CODE_DECREASE_ZOOM = 61;
+	public final static int CODE_RENAME = 62;
+	public final static int CODE_RESIZE = 63;
+	public final static int CODE_HEADER = 64;
 	
 }

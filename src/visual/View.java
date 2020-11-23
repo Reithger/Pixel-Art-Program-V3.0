@@ -1,6 +1,8 @@
 package visual;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 import control.PixelArtDrawer;
@@ -34,6 +36,8 @@ public class View {
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public View(PixelArtDrawer in) {
+		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		//TODO: Make this dynamic to your screen size
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
 		frame.setName("Test");
 		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
@@ -101,6 +105,10 @@ public class View {
 	
 	//-- Drawing Board Management  ----------------------------
 	
+	public void rename(String old, String newName) {
+		body.rename(old, newName);
+	}
+	
 	public void updateDisplay(String nom, BufferedImage[] imgs, boolean drawable, int zoom) {
 		body.updateDisplay(nom, imgs, drawable, zoom);
 	}
@@ -119,6 +127,10 @@ public class View {
 	
 	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
 		body.updatePictureCanvas(nom, x, y, cols);
+	}
+	
+	public void duplicateThing(String old, String nom) {
+		body.duplicateThing(old, nom);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
