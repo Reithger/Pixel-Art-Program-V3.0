@@ -15,5 +15,6 @@ public class CodeReference {
 	public final static int CODE_RENAME = 62;
 	public final static int CODE_RESIZE = 63;
 	public final static int CODE_HEADER = 64;
+	public final static int CODE_INTERACT_CONTENT = 65;
 	
 }

@@ -1,9 +1,7 @@
 package manager.sketch;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
 import manager.curator.Curator;
+import misc.Canvas;
 
 public class SketchPicture extends Sketch{
 	
@@ -26,9 +24,9 @@ public class SketchPicture extends Sketch{
 		return out;
 	}
 
-	public BufferedImage[] getUpdateImages(Curator c) {
-		//TODO: More images returned if doing a translucent overlay or underlay
-		return new BufferedImage[] {c.getPictureImage(getReference(), getLayerStart(), getLayerEnd())};
+	public Canvas[] getUpdateImages(Curator c) {
+		//TODO: Locally handle single image preparation of translucent under/overlay
+		return new Canvas[] {c.getPictureCanvas(getReference(), getLayerStart(), getLayerEnd(), getZoom())};
 	}
 
 	@Override
@@ -38,7 +36,6 @@ public class SketchPicture extends Sketch{
 		sk.setLayerStart(getLayerStart());
 		sk.setLayerEnd(getLayerEnd());
 		sk.setZoom(getZoom());
-		sk.setDrawable(getDrawable());
 		sk.flagUpdate();
 		return sk;
 	}

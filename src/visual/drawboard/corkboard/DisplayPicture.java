@@ -1,86 +1,86 @@
 package visual.drawboard.corkboard;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
-import visual.composite.ImageDisplay;
+import control.CodeReference;
+import misc.Canvas;
 import visual.drawboard.DrawingPage;
 
 public class DisplayPicture extends Corkboard{
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private ImageDisplay iD;
+	private Canvas disp;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayPicture(String nom, String inPanel, int wid, int hei, Image inImg, DrawingPage ref) {
-		super(nom, inPanel, wid, hei, ref);
-		iD = new ImageDisplay(inImg, getPanel());
+	public DisplayPicture(String nom, String inPanel, Canvas inImg, DrawingPage ref) {
+		super(nom, inPanel, inImg.getCanvasZoomWidth(), inImg.getCanvasZoomHeight(), ref);
+		disp = inImg;
+		updatePanel();
 	}
-
 
 //---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
-	public void updateImages(BufferedImage[] imgs, int zoom) {
-		// TODO Auto-generated method stub
-		
+	public void updateImages(Canvas[] imgs) {
+		disp = imgs[0];
+		updatePanel();
 	}
-	
 
 	@Override
 	public Corkboard duplicate(String nom, String panelName) {
-		// TODO Auto-generated method stub
-		return null;
+		Corkboard c = new DisplayPicture(nom, panelName, disp, getReference());
+		return c;
 	}
-	
-
-	@Override
-	protected void generatePanelLocal() {
-		
-	}
-	
 
 	@Override
 	protected void updatePanelLocal() {
-		// TODO Auto-generated method stub
-		
+		getPanel().removeElement("img");
+		int usX = CONTENT_X_BUFFER;
+		int usY = CONTENT_Y_BUFFER;
+		System.out.println(getContentWidth() + " " + getContentHeight());
+		getPanel().addCanvas("img", 10, false, usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
 	}
-	
 
 	@Override
 	protected void resizePanelLocal(int wid, int hei) {
 		// TODO Auto-generated method stub
 		
 	}
-	
 
 	@Override
 	protected void onClick(int code, int x, int y) {
 		// TODO Auto-generated method stub
 	}
-	
 
 	@Override
 	protected void onClickPress(int code, int x, int y) {
 		// TODO Auto-generated method stub
 	}
-	
 
 	@Override
 	protected void onClickRelease(int code, int x, int y) {
 		// TODO Auto-generated method stub
 	}
-	
 
 	@Override
 	protected void onDrag(int code, int x, int y) {
 		// TODO Auto-generated method stub
 	}
 
+
 //---  Setter Methods   -----------------------------------------------------------------------
 
+	
 //---  Getter Methods   -----------------------------------------------------------------------
+
+	@Override
+	public int getContentWidth() {
+		return disp.getCanvasZoomWidth();
+	}
+
+	@Override
+	public int getContentHeight() {
+		return disp.getCanvasZoomHeight();
+	}
 
 }

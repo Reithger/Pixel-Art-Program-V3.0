@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import manager.curator.Component;
+import misc.Canvas;
 
 public class LayerAnimation implements Component{
 
@@ -45,6 +46,10 @@ public class LayerAnimation implements Component{
 	
 	public BufferedImage[] getImages() {
 		return null; //TODO Do this
+	}
+	
+	public Canvas[] getCanvasImages() {
+		return null;
 	}
 	
 }

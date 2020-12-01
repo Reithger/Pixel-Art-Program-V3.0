@@ -4,6 +4,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import manager.curator.Curator;
+import misc.Canvas;
 
 public class SketchAnimation extends Sketch{
 	
@@ -28,7 +29,7 @@ public class SketchAnimation extends Sketch{
 		return sk;
 	}
 	
-	public BufferedImage[] getUpdateImages(Curator c) {
+	public Canvas[] getUpdateImages(Curator c) {
 		return c.getAnimationFrames(getReference(), getLayerStart(), getLayerEnd());
 	}
 
@@ -39,7 +40,6 @@ public class SketchAnimation extends Sketch{
 		sk.setLayerStart(getLayerStart());
 		sk.setLayerEnd(getLayerEnd());
 		sk.setZoom(getZoom());
-		sk.setDrawable(getDrawable());
 		sk.flagUpdate();
 		return sk;
 	}

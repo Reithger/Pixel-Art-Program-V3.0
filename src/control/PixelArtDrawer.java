@@ -3,10 +3,12 @@ package control;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import manager.Manager;
+import misc.Canvas;
 import visual.View;
 
 /**
@@ -67,8 +69,8 @@ public class PixelArtDrawer {
 						return;
 					}
 					String newName = view.requestStringInput("Please provide the new image name");
-					newName = manager.rename(active, newName);
-					view.rename(active, newName);
+					HashMap<String, String> mappings = manager.rename(active, newName);
+					view.rename(mappings);
 					break;
 				case CodeReference.CODE_INCREASE_ZOOM:
 					if(active == null) {
@@ -135,7 +137,7 @@ public class PixelArtDrawer {
 			case TEXT_CHOICE_PICTURE:
 				String nom = manager.getNewPictureName();
 				String skNom = manager.makeNewPicture(nom, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
-				addPicture(skNom, manager.getPictureImage(skNom), manager.getSketchDrawable(skNom));
+				addPicture(skNom, manager.getPictureCanvas(skNom));
 				break;
 			case TEXT_CHOICE_ANIMATION:
 				break;
@@ -167,7 +169,7 @@ public class PixelArtDrawer {
 		//TODO: For now, it will assume single layer images, will expand
 		String nom = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
 		String skNm = manager.loadInPicture(nom, path);
-		addPicture(skNm, manager.getPictureImage(skNm), manager.getSketchDrawable(skNm));
+		addPicture(skNm, manager.getPictureCanvas(skNm));
 	}
 	
 	private String getFilePath() {
@@ -183,18 +185,12 @@ public class PixelArtDrawer {
 	
 	public void updateView(boolean force) {
 		for(String nom : manager.getSketchNames(force)) {
-			updateThing(nom, manager.getSketchImages(nom), manager.getSketchDrawable(nom), manager.getSketchZoom(nom));
+			updateThing(nom, manager.getSketchImages(nom), manager.getSketchZoom(nom));
 		}
-		manager.reservePen();
-		for(String canvPic : manager.getDrawnChanges()) {
-			updateCanvasDisplay(canvPic, manager.getCanvasChangeStartX(canvPic), manager.getCanvasChangeStartY(canvPic), manager.getCanvasChangeColors(canvPic));
-		}
-		manager.disposeChanges();
-		manager.releasePen();
 	}
 	
-	public void updateThing(String nom, BufferedImage[] imgs, boolean drawable, int zoom) {
-		view.updateDisplay(nom, imgs, drawable, zoom);
+	public void updateThing(String nom, Canvas[] imgs, int zoom) {
+		view.updateDisplay(nom, imgs, zoom);
 	}
 	
 	public void removeThing(String nom) {
@@ -203,17 +199,13 @@ public class PixelArtDrawer {
 			view.removeFromDisplay(nom);
 		}
 	}
-	
-	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
-		view.updateCanvasDisplay(nom, x, y, cols);
+
+	public void addAnimation(String nom, Canvas[] imgs) {
+		view.addAnimation(nom, imgs);
 	}
 	
-	public void addAnimation(String nom, BufferedImage[] imgs, boolean drawable) {
-		view.addAnimation(nom, imgs, drawable);
-	}
-	
-	public void addPicture(String nom, BufferedImage img, boolean drawable) {
-		view.addPicture(nom, img, drawable);
+	public void addPicture(String nom, Canvas img) {
+		view.addPicture(nom, img);
 	}
 
 }

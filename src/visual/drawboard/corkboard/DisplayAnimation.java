@@ -3,6 +3,7 @@ package visual.drawboard.corkboard;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
+import misc.Canvas;
 import visual.drawboard.DrawingPage;
 
 public class DisplayAnimation extends Corkboard{
@@ -16,16 +17,16 @@ public class DisplayAnimation extends Corkboard{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayAnimation(String nom, String inPanel, int width, int height, BufferedImage[] inFrames, DrawingPage ref) {
-		super(nom, inPanel, width, height, ref);
-		updateImages(inFrames, 1);
+	public DisplayAnimation(String nom, String inPanel, Canvas[] inFrames, DrawingPage ref) {
+		super(nom, inPanel, inFrames[0].getCanvasZoomWidth(), inFrames[0].getCanvasZoomHeight(), ref);
+		updateImages(inFrames);
 	}
 
 	
 //---  Operations   ---------------------------------------------------------------------------
 
 	@Override
-	public void updateImages(BufferedImage[] imgs, int zoom) {
+	public void updateImages(Canvas[] imgs) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -36,14 +37,7 @@ public class DisplayAnimation extends Corkboard{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 
-	@Override
-	protected void generatePanelLocal() {
-		// TODO Auto-generated method stub
-		
-	}
-	
 
 	@Override
 	protected void updatePanelLocal() {
@@ -80,6 +74,20 @@ public class DisplayAnimation extends Corkboard{
 	@Override
 	protected void onDrag(int code, int x, int y) {
 		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public int getContentWidth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public int getContentHeight() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 //---  Setter Methods   -----------------------------------------------------------------------

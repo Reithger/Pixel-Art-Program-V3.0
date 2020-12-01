@@ -1,12 +1,13 @@
 package visual;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import control.PixelArtDrawer;
 import filemeta.FileChooser;
+import misc.Canvas;
 import visual.composite.popout.PopoutAlert;
 import visual.composite.popout.PopoutSelectList;
 import visual.drawboard.DrawingBoard;
@@ -105,30 +106,26 @@ public class View {
 	
 	//-- Drawing Board Management  ----------------------------
 	
-	public void rename(String old, String newName) {
-		body.rename(old, newName);
+	public void rename(HashMap<String, String> mappings) {
+		body.rename(mappings);
 	}
 	
-	public void updateDisplay(String nom, BufferedImage[] imgs, boolean drawable, int zoom) {
-		body.updateDisplay(nom, imgs, drawable, zoom);
+	public void updateDisplay(String nom, Canvas[] imgs, int zoom) {
+		body.updateDisplay(nom, imgs, zoom);
 	}
 	
 	public void removeFromDisplay(String nom) {
 		body.removeFromDisplay(nom);
 	}
 	
-	public void addPicture(String nom, BufferedImage img, boolean drawable) {
-		body.addPicture(nom, img, drawable);
+	public void addPicture(String nom, Canvas img) {
+		body.generatePictureDisplay(nom, img);
 	}
 	
-	public void addAnimation(String nom, BufferedImage[] img, boolean drawable) {
-		body.addAnimation(nom, img, drawable);
+	public void addAnimation(String nom, Canvas[] img) {
+		body.addAnimation(nom, img);
 	}
-	
-	public void updateCanvasDisplay(String nom, int x, int y, Color[][] cols) {
-		body.updatePictureCanvas(nom, x, y, cols);
-	}
-	
+
 	public void duplicateThing(String old, String nom) {
 		body.duplicateThing(old, nom);
 	}

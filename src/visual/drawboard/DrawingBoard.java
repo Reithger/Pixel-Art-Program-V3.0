@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import misc.Canvas;
 import visual.PopoutConfirm;
 import visual.View;
 import visual.composite.HandlePanel;
@@ -182,56 +183,36 @@ public class DrawingBoard {
 	
 	//-- Generate Things  -------------------------------------
 	
-	public void generateAnimationDisplay(String nom, BufferedImage[] images) {
+	public void generateAnimationDisplay(String nom, Canvas[] images) {
 		if(!getCurrentPage().generateAnimationDisplay(nom, images)) {
 			addNewPage();
 			getCurrentPage().generateAnimationDisplay(nom, images);
 		}
 	}
 
-	public void generatePictureDisplay(String nom, BufferedImage in) {
+	public void generatePictureDisplay(String nom, Canvas in) {
 		if(!getCurrentPage().generatePictureDisplay(nom, in)) {
 			addNewPage();
 			getCurrentPage().generatePictureDisplay(nom, in);
 		}
 	}
 	
-	public void generatePictureCanvas(String nom, BufferedImage cols) {
-		if(!getCurrentPage().generatePictureCanvas(nom, cols)) {
-			addNewPage();
-			getCurrentPage().generatePictureCanvas(nom, cols);
-		}
-	}
-	
 	//-- Thing Management  ------------------------------------
 	
-	public void rename(String old, String newName) {
-		getCurrentPage().rename(old, newName);
+	public void rename(HashMap<String, String> mappings) {
+		getCurrentPage().rename(mappings);
 	}
 	
 	public void duplicateThing(String old, String nom) {
 		getCurrentPage().duplicate(old, nom);
 	}
 	
-	public void updateDisplay(String nom, BufferedImage[] images, boolean drawable, int zoom) {
+	public void updateDisplay(String nom, Canvas[] images, int zoom) {
 		getCurrentPage().updateDisplay(nom, images, zoom);
 	}
 	
-	public void addPicture(String nom, BufferedImage img, boolean drawable) {
-		if(drawable) {
-			generatePictureCanvas(nom, img);
-		}
-		else {
-			generatePictureDisplay(nom, img);
-		}
-	}
-	
-	public void addAnimation(String nom, Image[] imgs, boolean drawable) {
+	public void addAnimation(String nom, Canvas[] imgs) {
 		//TODO
-	}
-	
-	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
-		getCurrentPage().updatePictureCanvas(nom, x, y, cols);
 	}
 	
 	public void removeFromDisplay(String nom) {

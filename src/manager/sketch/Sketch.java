@@ -1,8 +1,7 @@
 package manager.sketch;
 
-import java.awt.image.BufferedImage;
-
 import manager.curator.Curator;
+import misc.Canvas;
 
 public abstract class Sketch {
 	
@@ -15,7 +14,6 @@ public abstract class Sketch {
 	private int layerEnd;
 	private int activeLayer;
 	private int zoom;
-	private boolean drawable;
 	private boolean update;
 	
 //---  Constructors   -------------------------------------------------------------------------
@@ -27,7 +25,6 @@ public abstract class Sketch {
 		layerEnd = 0;
 		activeLayer = 0;
 		zoom = 1;
-		drawable = false;
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -38,14 +35,10 @@ public abstract class Sketch {
 
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public abstract BufferedImage[] getUpdateImages(Curator c);
+	public abstract Canvas[] getUpdateImages(Curator c);
 	
 	public boolean needsUpdate() {
 		return update;
-	}
-	
-	public boolean getDrawable() {
-		return drawable;
 	}
 	
 	public int getLayerStart() {
@@ -82,11 +75,6 @@ public abstract class Sketch {
 		update = false;
 	}
 
-	public void setDrawable(boolean draw) {
-		drawable = draw;
-		update = true;
-	}
-
 	public void setName(String nom) {
 		name = nom;
 	}
@@ -96,27 +84,22 @@ public abstract class Sketch {
 			in = 1;
 		}
 		zoom = in;
-		update = true;
 	}
 
 	public void setActiveLayer(int in) {
 		activeLayer = in;
-		update = true;
 	}
 
 	public void setReference(String in) {
 		reference = in;
-		update = true;
 	}
 
 	public void setLayerStart(int in) {
 		layerStart = in;
-		update = true;
 	}
 	
 	public void setLayerEnd(int in) {
 		layerEnd = in;
-		update = true;
 	}
 
 }

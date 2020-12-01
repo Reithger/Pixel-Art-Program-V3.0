@@ -4,16 +4,31 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import control.CodeReference;
+import misc.Canvas;
 import visual.composite.HandlePanel;
 import visual.drawboard.DrawingPage;
 
 public abstract class Corkboard {
 
+	/*
+	 * Generically, any Corkboard allows:
+	 *  - Lock the 'content' so you can't draw/drag it to move around
+	 *  - Zoom in/out
+	 *  - Reset position
+	 *  - Move panel
+	 *  - Resize panel
+	 *  - See layer options (updateImages needs more meta-data?)
+	 *  - Edit/navigate layers options
+	 * 
+	 */
+	
 //---  Constants   ----------------------------------------------------------------------------
 	
 	protected static final int HEADER_HEIGHT = 30;
 	protected static final int SIDEBAR_WIDTH = 30;
 	protected final static int MINIMUM_SIZE = 150;
+	protected final static int CONTENT_X_BUFFER = 1;
+	protected final static int CONTENT_Y_BUFFER = HEADER_HEIGHT + 1;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -22,6 +37,8 @@ public abstract class Corkboard {
 	private HandlePanel panel;
 	private DrawingPage reference;
 	private boolean mutex;
+	private boolean contentLocked;
+	private int zoom;
 
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -32,17 +49,14 @@ public abstract class Corkboard {
 		mutex = false;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
+		zoom = 1;
 		generatePanel(wid, hei);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
-	
-	public abstract void updateImages(BufferedImage[] imgs, int zoom);
-	
-	public abstract Corkboard duplicate(String nom, String panelName);
-	
+
 	protected void generatePanel(int width, int height) {
-		HandlePanel hand = new HandlePanel(0, 0, width, height + HEADER_HEIGHT) {
+		HandlePanel hand = new HandlePanel(0, 0, width + SIDEBAR_WIDTH, height + HEADER_HEIGHT) {
 			
 			private int lastX;
 			private int lastY;	
@@ -52,8 +66,12 @@ public abstract class Corkboard {
 			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
-				System.out.println(code);
 				switch(code) {
+					case CodeReference.CODE_INTERACT_CONTENT :
+						if(!contentLocked) {
+							processDrawing(x, y);
+						}
+						break;
 					default:
 						onClick(code, x, y);
 						getReference().passOnCode(code, x, y, getName());
@@ -89,13 +107,35 @@ public abstract class Corkboard {
 			
 			@Override
 			public void dragBehaviour(int code, int x, int y) {
+				processDragging(x, y);
+				if(code == CodeReference.CODE_INTERACT_CONTENT) {
+					if(!contentLocked) {
+						processDrawing(x, y);
+					}
+					else {
+						setOffsetX(getOffsetX() + (lastX - x));
+						setOffsetY(getOffsetY() + (lastY - y));
+						lastX = x;
+						lastY = y;
+					}
+				}
+				onDrag(code, x, y);
+			}
+			
+			private void processDrawing(int x, int y) {
+				int actX = x + getOffsetX() - CONTENT_X_BUFFER;
+				int actY = y + getOffsetY() - CONTENT_Y_BUFFER;
+				System.out.println(actX + " " + actY);
+				getReference().passOnDraw(actX, actY, getName());
+			}
+			
+			private void processDragging(int x, int y) {
 				if(draggingHeader) {
 					move(x - lastX, y - lastY);
 				}
 				else if(draggingResize) {
 					//TODO: Transparent panel showing new corner size roughly
 				}
-				onDrag(code, x, y);
 			}
 		};
 		setPanel(hand);
@@ -103,7 +143,7 @@ public abstract class Corkboard {
 		getPanel().setScrollBarVertical(false);
 		setTitle();
 	}
-	
+
 	private void setTitle() {
 		getPanel().removeElementPrefixed("texB");
 		int butWid = getWidth() * 9/10;
@@ -111,8 +151,6 @@ public abstract class Corkboard {
 		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, DrawingPage.DEFAULT_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
 	
 	}
-	
-	protected abstract void generatePanelLocal();
 	
 	public void updatePanel() {
 		getPanel().removeElementPrefixed("thck");
@@ -124,28 +162,24 @@ public abstract class Corkboard {
 		
 		getPanel().handleImageButton("imgB", true, getPanel().getWidth() - size, getPanel().getHeight() - size, size, size, "/assets/placeholder.png", CodeReference.CODE_RESIZE);
 		setTitle();
+		
+		int rA = CONTENT_X_BUFFER + getContentWidth();
+		int tA = CONTENT_Y_BUFFER;
+		int bA = CONTENT_Y_BUFFER + getContentHeight();
+		getPanel().addLine("line1", 5, true, rA, tA, rA, bA, 1, Color.black);
+		getPanel().addLine("line2", 5, true, 0, bA, rA, bA, 1, Color.black);
+		getPanel().handleThickRectangle("thck", true, 0, HEADER_HEIGHT, getPanel().getWidth(), getPanel().getHeight(), Color.black, 2);
 		updatePanelLocal();
 	}
-	
-	protected abstract void updatePanelLocal();
 
 	public void resizePanel(int wid, int hei) {
 		wid = wid < MINIMUM_SIZE ? MINIMUM_SIZE : wid;
 		hei = hei < MINIMUM_SIZE ? MINIMUM_SIZE : hei;
 		getPanel().resize(wid, hei);
 		resizePanelLocal(wid, hei);
+		updatePanel();
 	}
 
-	protected abstract void resizePanelLocal(int wid, int hei);
-
-	protected abstract void onClick(int code, int x, int y);
-	
-	protected abstract void onClickPress(int code, int x, int y);
-	
-	protected abstract void onClickRelease(int code, int x, int y);
-	
-	protected abstract void onDrag(int code, int x, int y);
-	
 	public void move(int x, int y) {
 		int newX = x + getPanel().getPanelXLocation();
 		int newY = y + getPanel().getPanelYLocation();
@@ -165,7 +199,30 @@ public abstract class Corkboard {
 		mutex = false;
 	}
 	
+	//-- Abstract  --------------------------------------------
+	
+	protected abstract void updatePanelLocal();
+
+	public abstract void updateImages(Canvas[] imgs);
+	
+	public abstract Corkboard duplicate(String nom, String panelName);
+	
+	protected abstract void resizePanelLocal(int wid, int hei);
+
+	protected abstract void onClick(int code, int x, int y);
+	
+	protected abstract void onClickPress(int code, int x, int y);
+	
+	protected abstract void onClickRelease(int code, int x, int y);
+	
+	protected abstract void onDrag(int code, int x, int y);
+	
 //---  Setter Methods   -----------------------------------------------------------------------
+	
+	public void setZoom(int in) {
+		zoom = in < 1 ? 1 : in;
+		updatePanel();
+	}
 	
 	public void setReference(DrawingPage ref) {
 		reference = ref;
@@ -186,11 +243,23 @@ public abstract class Corkboard {
 	public void setPanel(HandlePanel in) {
 		panel = in;
 	}
+	
+	public void toggleContentLocked() {
+		contentLocked = !contentLocked;
+	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
 	public DrawingPage getReference() {
 		return reference;
+	}
+	
+	public int getZoom() {
+		return zoom;
+	}
+	
+	public boolean getContentLocked() {
+		return contentLocked;
 	}
 	
 	public int getWidth() {
@@ -201,6 +270,10 @@ public abstract class Corkboard {
 		return getPanel().getHeight();
 	}
 
+	public abstract int getContentWidth();
+	
+	public abstract int getContentHeight();
+	
 	public String getName() {
 		return name;
 	}

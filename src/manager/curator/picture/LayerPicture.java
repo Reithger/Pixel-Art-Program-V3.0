@@ -11,7 +11,6 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 import manager.curator.Component;
-import misc.Canvas;
 
 public class LayerPicture implements Component{
 
@@ -20,7 +19,7 @@ public class LayerPicture implements Component{
 	private int width;
 	private int height;
 	private ArrayList<ArtPicture> layers;	
-	private HashMap<LayerSeries, Canvas> cache;
+	private HashMap<LayerSeries, ZoomCanvas> cache;
 	private String savePath;
 	private boolean changed;
 	
@@ -30,7 +29,7 @@ public class LayerPicture implements Component{
 		File f = new File(path);
 		changed = true;
 		savePath = f.getParentFile().getAbsolutePath();
-		cache = new HashMap<LayerSeries, Canvas>();
+		cache = new HashMap<LayerSeries, ZoomCanvas>();
 		if(f.isDirectory()) {
 			//TODO: Get width, height from valid image and use if any images are broken to assign empty canvas
 			//TODO: Or this is a manifest file/custom data type to decode? Probably want to error-proof this.
@@ -44,7 +43,7 @@ public class LayerPicture implements Component{
 				changed = true;
 				layers = new ArrayList<ArtPicture>();
 				layers.add(aP);
-				cache = new HashMap<LayerSeries, Canvas>();
+				cache = new HashMap<LayerSeries, ZoomCanvas>();
 				generateImage();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -58,7 +57,7 @@ public class LayerPicture implements Component{
 		height = inHei;
 		changed = true;
 		layers = new ArrayList<ArtPicture>();
-		cache = new HashMap<LayerSeries, Canvas>();
+		cache = new HashMap<LayerSeries, ZoomCanvas>();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -118,12 +117,12 @@ public class LayerPicture implements Component{
 		if(cache.get(lS) != null) {
 			return cache.get(lS).getImage();
 		}
-		Canvas can = new Canvas(composeColorCanvas(0, 0, width, height, startLay, endLay));
-		cache.put(lS, can);
-		return can.getImage();
+		ZoomCanvas zc = new ZoomCanvas(composeColorZoomCanvas(0, 0, width, height, startLay, endLay));
+		cache.put(lS, zc);
+		return zc.getImage();
 	}
 	
-	private Color[][] composeColorCanvas(int stX, int stY, int enX, int enY, int lS, int lE){
+	private Color[][] composeColorZoomCanvas(int stX, int stY, int enX, int enY, int lS, int lE){
 		if(lS < 0 || lE < 0) {
 			return null;
 		}
@@ -166,9 +165,9 @@ public class LayerPicture implements Component{
 	
 	private void ensureDefaultImage() {
 		if(cache.get(new LayerSeries(0, layers.size() - 1)) == null) {
-			Color[][] use = composeColorCanvas(0, 0, width, height, 0, layers.size() - 1);
+			Color[][] use = composeColorZoomCanvas(0, 0, width, height, 0, layers.size() - 1);
 			if(use != null)
-				cache.put(new LayerSeries(0, layers.size() - 1), new Canvas(use));
+				cache.put(new LayerSeries(0, layers.size() - 1), new ZoomCanvas(use));
 		}
 	}
 	
@@ -214,6 +213,15 @@ public class LayerPicture implements Component{
 
 	public ArtPicture getLayer(int layer) {
 		return layers.get(layer);
+	}
+	
+	public ZoomCanvas getCanvas(int lS, int lE) {
+		generateImageSetLayers(lS, lE);	//TODO: Make an 'ensureExists' method
+		return cache.get(new LayerSeries(lS, lE));
+	}
+	
+	public Color getColor(int x, int y, int layer) {
+		return getLayer(layer).getColor(x, y);
 	}
 	
 	public Color[][] getColorData(int layer){

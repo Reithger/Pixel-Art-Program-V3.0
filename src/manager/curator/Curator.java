@@ -1,13 +1,12 @@
 package manager.curator;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
 
 import manager.curator.animation.LayerAnimation;
 import manager.curator.picture.LayerPicture;
-
+import misc.Canvas;
 
 public class Curator {
 
@@ -64,6 +63,19 @@ public class Curator {
 	
 	//-- Things  ----------------------------------------------
 	
+	public void rename(String ref, String newName) {
+		if(animations.get(ref) != null) {
+			LayerAnimation lA = animations.get(ref);
+			animations.remove(ref);
+			animations.put(newName, lA);
+		}
+		if(pictures.get(ref) != null) {
+			LayerPicture lP = pictures.get(ref);
+			pictures.remove(ref);
+			pictures.put(newName, lP);
+		}
+	}
+	
 	public void saveThing(String name, String path, int scale, boolean composite) {
 		getComponent(name).export(path, name, SAVE_TYPE_PNG, scale, composite);
 	}
@@ -118,6 +130,10 @@ public class Curator {
 		return getComponent(nom).getNumLayers();
 	}
 	
+	public Canvas getPictureCanvas(String reference, int lS, int lE, int zoom) {
+		return pictures.get(reference).getCanvas(lS, lE).getCanvas(zoom);
+	}
+	
 	public String getDefaultPath(String nom) {
 		return getComponent(nom).getDefaultFilePath();
 	}
@@ -150,8 +166,8 @@ public class Curator {
 		return pictures.get(nom).generateImageSetLayers(layerSt, layerEn);
 	}
 
-	public BufferedImage[] getAnimationFrames(String nom, int layerSt, int layerEn) {
-		return animations.get(nom).getImages();
+	public Canvas[] getAnimationFrames(String nom, int layerSt, int layerEn) {
+		return animations.get(nom).getCanvasImages();
 	}
 	
 }

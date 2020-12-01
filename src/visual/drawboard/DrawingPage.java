@@ -1,14 +1,13 @@
 package visual.drawboard;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import misc.Canvas;
 import visual.drawboard.corkboard.Corkboard;
 import visual.drawboard.corkboard.DisplayAnimation;
 import visual.drawboard.corkboard.DisplayPicture;
-import visual.drawboard.corkboard.DrawPicture;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
 
@@ -65,11 +64,11 @@ public class DrawingPage {
 	
 	//-- Generate Things  -------------------------------------
 	
-	public boolean generateAnimationDisplay(String nom, BufferedImage[] images) {
+	public boolean generateAnimationDisplay(String nom, Canvas[] images) {
 		String useName = getUniqueName("animation_" + nom);
 		
-		DisplayAnimation anim = new DisplayAnimation(nom, useName, images[0].getWidth(null), images[0].getHeight(null), images, this);
-		int[] coords = findOpenSpot(images[0].getWidth(null), images[0].getHeight(null));
+		DisplayAnimation anim = new DisplayAnimation(nom, useName, images, this);
+		int[] coords = findOpenSpot(anim.getContentWidth(), anim.getContentHeight());
 		if(coords == null)
 			return false;
 		anim.setLocation(x + coords[0],  y + coords[1]);
@@ -79,10 +78,10 @@ public class DrawingPage {
 		return true;
 	}
 
-	public boolean generatePictureDisplay(String nom, BufferedImage in) {
+	public boolean generatePictureDisplay(String nom, Canvas in) {
 		String useName = getUniqueName("picture_" + nom);
-		DisplayPicture pic = new DisplayPicture(nom, useName, in.getWidth(null), in.getHeight(null), in, this);
-		int[] coords = findOpenSpot(pic.getWidth(), pic.getHeight());
+		DisplayPicture pic = new DisplayPicture(nom, useName, in, this);
+		int[] coords = findOpenSpot(pic.getContentWidth(), pic.getContentHeight());
 		if(coords == null)
 			return false;
 		pic.setLocation(x + coords[0],  y + coords[1]);
@@ -91,25 +90,16 @@ public class DrawingPage {
 		parent.addPanelToWindow(windowName, useName, disp);
 		return true;
 	}
-	
-	public boolean generatePictureCanvas(String nom, BufferedImage in) {
-		String useName = getUniqueName("canvas_" + nom);
-		int wid = in.getWidth(null);
-		int hei = in.getHeight(null);
-		DrawPicture pic = new DrawPicture(nom, useName, in, this);
-		int[] coords = findOpenSpot(wid, hei);
-		if(coords == null)
-			return false;
-		pic.setLocation(x + coords[0], y + coords[1]);
-		ElementPanel canv = pic.getPanel();
-		displays.put(nom, pic);
-		parent.addPanelToWindow(windowName, pic.getPanelName(), canv);
-		return true;
-	}
 
 	//-- Thing Management  ------------------------------------
 	
-	public void rename(String old, String newName) {
+	public void rename(HashMap<String, String> mappings) {
+		for(String s : mappings.keySet()) {
+			rename(s, mappings.get(s));
+		}
+	}
+	
+	private void rename(String old, String newName) {
 		Corkboard c = getCorkboard(old);
 		displays.remove(c.getName());
 		c.setName(newName);
@@ -137,14 +127,12 @@ public class DrawingPage {
 		parent.addPanelToWindow(windowName, n.getPanelName(), disp);
 	}
 
-	public void updateDisplay(String nom, BufferedImage[] images, int zoom) {
-		if(displays.get(nom) != null)
-			displays.get(nom).updateImages(images, zoom);
-	}
-	
-	public void updatePictureCanvas(String nom, int x, int y, Color[][] cols) {
-		if(displays.get(nom) != null)	//TODO: Figure out how to do this without a cast
-			((DrawPicture)(displays.get(nom))).updateCanvas(x, y, cols);
+	public void updateDisplay(String nom, Canvas[] images, int zoom) {
+		Corkboard c = getCorkboard(nom);
+		if(c != null) {
+			c.setZoom(zoom);
+			c.updateImages(images);
+		}
 	}
 
 	public void removeFromDisplay(String nom) {
