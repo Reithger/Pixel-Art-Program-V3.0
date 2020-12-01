@@ -117,6 +117,10 @@ public class SettingsBar {
 		reference.handOffInt(code);
 	}
 	
+	public String getTextContents(String ref) {
+		return getActivePage().getElementStoredText(ref);
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setMenuIndex(int in) {
@@ -128,6 +132,10 @@ public class SettingsBar {
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
+	private Page getActivePage() {
+		return pages.get(activePage);
+	}
+	
 	private String getActivePageName() {
 		return pages.get(activePage).getName();
 	}

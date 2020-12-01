@@ -11,7 +11,7 @@ public class DrawTypeCircle implements DrawType{
 		double originY = penSize / 2.0;
 		for(int i = 0; i < penSize; i++) {
 			for(int j = 0; j < penSize; j++) {
-				if(Math.sqrt(Math.pow(originX - i, 2) + Math.pow(originY - j, 2)) <= penSize) {
+				if(Math.sqrt(Math.pow(originX - i, 2) + Math.pow(originY - j, 2)) < penSize / 2) {
 					out[i][j] = col;
 				}
 				else {

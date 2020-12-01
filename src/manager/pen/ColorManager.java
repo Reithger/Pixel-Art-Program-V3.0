@@ -7,15 +7,15 @@ public class ColorManager {
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private Color activeColor;
+	private int activeColor;
 	private ArrayList<Color> savedColors;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public ColorManager() {
 		savedColors = new ArrayList<Color>();
-		activeColor = Color.black;
-		savedColors.add(activeColor);
+		savedColors.add(Color.black);
+		activeColor = 0;
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -37,10 +37,28 @@ public class ColorManager {
 		savedColors.add(in);
 	}
 	
+	public void removeColor(int in) {
+		savedColors.remove(in);
+		if(activeColor >= in) {
+			setColor(activeColor - 1);
+		}
+		if(savedColors.size() == 0) {
+			savedColors.add(Color.black);
+		}
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setColor(int index) {
-		activeColor = getColor(index);
+		if(index < 0) {
+			index = 0;
+		}
+		activeColor = index;
+	}
+	
+	public void setColor(Color in) {
+		addColor(in);
+		activeColor = savedColors.size() - 1;
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -55,9 +73,13 @@ public class ColorManager {
 		}
 		return null;
 	}
+	
+	public int getActiveColorIndex() {
+		return activeColor;
+	}
 
 	public Color getActiveColor() {
-		return activeColor;
+		return getColor(activeColor);
 	}
 
 }

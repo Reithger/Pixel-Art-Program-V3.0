@@ -60,6 +60,10 @@ public class View {
 		reference.interpretDraw(x, y, nom);
 	}
 
+	public String getPageTextContents(String ref) {
+		return options.getTextContents(ref);
+	}
+	
 	//-- User Request  ----------------------------------------
 	
 	public int requestIntInput(String text) {

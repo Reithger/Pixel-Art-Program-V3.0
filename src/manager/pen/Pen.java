@@ -18,8 +18,8 @@ public class Pen {
 	 * Pen shape - constant array of choices to select from, different draw function for each
 	 * Pen shading - boolean, blends current pen color with canvas pixels (different degrees)
 	 * 
-	 * Eraser?
-	 * 
+	 	 * Eraser?
+	 	 * 
 		 * Undo - invert Changes class, store as queue to undo gradually
 		 * 
 		 * Select mode - go into region select, after marking an area then pick contextual action vvv
@@ -73,16 +73,20 @@ public class Pen {
 		closeLock();
 	}
 
+	//-- StandardDraw  ----------------------------------------
+	
 	public void draw(String nom, LayerPicture lP, int layer, int x, int y) {
 		openLock();
-		Changes c = new Changes(nom, layer);	//TODO: Time it so a Change is finalized after ~.25 seconds of inactivity
+		//Changes c = new Changes(nom, layer);	//TODO: Time it so a Change is finalized after ~.25 seconds of inactivity
 		pencil.draw(lP, x, y, layer, color.getActiveColor());	//TODO: integrate change details into drawing
-		if(changes.get(nom) == null) {
-			changes.put(nom, new LinkedList<Changes>());
-		}
-		changes.get(nom).add(c);
 		closeLock();
 	}
+
+	public void toggleShading() {
+		pencil.toggleShading();
+	}
+	
+	//-- Changes  ---------------------------------------------
 	
 	public void undo(String ref, LayerPicture lP) {
 		if(changes.get(ref) != null) {
@@ -95,16 +99,78 @@ public class Pen {
 		changes = new HashMap<String, LinkedList<Changes>>();
 	}
 	
+	//-- ColorManager  ----------------------------------------
+	
+	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
+		color.editColor(index, chngR, chngG, chngB, chngA);
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
-
+	
+	//-- StandardDraw  ----------------------------------------
+	
+	public void setPenSize(int in) {
+		pencil.setPenSize(in);
+	}
+	
+	public void incrementPenSize() {
+		pencil.setPenSize(pencil.getPenSize() + 1);
+	}
+	
+	public void decrementPenSize() {
+		pencil.setPenSize(pencil.getPenSize() - 1);
+	}
+	
+	public void setPenType(int index) {
+		pencil.setPenDrawType(index);
+	}
+	
+	public void setBlendQuotient(double in) {
+		pencil.setBlendQuotient(in);
+	}
+	
+	//-- ColorManager  ----------------------------------------
+	
+	public void setActiveColor(int ind) {
+		color.setColor(ind);
+	}
+	
+	public void setActiveColor(Color in) {
+		color.setColor(in);
+	}
+	
+	public void addColor(Color in) {
+		color.addColor(in);
+	}
+	
+	public void removeColor(int index) {
+		color.removeColor(index);
+	}
+	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public ArrayList<String> getChangeNames() {
-		ArrayList<String> out = new ArrayList<String>();
-		for(String s : changes.keySet()) {
-			out.add(s);
-		}
-		return out;
+	//-- StandardDraw  ----------------------------------------
+	
+	public int getPenSize() {
+		return pencil.getPenSize();
+	}
+	
+	public double getBlendQuotient() {
+		return pencil.getBlendQuotient();
+	}
+	
+	//-- ColorManager  ----------------------------------------
+	
+	public Color getActiveColor() {
+		return color.getActiveColor();
+	}
+	
+	public int getActiveColorIndex() {
+		return color.getActiveColorIndex();
+	}
+	
+	public ArrayList<Color> getColors(){
+		return color.getColors();
 	}
 
 }

@@ -116,15 +116,15 @@ public class Manager {
 	}
 	
 	public void addLayer(String name) {
-		curator.addLayer(name);
+		curator.addLayer(getSketch(name).getReference());
 	}
 	
 	public void moveLayer(String name, int start, int end) {
-		curator.moveLayer(name, start, end);
+		curator.moveLayer(getSketch(name).getReference(), start, end);
 	}
 	
 	public void removeLayer(String name, int layer) {
-		curator.removeLayer(name, layer);
+		curator.removeLayer(getSketch(name).getReference(), layer);
 	}
 
 	//-- Animations  ------------------------------------------
@@ -163,6 +163,10 @@ public class Manager {
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
+	public Pen getPen() {
+		return pen;
+	}
+	
 	private Sketch getSketch(String nom) {
 		return sketches.get(nom);
 	}
@@ -193,7 +197,7 @@ public class Manager {
 	}
 	
 	public Canvas[] getSketchImages(String nom) {
-		Sketch ska = getSketch(nom);	//TODO Sketch can subsection this
+		Sketch ska = getSketch(nom);
 		return ska.getUpdateImages(curator);
 	}
 	

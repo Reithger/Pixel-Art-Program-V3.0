@@ -61,6 +61,9 @@ public class PixelArtDrawer {
 	public void interpretCode(int in, String active) {
 		System.out.println(in);
 			switch(in) {
+			
+				//-- File  ------------------------------------
+			
 				case CodeReference.CODE_NEW_THING:
 					makeNewThing();
 					break;
@@ -72,18 +75,7 @@ public class PixelArtDrawer {
 					HashMap<String, String> mappings = manager.rename(active, newName);
 					view.rename(mappings);
 					break;
-				case CodeReference.CODE_INCREASE_ZOOM:
-					if(active == null) {
-						return;
-					}
-					manager.increaseZoom(active);
-					break;
-				case CodeReference.CODE_DECREASE_ZOOM:
-					if(active == null) {
-						return;
-					}
-					manager.decreaseZoom(active);
-					break;
+
 				case CodeReference.CODE_CLOSE_THING:
 					if(active == null) {
 						return;
@@ -119,6 +111,44 @@ public class PixelArtDrawer {
 						saveEverything();
 					}
 					System.exit(0);
+					break;
+					
+				//-- Corkboard  -------------------------------
+					
+				case CodeReference.CODE_INCREASE_ZOOM:
+					if(active == null) {
+						return;
+					}
+					manager.increaseZoom(active);
+					break;
+				case CodeReference.CODE_DECREASE_ZOOM:
+					if(active == null) {
+						return;
+					}
+					manager.decreaseZoom(active);
+					break;
+					
+				case CodeReference.CODE_ADD_LAYER:
+					manager.addLayer(active);
+					break;
+				case CodeReference.CODE_REMOVE_LAYER:
+					//TODO: Make custom popout for layer selection
+					manager.removeLayer(active, view.requestIntInput("Which layer (#) do you want to remove?"));
+					break;
+				case CodeReference.CODE_MOVE_LAYER:
+					manager.moveLayer(active, view.requestIntInput("Start Layer"), view.requestIntInput("End Layer"));
+					break;
+					
+				//-- Drawing Stuff  ---------------------------
+					
+				case CodeReference.CODE_PEN_SIZE_INCREMENT:
+					manager.getPen().incrementPenSize();
+					break;
+				case CodeReference.CODE_PEN_SIZE_DECREMENT:
+					manager.getPen().decrementPenSize();
+					break;
+				case CodeReference.CODE_PEN_SIZE_SET:
+					
 					break;
 		}
 			updateView(false);
