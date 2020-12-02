@@ -1,8 +1,10 @@
 package visual;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import control.PixelArtDrawer;
@@ -106,6 +108,16 @@ public class View {
 		boolean out = pC.getChoice();
 		pC.dispose();
 		return out;
+	}
+	
+	//-- Settings Bar Management  -----------------------------
+	
+	public void updateColors(ArrayList<Color> cols, int codeRng, int active) {
+		options.updateColors(cols, codeRng, active);
+	}
+	
+	public void updatePen(int size, double quotient) {
+		
 	}
 	
 	//-- Drawing Board Management  ----------------------------

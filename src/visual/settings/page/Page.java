@@ -2,7 +2,10 @@ package visual.settings.page;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
+import control.CodeReference;
 import visual.composite.HandlePanel;
 import visual.settings.SettingsBar;
 import visual.settings.page.tile.Tile;
@@ -17,7 +20,7 @@ public abstract class Page extends HandlePanel{
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private ArrayList<Tile> tiles;
+	private HashMap<String, Tile> tiles;
 	private String name;
 	private static SettingsBar reference;
 	
@@ -26,7 +29,7 @@ public abstract class Page extends HandlePanel{
 	public Page(String inName) {
 		super(0, 0, 100, 100);
 		name = inName;
-		tiles = new ArrayList<Tile>();
+		tiles = new HashMap<String, Tile>();
 		this.setScrollBarVertical(false);
 		setScrollBarHorizontal(false);
 	}
@@ -37,16 +40,20 @@ public abstract class Page extends HandlePanel{
 		reference = ref;
 	}
 	
-	public void addTileBig(String label, String path, int code) {
-		addTile(TileFactory.generateTileBig(path, label, code));
+	public void addTileBig(String ref, String label, String path, int code) {
+		addTile(ref, TileFactory.generateTileBig(path, label, code));
 	}
 	
-	public void addTileGrid(String[] paths, String label, int[] codes) {
-		addTile(TileFactory.generateTileGrid(paths, label, codes));
+	public void addTileGrid(String ref, String[] paths, String label, int[] codes, int gridHeight) {
+		addTile(ref, TileFactory.generateTileGrid(paths, label, codes, gridHeight));
 	}
 	
-	private void addTile(Tile in) {
-		tiles.add(in);
+	public void addTileColorGrid(String ref, String label, int height) {
+		addTile(ref, TileFactory.generateTileColorGrid(label, height));
+	}
+	
+	private void addTile(String ref, Tile in) {
+		tiles.put(ref, in);
 		in.assignMaximumVerticalSpace(getHeight());
 	}
 	
@@ -56,14 +63,16 @@ public abstract class Page extends HandlePanel{
 		int posY = getHeight() / 2;
 
 		removeElementPrefixed("navigate");
-		
-		for(Tile t : tiles) {
-			handleLine("line_" + posX, false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
+		ArrayList<Tile> disp = new ArrayList<Tile>(tiles.values());
+		Collections.sort(disp);
+		for(int i = 0; i < disp.size(); i++) {
+			handleLine("line_" + i, false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 			posX += buffer;
+			Tile t = disp.get(i);
 			t.drawTile(posX, posY, this);
 			posX += t.getTileWidth() + buffer;
 		}
-		this.handleLine("line_" + posX, false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
+		this.handleLine("line_" + disp.size(), false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 		
 		handleThickRectangle("outline", true, 0, 0, getWidth(), getHeight(), Color.black, 2);
 		
@@ -88,10 +97,22 @@ public abstract class Page extends HandlePanel{
 
 //---  Setter Methods   -----------------------------------------------------------------------
 	
+	public void assignTileColorGridColors(String ref, ArrayList<Color> cols, int codeStart) {
+		TileFactory.updateTileColorGrid(getTile(ref), cols, codeStart + CodeReference.CODE_RANGE_SELECT_COLOR);
+	}
+	
+	public void assignTileColorGridActive(String ref, int inde) {
+		TileFactory.updateTileColorGridActive(getTile(ref), inde);
+	}
+	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	public String getName() {
 		return name;
+	}
+	
+	private Tile getTile(String ref) {
+		return tiles.get(ref);
 	}
 	
 //---  Reactions   ----------------------------------------------------------------------------

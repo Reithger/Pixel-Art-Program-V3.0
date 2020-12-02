@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 
+import control.CodeReference;
 import visual.View;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
@@ -16,7 +17,6 @@ public class SettingsBar {
 	
 	private final static String MENU_BAR_WINDOW_NAME = "menu bar";
 	private final static double RATIO_MENU_SELECTION = 1.0/6;
-	//TODO: Have a custom Page for Animation actions, Image actions, Layer actions that appears contextually
 	private final static Font MENU_FONT = new Font("Serif", Font.BOLD, 12);
 	private final static int SELECT_BAR_MIN_SECTIONS = 8;
 	
@@ -43,7 +43,13 @@ public class SettingsBar {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-//-- Input  -----------------------------------------------
+	public void updateColors(ArrayList<Color> cols, int codeBase, int active) {
+		getActivePage().assignTileColorGridColors(CodeReference.REF_COLOR_GRID, cols, codeBase);
+		getActivePage().assignTileColorGridActive(CodeReference.REF_COLOR_GRID, active);
+		getActivePage().drawPage();
+	}
+	
+	//-- Input  -----------------------------------------------
 
 	public void passOnCode(int code) {
 		reference.handOffInt(code);

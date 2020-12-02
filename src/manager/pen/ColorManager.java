@@ -2,20 +2,25 @@ package manager.pen;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ColorManager {
 	
+	//TODO: Save pallets for easy re-access, and display them conveniently
+	
+	private final static int PALLET_CODE_BUFFER = 5;
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private int activeColor;
-	private ArrayList<Color> savedColors;
+	private int currPallet;
+	private ArrayList<Pallet> savedColors;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public ColorManager() {
-		savedColors = new ArrayList<Color>();
-		savedColors.add(Color.black);
-		activeColor = 0;
+		currPallet = 0;
+		savedColors = new ArrayList<Pallet>();
+		savedColors.add(new Pallet());
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -30,56 +35,90 @@ public class ColorManager {
 			cols[i] %= 255;
 			cols[i] = cols[i] < 0 ? 255 - cols[i] : cols[i];
 		}
-		savedColors.set(index, new Color(cols[0], cols[1], cols[2], cols[3]));
+		getCurrentPallet().setColor(index, new Color(cols[0], cols[1], cols[2], cols[3]));
 	}
 
 	public void addColor(Color in) {
-		savedColors.add(in);
+		getCurrentPallet().addColor(in);
 	}
 	
 	public void removeColor(int in) {
-		savedColors.remove(in);
-		if(activeColor >= in) {
-			setColor(activeColor - 1);
+		getCurrentPallet().removeColor(in);
+		if(getActiveColorIndex() >= in) {
+			setColor(getActiveColorIndex() - 1);
 		}
-		if(savedColors.size() == 0) {
-			savedColors.add(Color.black);
+		if(getCurrentPallet().getColors().size() == 0) {
+			getCurrentPallet().addColor(Color.black);
+		}
+	}
+	
+	public void addPallet(ArrayList<Color> cols) {
+		savedColors.add(new Pallet(cols));
+	}
+	
+	public void addPallet() {
+		savedColors.add(new Pallet());
+	}
+	
+	public void removePallet(int ind) {
+		savedColors.remove(ind);
+		if(currPallet >= ind) {
+			currPallet--;
 		}
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
+	public void setPallet(int index) {
+		index = fixIndex(index);
+		currPallet = index;
+	}
+	
 	public void setColor(int index) {
-		if(index < 0) {
-			index = 0;
-		}
-		activeColor = index;
+		index = fixIndex(index);
+		getCurrentPallet().setColor(index);
 	}
 	
 	public void setColor(Color in) {
 		addColor(in);
-		activeColor = savedColors.size() - 1;
+		getCurrentPallet().setColor(getCurrentPallet().getColors().size() - 1);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 
 	public ArrayList<Color> getColors(){
-		return savedColors;
+		return getCurrentPallet().getColors();
 	}
 	
 	public Color getColor(int index) {
-		if(index >= 0 && index < savedColors.size()) {
-			return savedColors.get(index);
-		}
-		return null;
+		index = fixIndex(index);
+		return getCurrentPallet().getColor(index);
 	}
 	
 	public int getActiveColorIndex() {
-		return activeColor;
+		return getCurrentPallet().getActiveColor();
 	}
 
 	public Color getActiveColor() {
-		return getColor(activeColor);
+		return getColor(getCurrentPallet().getActiveColor());
+	}
+	
+	public int getCurrentPalletIndex() {
+		return currPallet;
+	}
+	
+	public int getCurrentPalletCodeBase() {
+		return currPallet * (PALLET_CODE_BUFFER + Pallet.MAXIMUM_SIZE);
+	}
+	
+	private int fixIndex(int index) {
+		index = index < 0 ? 0 : index;
+		index = index >= getCurrentPallet().getColors().size() ? getCurrentPallet().getColors().size() - 1 : index;
+		return index;
 	}
 
+	private Pallet getCurrentPallet(){
+		return savedColors.get(currPallet);
+	}
+	
 }

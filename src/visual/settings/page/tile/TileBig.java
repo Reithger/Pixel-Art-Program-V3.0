@@ -21,10 +21,10 @@ public class TileBig extends Tile{
 		x += getTileWidth() / 2;
 		int wid = getTileWidth();
 		int posY =  y - getHeight() / 5;
-		p.handleImage("tile_big_img_" + label + "_" + x, false, x, posY, img, 1);
-		p.handleButton("tile_big_butt_" + label + "_" + x, false,  x, posY, wid, getHeight() , code);
-		p.handleText("tile_big_txt_" + label + "_" + x, false,  x, y + getHeight() / 4, wid, getHeight(), SMALL_LABEL_FONT, label);
-		p.handleRectangle("rect_test_" + label + "_" + x, false, 10,  x, y, wid, getHeight(), Color.white, Color.black);
+		p.handleImage("tile_big_img_" + label + "_" + code, false, x, posY, img, 1);
+		p.handleButton("tile_big_butt_" + label + "_" + code, false,  x, posY, wid, getHeight() , code);
+		p.handleText("tile_big_txt_" + label + "_" + code, false,  x, y + getHeight() / 4, wid, getHeight(), SMALL_LABEL_FONT, label);
+		p.handleRectangle("rect_test_" + label + "_" + code, false, 10,  x, y, wid, getHeight(), Color.white, Color.black);
 	}
 
 	@Override

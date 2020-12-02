@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,6 +40,7 @@ public class PixelArtDrawer {
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
+		updateColors();
 		/*Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -60,6 +62,18 @@ public class PixelArtDrawer {
 	
 	public void interpretCode(int in, String active) {
 		System.out.println(in);
+		if(checkRangeColors(in)) {
+			int use = (in - CodeReference.CODE_RANGE_SELECT_COLOR - manager.getPen().getCurrentPalletCodeBase());
+			manager.getPen().setActiveColor(use);
+			updateColors();
+		}
+		else if(checkRangePenType(in)) {
+			
+		}
+		else if(checkRangeLayers(in)) {
+			
+		}
+		else {
 			switch(in) {
 			
 				//-- File  ------------------------------------
@@ -75,7 +89,7 @@ public class PixelArtDrawer {
 					HashMap<String, String> mappings = manager.rename(active, newName);
 					view.rename(mappings);
 					break;
-
+	
 				case CodeReference.CODE_CLOSE_THING:
 					if(active == null) {
 						return;
@@ -150,8 +164,27 @@ public class PixelArtDrawer {
 				case CodeReference.CODE_PEN_SIZE_SET:
 					
 					break;
+				case CodeReference.CODE_COLOR_ADD:
+					Random rand = new Random();
+					Color nC = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+					manager.getPen().addColor(nC);
+					updateColors();
+					break;
+			}
 		}
-			updateView(false);
+		updateView(false);
+	}
+	
+	private boolean checkRangeColors(int in) {
+		return in >= CodeReference.CODE_RANGE_SELECT_COLOR && in < CodeReference.CODE_RANGE_SELECT_DRAW_TYPE;
+	}
+	
+	private boolean checkRangePenType(int in) {
+		return in >= CodeReference.CODE_RANGE_SELECT_DRAW_TYPE;
+	}
+	
+	private boolean checkRangeLayers(int in) {
+		return in >= CodeReference.CODE_RANGE_LAYER_SELECT && in < CodeReference.CODE_RANGE_SELECT_COLOR;
 	}
 	
 	public void interpretDraw(int x, int y, String nom) {
@@ -213,6 +246,9 @@ public class PixelArtDrawer {
 	
 	//-- Updating View  ---------------------------------------
 	
+	private void updateColors() {
+		view.updateColors(manager.getPen().getColors(), manager.getPen().getCurrentPalletCodeBase(), manager.getPen().getActiveColorIndex());
+	}
 	public void updateView(boolean force) {
 		for(String nom : manager.getSketchNames(force)) {
 			updateThing(nom, manager.getSketchImages(nom), manager.getSketchZoom(nom));

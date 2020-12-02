@@ -2,6 +2,10 @@ package control;
 
 public class CodeReference {
 
+//---  Name References   ----------------------------------------------------------------------
+	
+	public final static String REF_COLOR_GRID = "color_grid";
+	
 //---  File Stuff   ---------------------------------------------------------------------------
 
 	//-- Integrated  ------------------------------------------
@@ -61,10 +65,13 @@ public class CodeReference {
 	public final static int CODE_RANGE_SELECT_COLOR = 2000;
 															//TODO: Save color set palletes for re-access without bloating main color selection
 	public final static int CODE_RANGE_SELECT_DRAW_TYPE = 2500;
+	
 	public final static int CODE_PEN_SIZE_INCREMENT = 68;
 	public final static int CODE_PEN_SIZE_DECREMENT = 69;
 	public final static int CODE_PEN_SIZE_SET = 70;
+	
 	public final static int CODE_PEN_SET_BLEND_QUOTIENT = 71;
+	
 	public final static int CODE_COLOR_ADD = 72;
 	public final static int CODE_COLOR_REMOVE = 73;
 	public final static int CODE_COLOR_EDIT = 74;

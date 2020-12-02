@@ -101,8 +101,28 @@ public class Pen {
 	
 	//-- ColorManager  ----------------------------------------
 	
+	public void addColor(Color in) {
+		color.addColor(in);
+	}
+	
+	public void removeColor(int index) {
+		color.removeColor(index);
+	}
+	
 	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
 		color.editColor(index, chngR, chngG, chngB, chngA);
+	}
+	
+	public void addPallet() {
+		color.addPallet();
+	}
+	
+	public void addPallet(ArrayList<Color> cols) {
+		color.addPallet(cols);
+	}
+	
+	public void removePallet(int index) {
+		color.removePallet(index);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
@@ -138,13 +158,9 @@ public class Pen {
 	public void setActiveColor(Color in) {
 		color.setColor(in);
 	}
-	
-	public void addColor(Color in) {
-		color.addColor(in);
-	}
-	
-	public void removeColor(int index) {
-		color.removeColor(index);
+
+	public void setPallet(int in) {
+		color.setPallet(in);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -173,4 +189,12 @@ public class Pen {
 		return color.getColors();
 	}
 
+	public int getCurrentPallet() {
+		return color.getCurrentPalletIndex();
+	}
+	
+	public int getCurrentPalletCodeBase() {
+		return color.getCurrentPalletCodeBase();
+	}
+	
 }

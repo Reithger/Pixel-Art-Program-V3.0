@@ -4,7 +4,7 @@ import java.awt.Font;
 
 import visual.composite.HandlePanel;
 
-public abstract class Tile {
+public abstract class Tile implements Comparable<Tile>{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -14,6 +14,7 @@ public abstract class Tile {
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private int height;
+	private int priority;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -29,12 +30,39 @@ public abstract class Tile {
 		height = (int)(in * SPACE_RATIO_VERTICAL);
 	}
 	
+//---  Setter Methods   -----------------------------------------------------------------------
+	
+	public void setPriority(int in) {
+		priority = in;
+	}
+	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	public abstract int getTileWidth();
 	
 	public int getHeight() {
 		return height;
+	}
+	
+	public int getPriority() {
+		return priority;
+	}
+	
+//---  Mechanics   ----------------------------------------------------------------------------
+	
+	@Override
+	public int compareTo(Tile o) {
+		int a = getPriority();
+		int b = o.getPriority();
+		if(a < b) {
+			return -1;
+		}
+		else if(b < a) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
 	}
 	
 }
