@@ -23,6 +23,11 @@ public class GridColor implements GridIcon{
 	}
 	
 	@Override
+	public int getCode() {
+		return code;
+	}
+	
+	@Override
 	public boolean isSelected() {
 		return selected;
 	}

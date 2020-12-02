@@ -71,7 +71,7 @@ public class DrawingBoard {
 	}
 	
 	public void passOnCode(int code) {
-		reference.handOffInt(code);
+		reference.handOffInt(code, getActiveElement());
 	}
 	
 	//-- Page Management  -------------------------------------
@@ -166,7 +166,7 @@ public class DrawingBoard {
 	}
 	
 	public void drawSelectBar() {
-		int wid = selectBar.getWidth() / (pages.keySet().size() < SELECT_BAR_MIN_SECTIONS ? SELECT_BAR_MIN_SECTIONS : pages.keySet().size());
+		int wid = selectBar.getWidth() / SELECT_BAR_MIN_SECTIONS;
 
 		int posX = wid / 2;
 		int hei = selectBar.getHeight() * 14/15;

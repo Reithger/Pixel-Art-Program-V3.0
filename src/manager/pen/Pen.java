@@ -175,6 +175,10 @@ public class Pen {
 		return pencil.getBlendQuotient();
 	}
 	
+	public int getPenType() {
+		return pencil.getPenType();
+	}
+	
 	//-- ColorManager  ----------------------------------------
 	
 	public Color getActiveColor() {

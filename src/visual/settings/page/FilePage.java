@@ -17,5 +17,9 @@ public class FilePage extends Page{
 		addTileBig("G", "Meta", "/assets/placeholder.png", CodeReference.CODE_OPEN_META);
 		addTileBig("H", "Exit", "/assets/placeholder.png", CodeReference.CODE_EXIT);
 	}
+	
+	public void refresh() {
+		
+	}
 
 }

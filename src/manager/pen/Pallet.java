@@ -13,6 +13,14 @@ public class Pallet {
 	public Pallet() {
 		colors = new ArrayList<Color>();
 		colors.add(Color.black);
+		colors.add(Color.white);
+		colors.add(Color.blue);
+		colors.add(Color.yellow);
+		colors.add(Color.green);
+		colors.add(Color.red);
+		colors.add(Color.pink);
+		colors.add(Color.orange);
+		colors.add(Color.magenta);
 		active = 0;
 	}
 	

@@ -2,9 +2,15 @@ package control;
 
 public class CodeReference {
 
+//---  Draw Type Mappings   -------------------------------------------------------------------
+	
+	
+	
 //---  Name References   ----------------------------------------------------------------------
 	
 	public final static String REF_COLOR_GRID = "color_grid";
+	public final static String REF_PEN_SIZE = "pen_det";
+	public final static String REF_PEN_BLEND = "pen_blen";
 	
 //---  File Stuff   ---------------------------------------------------------------------------
 
@@ -58,16 +64,17 @@ public class CodeReference {
 	
 	//-- Integrated  ------------------------------------------
 	
-	//-- Partially Integrated  --------------------------------
-	
-	//-- Not Integrated  --------------------------------------
-	
 	public final static int CODE_RANGE_SELECT_COLOR = 2000;
-															//TODO: Save color set palletes for re-access without bloating main color selection
-	public final static int CODE_RANGE_SELECT_DRAW_TYPE = 2500;
-	
 	public final static int CODE_PEN_SIZE_INCREMENT = 68;
 	public final static int CODE_PEN_SIZE_DECREMENT = 69;
+		
+	//-- Partially Integrated  --------------------------------
+
+	
+	//-- Not Integrated  --------------------------------------
+													//TODO: Save color set palletes for re-access without bloating main color selection
+	public final static int CODE_RANGE_SELECT_DRAW_TYPE = 2500;
+	
 	public final static int CODE_PEN_SIZE_SET = 70;
 	
 	public final static int CODE_PEN_SET_BLEND_QUOTIENT = 71;
@@ -75,5 +82,10 @@ public class CodeReference {
 	public final static int CODE_COLOR_ADD = 72;
 	public final static int CODE_COLOR_REMOVE = 73;
 	public final static int CODE_COLOR_EDIT = 74;
+	
+	public final static int CODE_UPDATE_COLOR = 80;
+	public final static int CODE_UPDATE_PEN_SIZE = 81;
+	public final static int CODE_UPDATE_PEN_BLEND = 82;
+	public final static int CODE_UPDATE_PEN_TYPE = 83;
 	
 }

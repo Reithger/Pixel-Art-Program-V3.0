@@ -43,16 +43,26 @@ public class SettingsBar {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void updateColors(ArrayList<Color> cols, int codeBase, int active) {
-		getActivePage().assignTileColorGridColors(CodeReference.REF_COLOR_GRID, cols, codeBase);
-		getActivePage().assignTileColorGridActive(CodeReference.REF_COLOR_GRID, active);
+	public void updateColorGrid(String ref, ArrayList<Color> cols, int codeBase, int active) {
+		getActivePage().assignTileColorGridColors(ref, cols, codeBase);
+		getActivePage().assignTileGridActive(ref, active);
+		getActivePage().drawPage();
+	}
+	
+	public void updateTileGridActive(String ref, int active) {
+		getActivePage().assignTileGridActive(ref, active);
+		getActivePage().drawPage();
+	}
+	
+	public void updateNumericSelector(String ref, int min, int max, int store) {
+		getActivePage().assignTileNumericSelectorValues(ref, min, max, store);
 		getActivePage().drawPage();
 	}
 	
 	//-- Input  -----------------------------------------------
 
-	public void passOnCode(int code) {
-		reference.handOffInt(code);
+	public void passOnCode(int code, String context) {
+		reference.handOffInt(code, context);
 	}
 	
 	private void formatPages(int x, int y, int wid, int hei) {
@@ -76,7 +86,7 @@ public class SettingsBar {
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
 				if(!changePage(code)) {
-					reference.handOffInt(code);
+					reference.handOffInt(code, null);
 				}
 			}
 			
@@ -99,6 +109,7 @@ public class SettingsBar {
 			setMenuIndex(code);
 			drawMenuBar();
 			parent.showActiveWindow(getActivePageName());
+			getActivePage().refresh();
 			return true;
 		}
 		return false;
@@ -119,12 +130,12 @@ public class SettingsBar {
 		}
 	}
 	
-	public void passInputCode(int code) {
-		reference.handOffInt(code);
+	public void passInputCode(int code, String context) {
+		reference.handOffInt(code, context);
 	}
 	
-	public String getTextContents(String ref) {
-		return getActivePage().getElementStoredText(ref);
+	public String getTileContents(String ref) {
+		return getActivePage().getTileInfo(ref);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

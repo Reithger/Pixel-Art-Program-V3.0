@@ -1,7 +1,6 @@
 package visual.drawboard;
 
 import java.awt.Font;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import misc.Canvas;

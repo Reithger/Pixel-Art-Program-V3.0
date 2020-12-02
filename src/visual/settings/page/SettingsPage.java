@@ -8,5 +8,9 @@ public class SettingsPage extends Page{
 		super(NAME);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public void refresh() {
+		
+	}
 
 }

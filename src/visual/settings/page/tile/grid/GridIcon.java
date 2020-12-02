@@ -10,4 +10,6 @@ public interface GridIcon {
 	
 	public abstract void toggleSelected();
 	
+	public abstract int getCode();
+	
 }

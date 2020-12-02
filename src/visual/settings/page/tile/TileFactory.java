@@ -11,6 +11,10 @@ public class TileFactory {
 	public final static String TILE_TYPE_BIG = "B";
 	public final static String TILE_TYPE_GRID = "G";
 	
+	public static TileNumericSelector generateTileNumericSelector(String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
+		return new TileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode);
+	}
+	
 	public static TileBig generateTileBig(String path, String label, int code) {
 		return new TileBig(path, label, code);
 	}
@@ -23,7 +27,7 @@ public class TileFactory {
 		return new TileColorGrid(label, height);
 	}
 	
-	public static void updateTileColorGridActive(Tile in, int active) {
+	public static void updateTileGridActive(Tile in, int active) {
 		TileColorGrid tCG = castTileColorGrid(in);
 		if(tCG != null) {
 			tCG.setActive(active);
@@ -37,6 +41,13 @@ public class TileFactory {
 		}
 	}
 	
+	public static void updateTileNumericSelectorValues(Tile in, int min, int max, int stored) {
+		TileNumericSelector tNS = castTileNumericSelector(in);
+		if(tNS != null) {
+			tNS.setValues(min, max, stored);
+		}
+	}
+	
 	private static TileColorGrid castTileColorGrid(Tile in) {
 		try {
 			return ((TileColorGrid)in);
@@ -47,4 +58,13 @@ public class TileFactory {
 		}
 	}
 	
+	private static TileNumericSelector castTileNumericSelector(Tile in) {
+		try {
+			return ((TileNumericSelector)in);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

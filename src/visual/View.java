@@ -41,29 +41,29 @@ public class View {
 	public View(PixelArtDrawer in) {
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 		//TODO: Make this dynamic to your screen size
+		reference = in;
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
 		frame.setName("Test");
 		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
 		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame, this);
 		frame.reserveWindow(body.getWindowName());
 		frame.showActiveWindow(body.getWindowName());
-		reference = in;
 	}
 
 //---  Operations   ---------------------------------------------------------------------------
 	
 	//-- Input Handling  --------------------------------------
 	
-	public void handOffInt(int code) {
-		reference.interpretCode(code, body.getActiveElement());
+	public void handOffInt(int code, String context) {
+		reference.interpretCode(code, context);
 	}
 	
 	public void handOffClick(int x, int y, String nom) {
 		reference.interpretDraw(x, y, nom);
 	}
 
-	public String getPageTextContents(String ref) {
-		return options.getTextContents(ref);
+	public String getTileContents(String ref) {
+		return options.getTileContents(ref);
 	}
 	
 	//-- User Request  ----------------------------------------
@@ -112,12 +112,20 @@ public class View {
 	
 	//-- Settings Bar Management  -----------------------------
 	
-	public void updateColors(ArrayList<Color> cols, int codeRng, int active) {
-		options.updateColors(cols, codeRng, active);
+	public void updateColors(String ref, ArrayList<Color> cols, int codeRng, int active) {
+		options.updateColorGrid(ref, cols, codeRng, active);
 	}
 	
-	public void updatePen(int size, double quotient) {
-		
+	public void updatePenSize(String ref, int min, int max, int size) {
+		options.updateNumericSelector(ref, min, max, size);
+	}
+	
+	public void updatePenBlend(String ref, int val) {
+		options.updateNumericSelector(ref, 0, 100, val);
+	}
+	
+	public void updatePenType(String ref, int index) {
+		options.updateTileGridActive(ref, index);
 	}
 	
 	//-- Drawing Board Management  ----------------------------

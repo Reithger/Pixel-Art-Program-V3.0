@@ -27,6 +27,11 @@ public class GridImage implements GridIcon{
 	}
 	
 	@Override
+	public int getCode() {
+		return code;
+	}
+	
+	@Override
 	public void toggleSelected() {
 		selected = !selected;
 	}

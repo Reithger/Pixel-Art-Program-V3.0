@@ -13,6 +13,7 @@ public class StandardDraw {
 
 	private int penSize;
 	private DrawType currMode;
+	private int modeIndex;
 	private boolean shade;
 	private double blendQuotient;
 	
@@ -84,6 +85,10 @@ public class StandardDraw {
 	
 	public int getPenSize() {
 		return penSize;
+	}
+	
+	public int getPenType() {
+		return modeIndex;
 	}
 	
 	public double getBlendQuotient() {

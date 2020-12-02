@@ -21,6 +21,7 @@ public abstract class Page extends HandlePanel{
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private HashMap<String, Tile> tiles;
+	private HashMap<Integer, String> tileCodes;
 	private String name;
 	private static SettingsBar reference;
 	
@@ -30,6 +31,7 @@ public abstract class Page extends HandlePanel{
 		super(0, 0, 100, 100);
 		name = inName;
 		tiles = new HashMap<String, Tile>();
+		tileCodes = new HashMap<Integer, String>();
 		this.setScrollBarVertical(false);
 		setScrollBarHorizontal(false);
 	}
@@ -39,24 +41,7 @@ public abstract class Page extends HandlePanel{
 	public static void assignReference(SettingsBar ref) {
 		reference = ref;
 	}
-	
-	public void addTileBig(String ref, String label, String path, int code) {
-		addTile(ref, TileFactory.generateTileBig(path, label, code));
-	}
-	
-	public void addTileGrid(String ref, String[] paths, String label, int[] codes, int gridHeight) {
-		addTile(ref, TileFactory.generateTileGrid(paths, label, codes, gridHeight));
-	}
-	
-	public void addTileColorGrid(String ref, String label, int height) {
-		addTile(ref, TileFactory.generateTileColorGrid(label, height));
-	}
-	
-	private void addTile(String ref, Tile in) {
-		tiles.put(ref, in);
-		in.assignMaximumVerticalSpace(getHeight());
-	}
-	
+
 	public void drawPage() {
 		int buffer = getWidth() / 50;
 		int posX = buffer / 2;
@@ -90,19 +75,61 @@ public abstract class Page extends HandlePanel{
 		}
 		
 	}
+
+	public abstract void refresh();
 	
-	protected void passCodeInput(int code) {
-		reference.passInputCode(code);
+	//-- Input  -----------------------------------------------
+	
+	protected void passCodeInput(int code, String context) {
+		reference.passInputCode(code, context);
 	}
 
+	//-- Tiles  -----------------------------------------------
+	
+	public void addTileBig(String ref, String label, String path, int code) {
+		addTile(ref, TileFactory.generateTileBig(path, label, code));
+	}
+	
+	public void addTileGrid(String ref, String[] paths, String label, int[] codes, int gridHeight) {
+		addTile(ref, TileFactory.generateTileGrid(paths, label, codes, gridHeight));
+	}
+	
+	public void addTileColorGrid(String ref, String label, int height) {
+		addTile(ref, TileFactory.generateTileColorGrid(label, height));
+	}
+	
+	public void addTileNumericSelector(String ref, String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
+		addTile(ref, TileFactory.generateTileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode));
+	}
+	
+	private void addTile(String ref, Tile in) {
+		in.setPriority(tiles.size());
+		in.setName(ref);
+		updateCodeAssociations(in);
+		//TODO: Complexity for removing/moving tiles?
+		tiles.put(ref, in);
+		in.assignMaximumVerticalSpace(getHeight());
+	}
+	
+	private void updateCodeAssociations(Tile in) {
+		for(int i : in.getAssociatedCodes()) {
+			tileCodes.put(i, in.getName());
+		}
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void assignTileColorGridColors(String ref, ArrayList<Color> cols, int codeStart) {
-		TileFactory.updateTileColorGrid(getTile(ref), cols, codeStart + CodeReference.CODE_RANGE_SELECT_COLOR);
+		TileFactory.updateTileColorGrid(getTile(ref), cols, codeStart);
+		updateCodeAssociations(getTile(ref));
 	}
 	
-	public void assignTileColorGridActive(String ref, int inde) {
-		TileFactory.updateTileColorGridActive(getTile(ref), inde);
+	public void assignTileGridActive(String ref, int inde) {
+		TileFactory.updateTileGridActive(getTile(ref), inde);
+	}
+	
+	public void assignTileNumericSelectorValues(String ref, int min, int max, int store) {
+		TileFactory.updateTileNumericSelectorValues(getTile(ref), min, max, store);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -115,11 +142,28 @@ public abstract class Page extends HandlePanel{
 		return tiles.get(ref);
 	}
 	
+	public String getTileInfo(String ref) {
+		return getTile(ref).getInfo();
+	}
+	
 //---  Reactions   ----------------------------------------------------------------------------
 	
 	@Override
 	public void keyBehaviour(char code) {
 		
+	}
+	
+	@Override
+	public void dragBehaviour(int code, int x, int y) {
+		if(tileCodes.get(code) == null) {
+			return;
+		}
+		if(getTile(tileCodes.get(code)).dragTileProcess(code, x, y)) {
+			refresh();
+		}
+		else {
+			//Meta movement
+		}
 	}
 	
 	@Override
@@ -132,9 +176,10 @@ public abstract class Page extends HandlePanel{
 				setOffsetX(getOffsetX() - (getWidth() - 100));
 				break;
 			default:
+				reference.passOnCode(code, tileCodes.get(code));
+				refresh();
 				break;
 		}
-		reference.passOnCode(code);
 		drawPage();
 	}
 	

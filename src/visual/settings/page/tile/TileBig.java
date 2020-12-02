@@ -1,6 +1,7 @@
 package visual.settings.page.tile;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import visual.composite.HandlePanel;
 
@@ -27,9 +28,23 @@ public class TileBig extends Tile{
 		p.handleRectangle("rect_test_" + label + "_" + code, false, 10,  x, y, wid, getHeight(), Color.white, Color.black);
 	}
 
+	public boolean dragTileProcess(int code, int x, int y) {
+		return false;
+	}
+	
 	@Override
 	public int getTileWidth() {
 		return getHeight() * 4 / 5;
 	}
 
+	public String getInfo() {
+		return "";
+	}
+	
+	public ArrayList<Integer> getAssociatedCodes(){
+		ArrayList<Integer> out = new ArrayList<Integer>();
+		out.add(code);
+		return out;
+	}
+	
 }
