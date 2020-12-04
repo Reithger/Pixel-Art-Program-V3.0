@@ -3,10 +3,10 @@ package visual;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import control.CodeReference;
 import control.PixelArtDrawer;
 import filemeta.FileChooser;
 import misc.Canvas;
@@ -26,6 +26,8 @@ public class View {
 	
 	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
 
+	private final static Color COLOR_BACKGROUND = new Color(212, 212, 212);
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private PixelArtDrawer reference;
@@ -43,6 +45,7 @@ public class View {
 		//TODO: Make this dynamic to your screen size
 		reference = in;
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
+		frame.getFrame().getContentPane().setBackground(COLOR_BACKGROUND);
 		frame.setName("Test");
 		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
 		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame, this);
@@ -81,6 +84,13 @@ public class View {
 		}
 	}
 	
+	public Color requestColorChoice(Color def) {
+		PopoutColorDesigner pCD = new PopoutColorDesigner(300, 300, def);
+		Color out = pCD.getChoice();
+		pCD.dispose();
+		return out;
+	}
+	
 	public String requestStringInput(String text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
 		String out = piR.getSubmitted();
@@ -113,7 +123,7 @@ public class View {
 	//-- Settings Bar Management  -----------------------------
 	
 	public void updateColors(String ref, ArrayList<Color> cols, int codeRng, int active) {
-		options.updateColorGrid(ref, cols, codeRng, active);
+		options.updateTileGridColors(ref, cols, codeRng, active);
 	}
 	
 	public void updatePenSize(String ref, int min, int max, int size) {
@@ -124,8 +134,8 @@ public class View {
 		options.updateNumericSelector(ref, 0, 100, val);
 	}
 	
-	public void updatePenType(String ref, int index) {
-		options.updateTileGridActive(ref, index);
+	public void updatePenType(String ref, ArrayList<String> paths, int codeRng, int index) {
+		options.updateTileGridImages(ref, paths, codeRng, index);
 	}
 	
 	//-- Drawing Board Management  ----------------------------

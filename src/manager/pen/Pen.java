@@ -109,6 +109,10 @@ public class Pen {
 		color.removeColor(index);
 	}
 	
+	public void editColor(int index, Color col) {
+		color.editColor(index, col);
+	}
+	
 	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
 		color.editColor(index, chngR, chngG, chngB, chngA);
 	}
@@ -177,6 +181,10 @@ public class Pen {
 	
 	public int getPenType() {
 		return pencil.getPenType();
+	}
+	
+	public int[] getPenDrawTypes() {
+		return pencil.getDrawTypes();
 	}
 	
 	//-- ColorManager  ----------------------------------------

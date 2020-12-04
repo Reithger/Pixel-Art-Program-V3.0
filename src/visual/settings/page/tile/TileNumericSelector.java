@@ -49,6 +49,7 @@ public class TileNumericSelector extends Tile {
 		int posY = y - (getHeight() / 3) / 2;
 		int size = getHeight() / 3;
 		int iconSize = size / 2;
+		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 7 / 16, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 		
 		p.handleImageButton("gr_" + label + "_dec", false, posX, posY, iconSize, iconSize, "./assets/placeholder.png", decCode);
 		posX += size;

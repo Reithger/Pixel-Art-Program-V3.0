@@ -14,6 +14,7 @@ public class Pallet {
 		colors = new ArrayList<Color>();
 		colors.add(Color.black);
 		colors.add(Color.white);
+		colors.add(new Color(255, 255, 255, 0));
 		colors.add(Color.blue);
 		colors.add(Color.yellow);
 		colors.add(Color.green);

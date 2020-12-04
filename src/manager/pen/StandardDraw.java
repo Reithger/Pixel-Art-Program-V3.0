@@ -22,6 +22,7 @@ public class StandardDraw {
 	public StandardDraw() {
 		penSize = 13;
 		updateCurrentDrawMode(DrawTypeSelector.PEN_DRAW_CIRCLE);
+		modeIndex = 1;
 		shade = false;
 	}
 	
@@ -69,6 +70,7 @@ public class StandardDraw {
 	}
 	
 	public void setPenDrawType(int in) {
+		modeIndex = in;
 		updateCurrentDrawMode(in);
 	}
 	
@@ -89,6 +91,10 @@ public class StandardDraw {
 	
 	public int getPenType() {
 		return modeIndex;
+	}
+	
+	public int[] getDrawTypes() {
+		return DrawTypeSelector.getDrawTypes();
 	}
 	
 	public double getBlendQuotient() {

@@ -1,13 +1,9 @@
 package control;
 
 import java.awt.Color;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import manager.Manager;
 import misc.Canvas;
@@ -50,6 +46,7 @@ public class PixelArtDrawer {
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
+		generateEmptyImage("Default", 32, 32);
 		/*Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -63,18 +60,26 @@ public class PixelArtDrawer {
 
 	//-- Receiving Code from View  ----------------------------
 	
+	/**
+	 * active is the element that produced the code, be it a Tile in the Settings Bar or one of the
+	 * Corkboards.
+	 * 
+	 * @param in
+	 * @param active
+	 */
+	
 	public void interpretCode(int in, String active) {
 		System.out.println(in);
 		boolean happ = checkRanges(in, active);
 		if(!happ) {
 			checkCommands(in, active);
 		}
-		updateView(false);
+		updateCorkboard(false);
 	}
 	
 	public void interpretDraw(int x, int y, String nom) {
 		manager.drawToPicture(nom, x, y);
-		updateView(false);
+		updateCorkboard(false);
 	}
 
 	//-- Codes from Ranges  -----------------------------------
@@ -94,7 +99,6 @@ public class PixelArtDrawer {
 		if(in >= CodeReference.CODE_RANGE_SELECT_COLOR && in < CodeReference.CODE_RANGE_SELECT_DRAW_TYPE) {
 			int use = (in - CodeReference.CODE_RANGE_SELECT_COLOR - manager.getPen().getCurrentPalletCodeBase());
 			manager.getPen().setActiveColor(use);
-			updateColors(active);
 			return true;
 		}
 		return false;
@@ -111,7 +115,7 @@ public class PixelArtDrawer {
 	
 	private boolean checkRangeLayers(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_LAYER_SELECT && in < CodeReference.CODE_RANGE_SELECT_COLOR) {
-			
+			String use = view.getActiveElement();
 			return true;
 		}
 		return false;
@@ -141,39 +145,44 @@ public class PixelArtDrawer {
 				makeNewThing();
 				return true;
 			case CodeReference.CODE_RENAME:
-				if(active == null) {
+				String old = view.getActiveElement();
+				if(old == null) {
 					return true;
 				}
 				String newName = view.requestStringInput("Please provide the new image name");
-				HashMap<String, String> mappings = manager.rename(active, newName);
+				HashMap<String, String> mappings = manager.rename(old, newName);
 				view.rename(mappings);
 				return true;
 			case CodeReference.CODE_CLOSE_THING:
-				if(active == null) {
+				String thng = view.getActiveElement();
+				if(thng == null) {
 					return true;
 				}
-				removeThing(active);
+				removeThing(thng);
 				return true;
 			case CodeReference.CODE_DUPLICATE_THING:
-				if(active == null) {
+				String dup = view.getActiveElement();
+				if(dup == null) {
 					return true;
 				}
-				view.duplicateThing(active, manager.duplicate(active));
+				view.duplicateThing(dup, manager.duplicate(dup));
 				return true;
 			case CodeReference.CODE_OPEN_FILE:
 				loadFile();
 				return true;
 			case CodeReference.CODE_SAVE_THING:
-				if(active == null) {
+				String sav = view.getActiveElement();
+				if(sav == null) {
 					return true;
 				}
-				saveThing(active);
+				saveThing(sav);
 				return true;
 			case CodeReference.CODE_SAVE_AS:
-				if(active == null) {
+				String savA = view.getActiveElement();
+				if(savA == null) {
 					return true;
 				}
-				saveThingAs(active);
+				saveThingAs(savA);
 				return true;
 			case CodeReference.CODE_OPEN_META:
 				//TODO: Plan out what the meta-settings menu should even do/keep track of
@@ -193,22 +202,26 @@ public class PixelArtDrawer {
 		switch(in) {
 			case CodeReference.CODE_PEN_SIZE_INCREMENT:
 				manager.getPen().incrementPenSize();
-				updatePenSize(active);
 				return true;
 			case CodeReference.CODE_PEN_SIZE_DECREMENT:
 				manager.getPen().decrementPenSize();
-				updatePenSize(active);
 				return true;
 			case CodeReference.CODE_PEN_SIZE_SET:
 				int val = Integer.parseInt(view.getTileContents(active));
 				manager.getPen().setPenSize(val);
-				updatePenSize(active);
 				return true;
 			case CodeReference.CODE_COLOR_ADD:
-				Random rand = new Random();
-				Color nC = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+				Color nC = view.requestColorChoice(null);
+				System.out.println("here");
 				manager.getPen().addColor(nC);
-				updateColors(active);
+				return true;
+			case CodeReference.CODE_COLOR_EDIT:
+				Color base = manager.getPen().getActiveColor();
+				Color out = view.requestColorChoice(base);
+				manager.getPen().editColor(manager.getPen().getActiveColorIndex(), out);
+				return true;
+			case CodeReference.CODE_COLOR_REMOVE:
+				manager.getPen().removeColor(manager.getPen().getActiveColorIndex());
 				return true;
 			default:
 				return false;
@@ -237,34 +250,39 @@ public class PixelArtDrawer {
 		//-- Corkboard  ---------------------------------------
 	
 	private boolean checkCorkboardCommands(int in, String active) {
+		String use = view.getActiveElement();
 		switch(in) {
 			case CodeReference.CODE_INCREASE_ZOOM:
-				if(active == null) {
-					return true;
-				}
-				manager.increaseZoom(active);
+				if(use != null)
+					manager.increaseZoom(use);
 				return true;
 			case CodeReference.CODE_DECREASE_ZOOM:
-				if(active == null) {
-					return true;
-				}
-				manager.decreaseZoom(active);
+				if(use != null)
+					manager.decreaseZoom(use);
 				return true;
 			case CodeReference.CODE_ADD_LAYER:
-				manager.addLayer(active);
+				if(use != null)
+					manager.addLayer(active);
 				return true;
 			case CodeReference.CODE_REMOVE_LAYER:
 				//TODO: Make custom popout for layer selection
-				manager.removeLayer(active, view.requestIntInput("Which layer (#) do you want to remove?"));
+				if(use != null)
+					manager.removeLayer(active, view.requestIntInput("Which layer (#) do you want to remove?"));
 				return true;
 			case CodeReference.CODE_MOVE_LAYER:
-				manager.moveLayer(active, view.requestIntInput("Start Layer"), view.requestIntInput("End Layer"));
+				if(use != null)
+					manager.moveLayer(active, view.requestIntInput("Start Layer"), view.requestIntInput("End Layer"));
 				return true;
 			default:
 				return false;
 		}
 	}
 
+	//-- Manager Manipulation  --------------------------------
+	
+	
+		//-- Add  ---------------------------------------------
+	
 		//-- Settings Bar Automatic  --------------------------
 
 	//-- Instructing Manager  ---------------------------------
@@ -273,15 +291,39 @@ public class PixelArtDrawer {
 		String choice = view.requestListChoice(new String[] {TEXT_CHOICE_PICTURE, TEXT_CHOICE_ANIMATION});
 		switch(choice) {
 			case TEXT_CHOICE_PICTURE:
-				String nom = manager.getNewPictureName();
-				String skNom = manager.makeNewPicture(nom, view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
-				addPicture(skNom, manager.getPictureCanvas(skNom));
+				generateEmptyImage(manager.getNewPictureName(), view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+
 				break;
 			case TEXT_CHOICE_ANIMATION:
 				break;
 		}
 	}
+	
+	private void generateEmptyImage(String nom, int wid, int hei) {
+		String skNom = manager.makeNewPicture(nom, wid, hei);
+		addPicture(skNom, manager.getPictureCanvas(skNom));
+	}
 
+	private void loadFile() {
+		String path = getFilePath();
+		//TODO: Either folder of images with a manifest on how to process them, or custom data type that the Manager can decode
+		//TODO: For now, it will assume single layer images, will expand
+		String nom = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
+		String skNm = manager.loadInPicture(nom, path);
+		addPicture(skNm, manager.getPictureCanvas(skNm));
+	}
+	
+		//-- Remove  ------------------------------------------
+	
+	private void removeThing(String nom) {
+		if(view.requestConfirmation("Are you sure you want to remove: " + nom + "?")) {
+			manager.removeThing(nom);
+			view.removeFromDisplay(nom);
+		}
+	}
+
+		//-- Save  --------------------------------------------
+	
 	private void saveEverything() {
 		manager.saveAllBackup();
 	}
@@ -300,26 +342,10 @@ public class PixelArtDrawer {
 		String savNom = view.requestStringInput("What would you like to name the file?");
 		manager.saveThing(nom, savNom, path, 1, true);
 	}
-	
-	private void loadFile() {
-		String path = getFilePath();
-		//TODO: Either folder of images with a manifest on how to process them, or custom data type that the Manager can decode
-		//TODO: For now, it will assume single layer images, will expand
-		String nom = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
-		String skNm = manager.loadInPicture(nom, path);
-		addPicture(skNm, manager.getPictureCanvas(skNm));
-	}
-	
-	private String getFilePath() {
-		String path = view.requestFilePath("./", "Please select the file you want.");
-		path = path.replaceAll("\\\\", "/");
-		while(path.contains("//")) {
-			path = path.replaceAll("//", "/");
-		}
-		return path;
-	}
-	
+
 	//-- Updating View  ---------------------------------------
+	
+		//-- Settings Bar  ------------------------------------
 	
 	private void updateColors(String ref) {
 		ArrayList<Color> cols = manager.getPen().getColors();
@@ -335,32 +361,44 @@ public class PixelArtDrawer {
 	}
 	
 	private void updatePenType(String ref) {
-		view.updatePenType(ref, manager.getPen().getPenType());
+		ArrayList<String> paths = new ArrayList<String>();
+		for(int i : manager.getPen().getPenDrawTypes()) {
+			if(i < CodeReference.REF_MAX_DRAW_TYPES) {
+				paths.add(CodeReference.REF_DRAW_TYPE_PATHS[i]);
+			}
+		}
+		view.updatePenType(ref, paths, CodeReference.CODE_RANGE_SELECT_DRAW_TYPE, manager.getPen().getPenType());
 	}
 	
-	public void updateView(boolean force) {
+		//-- Corkboard  ---------------------------------------
+	
+	private void updateCorkboard(boolean force) {
 		for(String nom : manager.getSketchNames(force)) {
 			updateThing(nom, manager.getSketchImages(nom), manager.getSketchZoom(nom));
 		}
 	}
 	
-	public void updateThing(String nom, Canvas[] imgs, int zoom) {
+	private void updateThing(String nom, Canvas[] imgs, int zoom) {
 		view.updateDisplay(nom, imgs, zoom);
 	}
-	
-	public void removeThing(String nom) {
-		if(view.requestConfirmation("Are you sure you want to remove: " + nom + "?")) {
-			manager.removeThing(nom);
-			view.removeFromDisplay(nom);
-		}
-	}
 
-	public void addAnimation(String nom, Canvas[] imgs) {
+	private void addAnimation(String nom, Canvas[] imgs) {
 		view.addAnimation(nom, imgs);
 	}
 	
-	public void addPicture(String nom, Canvas img) {
+	private void addPicture(String nom, Canvas img) {
 		view.addPicture(nom, img);
 	}
+	
+//---  Support   ------------------------------------------------------------------------------
 
+	private String getFilePath() {
+		String path = view.requestFilePath("./", "Please select the file you want.");
+		path = path.replaceAll("\\\\", "/");
+		while(path.contains("//")) {
+			path = path.replaceAll("//", "/");
+		}
+		return path;
+	}
+	
 }

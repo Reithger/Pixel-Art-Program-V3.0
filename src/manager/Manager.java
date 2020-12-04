@@ -94,7 +94,7 @@ public class Manager {
 	
 	public String duplicate(String nom) {
 		Sketch sk = getSketch(nom).copy();
-		String skName = getNextSketchName(sk.getName());
+		String skName = getNextSketchName(sk.getReference());
 		sk.setName(skName);
 		sketches.put(skName, sk);
 		return skName;

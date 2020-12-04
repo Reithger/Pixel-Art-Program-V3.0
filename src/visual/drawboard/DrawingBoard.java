@@ -121,6 +121,7 @@ public class DrawingBoard {
 		selectBar.setPriority(5);
 		selectBar.setScrollBarVertical(false);
 		selectBar.setScrollBarHorizontal(false);
+		selectBar.getPanel().setBackground(null);
 	}
 
 	public void addNewPage() {

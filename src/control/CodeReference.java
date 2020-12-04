@@ -3,12 +3,23 @@ package control;
 public class CodeReference {
 
 //---  Draw Type Mappings   -------------------------------------------------------------------
+
+	public final static int REF_MAX_DRAW_TYPES = 2;
 	
+//---  File Pathing   -------------------------------------------------------------------------
 	
+	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON, CodeReference.IMAGE_PATH_CIRCLE_ICON};
+	private final static String IMAGE_PATH_CIRCLE_ICON = "./assets/circle_icon.png";
+	private final static String IMAGE_PATH_SQUARE_ICON = "./assets/square_icon.png";
+	
+	public final static String IMAGE_PATH_ZOOM_IN = "./assets/grow_icon.png";
+	public final static String IMAGE_PATH_ZOOM_OUT = "./assets/shrink_icon.png";
+	public final static String IMAGE_PATH_RESIZE_CORKBOARD = "./assets/placeholder.png";
 	
 //---  Name References   ----------------------------------------------------------------------
 	
 	public final static String REF_COLOR_GRID = "color_grid";
+	public final static String REF_PEN_TYPE_GRID = "pen_type_grid";
 	public final static String REF_PEN_SIZE = "pen_det";
 	public final static String REF_PEN_BLEND = "pen_blen";
 	

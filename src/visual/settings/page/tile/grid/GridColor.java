@@ -17,9 +17,9 @@ public class GridColor implements GridIcon{
 	}
 	
 	@Override
-	public void draw(HandlePanel hP, String prefix, int posX, int posY, int index, int size) {
+	public void draw(HandlePanel hP, String prefix, int posX, int posY, int size) {
 		hP.handleButton(prefix + "_b_" + code, false, posX, posY,size, size, code);
-		hP.handleRectangle(prefix + "_r_" + code, false, 5, posX, posY, size, size, col, selected ? Color.yellow : Color.black);
+		hP.handleRectangle(prefix + "_r_" + code, false, 5, posX, posY, size, size, col, Color.black);
 	}
 	
 	@Override

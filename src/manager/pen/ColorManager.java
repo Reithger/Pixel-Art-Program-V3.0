@@ -37,6 +37,10 @@ public class ColorManager {
 		}
 		getCurrentPallet().setColor(index, new Color(cols[0], cols[1], cols[2], cols[3]));
 	}
+	
+	public void editColor(int index, Color col) {
+		getCurrentPallet().setColor(index, col);
+	}
 
 	public void addColor(Color in) {
 		getCurrentPallet().addColor(in);

@@ -3,13 +3,16 @@ package visual.settings.page.tile;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import visual.settings.page.tile.grid.TileColorGrid;
 import visual.settings.page.tile.grid.TileGrid;
 
 public class TileFactory {
 	
+//---  Constants   ----------------------------------------------------------------------------
+	
 	public final static String TILE_TYPE_BIG = "B";
 	public final static String TILE_TYPE_GRID = "G";
+	
+//---  Generate Methods   ---------------------------------------------------------------------
 	
 	public static TileNumericSelector generateTileNumericSelector(String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
 		return new TileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode);
@@ -19,25 +22,30 @@ public class TileFactory {
 		return new TileBig(path, label, code);
 	}
 	
-	public static TileGrid generateTileGrid(String[] paths, String label, int[] code, int gridHeight) {
-		return new TileGrid(paths, label, code, gridHeight);
+	public static TileGrid generateTileGrid(String label,  int gridHeight) {
+		return new TileGrid(label, gridHeight);
 	}
 	
-	public static TileColorGrid generateTileColorGrid(String label, int height) {
-		return new TileColorGrid(label, height);
-	}
+//---  Update Methods   -----------------------------------------------------------------------
 	
 	public static void updateTileGridActive(Tile in, int active) {
-		TileColorGrid tCG = castTileColorGrid(in);
+		TileGrid tCG = castTileGrid(in);
 		if(tCG != null) {
 			tCG.setActive(active);
 		}
 	}
 	
-	public static void updateTileColorGrid(Tile in, ArrayList<Color> cols, int codeStart) {
-		TileColorGrid tCG = castTileColorGrid(in);
+	public static void updateTileGridImages(Tile in, ArrayList<String> paths, int[] codes) {
+		TileGrid tCG = castTileGrid(in);
 		if(tCG != null) {
-			tCG.assignColors(cols, codeStart);
+			tCG.updateGridIconsImage(paths, codes);
+		}
+	}
+	
+	public static void updateTileGridColors(Tile in, ArrayList<Color> cols, int[] codeStart) {
+		TileGrid tCG = castTileGrid(in);
+		if(tCG != null) {
+			tCG.updateGridIconsColor(cols, codeStart);
 		}
 	}
 	
@@ -48,9 +56,11 @@ public class TileFactory {
 		}
 	}
 	
-	private static TileColorGrid castTileColorGrid(Tile in) {
+//---  Casting Methods   ----------------------------------------------------------------------
+	
+	private static TileGrid castTileGrid(Tile in) {
 		try {
-			return ((TileColorGrid)in);
+			return ((TileGrid)in);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

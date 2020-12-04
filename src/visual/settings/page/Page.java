@@ -34,6 +34,7 @@ public abstract class Page extends HandlePanel{
 		tileCodes = new HashMap<Integer, String>();
 		this.setScrollBarVertical(false);
 		setScrollBarHorizontal(false);
+		getPanel().setBackground(null);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ public abstract class Page extends HandlePanel{
 		int buffer = getWidth() / 50;
 		int posX = buffer / 2;
 		int posY = getHeight() / 2;
-
+		
 		removeElementPrefixed("navigate");
 		ArrayList<Tile> disp = new ArrayList<Tile>(tiles.values());
 		Collections.sort(disp);
@@ -90,12 +91,8 @@ public abstract class Page extends HandlePanel{
 		addTile(ref, TileFactory.generateTileBig(path, label, code));
 	}
 	
-	public void addTileGrid(String ref, String[] paths, String label, int[] codes, int gridHeight) {
-		addTile(ref, TileFactory.generateTileGrid(paths, label, codes, gridHeight));
-	}
-	
-	public void addTileColorGrid(String ref, String label, int height) {
-		addTile(ref, TileFactory.generateTileColorGrid(label, height));
+	public void addTileGrid(String ref, String label, int gridHeight) {
+		addTile(ref, TileFactory.generateTileGrid(label, gridHeight));
 	}
 	
 	public void addTileNumericSelector(String ref, String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
@@ -119,8 +116,13 @@ public abstract class Page extends HandlePanel{
 	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
-	public void assignTileColorGridColors(String ref, ArrayList<Color> cols, int codeStart) {
-		TileFactory.updateTileColorGrid(getTile(ref), cols, codeStart);
+	public void assignTileGridColors(String ref, ArrayList<Color> cols, int[] codeStart) {
+		TileFactory.updateTileGridColors(getTile(ref), cols, codeStart);
+		updateCodeAssociations(getTile(ref));
+	}
+	
+	public void assignTileGridImages(String ref, ArrayList<String> paths, int[] codes) {
+		TileFactory.updateTileGridImages(getTile(ref), paths, codes);
 		updateCodeAssociations(getTile(ref));
 	}
 	

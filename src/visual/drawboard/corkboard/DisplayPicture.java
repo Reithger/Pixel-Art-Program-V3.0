@@ -37,8 +37,7 @@ public class DisplayPicture extends Corkboard{
 		getPanel().removeElement("img");
 		int usX = CONTENT_X_BUFFER;
 		int usY = CONTENT_Y_BUFFER;
-		System.out.println(getContentWidth() + " " + getContentHeight());
-		getPanel().addCanvas("img", 10, false, usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
+		getPanel().addCanvas("img", 2, false, usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
 	}
 
 	@Override

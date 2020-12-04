@@ -139,6 +139,7 @@ public abstract class Corkboard {
 			}
 		};
 		setPanel(hand);
+		hand.getPanel().setBackground(null);
 		getPanel().setScrollBarHorizontal(false);
 		getPanel().setScrollBarVertical(false);
 		setTitle();
@@ -153,22 +154,33 @@ public abstract class Corkboard {
 	}
 	
 	public void updatePanel() {
-		getPanel().removeElementPrefixed("thck");
-		getPanel().handleThickRectangle("thck", true, 0, HEADER_HEIGHT, getPanel().getWidth(), getPanel().getHeight(), Color.black, 2);
-		int size = 16;
+		HandlePanel p = getPanel();
+		int wid = p.getWidth();
+		int hei = p.getHeight();
+		p.removeElementPrefixed("thck");
+		p.handleThickRectangle("thck", true, 0, HEADER_HEIGHT, wid,hei, Color.black, 2);
 		
-		getPanel().handleImageButton("zoomIn", true, getPanel().getWidth() - size, HEADER_HEIGHT + size, size, size, "/assets/placeholder.png", CodeReference.CODE_INCREASE_ZOOM);
-		getPanel().handleImageButton("zoomOut", true, getPanel().getWidth() - size, HEADER_HEIGHT + (int)(2.5 * size), size, size, "/assets/placeholder.png", CodeReference.CODE_DECREASE_ZOOM);
+		int size = 24;
 		
-		getPanel().handleImageButton("imgB", true, getPanel().getWidth() - size, getPanel().getHeight() - size, size, size, "/assets/placeholder.png", CodeReference.CODE_RESIZE);
+		int posX = wid - size;
+		int posY = HEADER_HEIGHT + size;
+		
+		p.handleImageButton("zoomIn", true, posX, posY, size, size, CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.CODE_INCREASE_ZOOM);
+		posY += 3 * size / 2;
+		p.handleImageButton("zoomOut", true, posX, posY, size, size, CodeReference.IMAGE_PATH_ZOOM_OUT, CodeReference.CODE_DECREASE_ZOOM);
+		
+		posY = hei - size;
+		
+		p.handleImageButton("imgB", true, posX, posY, size, size, CodeReference.IMAGE_PATH_RESIZE_CORKBOARD, CodeReference.CODE_RESIZE);
+		
 		setTitle();
 		
 		int rA = CONTENT_X_BUFFER + getContentWidth();
 		int tA = CONTENT_Y_BUFFER;
 		int bA = CONTENT_Y_BUFFER + getContentHeight();
-		getPanel().addLine("line1", 5, true, rA, tA, rA, bA, 1, Color.black);
-		getPanel().addLine("line2", 5, true, 0, bA, rA, bA, 1, Color.black);
-		getPanel().handleThickRectangle("thck", true, 0, HEADER_HEIGHT, getPanel().getWidth(), getPanel().getHeight(), Color.black, 2);
+		p.addLine("line1", 5, true, rA, tA, rA, bA, 1, Color.black);
+		p.addLine("line2", 5, true, 0, bA, rA, bA, 1, Color.black);
+		p.handleThickRectangle("thck", true, 0, HEADER_HEIGHT, wid, hei, Color.black, 2);
 		updatePanelLocal();
 	}
 

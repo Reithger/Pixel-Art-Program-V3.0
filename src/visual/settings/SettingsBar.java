@@ -35,6 +35,7 @@ public class SettingsBar {
 		reference = ref;
 		formatPages(x, y, wid, hei);
 		menu = generateMenuBar(x, y, wid, hei);
+		menu.getPanel().setBackground(null);
 		drawMenuBar();
 		par.addPanelToWindow(getMenuBarWindowName(), "menu_bar", menu);
 		par.showActiveWindow(getMenuBarWindowName());
@@ -43,8 +44,24 @@ public class SettingsBar {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void updateColorGrid(String ref, ArrayList<Color> cols, int codeBase, int active) {
-		getActivePage().assignTileColorGridColors(ref, cols, codeBase);
+	public void updateTileGridColors(String ref, ArrayList<Color> cols, int codeBase, int active) {
+		int[] codes = new int[cols.size() + 1];
+		for(int i = 0; i < cols.size(); i++) {
+			codes[i] = codeBase + i;
+		}
+		codes[cols.size()] = CodeReference.CODE_COLOR_ADD;
+		getActivePage().assignTileGridColors(ref, cols, codes);
+		getActivePage().assignTileGridActive(ref, active);
+		getActivePage().drawPage();
+	}
+	
+	public void updateTileGridImages(String ref, ArrayList<String> paths, int codeBase, int active) {
+		int[] codes = new int[paths.size() + 1];
+		for(int i = 0; i < paths.size(); i++) {
+			codes[i] = codeBase + i;
+		}
+		codes[paths.size()] = CodeReference.CODE_COLOR_ADD;
+		getActivePage().assignTileGridImages(ref, paths, codes);
 		getActivePage().assignTileGridActive(ref, active);
 		getActivePage().drawPage();
 	}
