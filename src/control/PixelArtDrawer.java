@@ -3,7 +3,6 @@ package control;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 import manager.Manager;
 import misc.Canvas;
@@ -17,7 +16,7 @@ import visual.View;
  *
  */
 
-public class PixelArtDrawer {
+public class PixelArtDrawer implements InputHandler{
 
 	/*
 	 * Right click alt-fire second color
@@ -68,8 +67,8 @@ public class PixelArtDrawer {
 	 * @param active
 	 */
 	
-	public void interpretCode(int in, String active) {
-		System.out.println(in);
+	public void handleCodeInput(int in, String active) {
+		System.out.println(in + " " + active);
 		boolean happ = checkRanges(in, active);
 		if(!happ) {
 			checkCommands(in, active);
@@ -77,7 +76,7 @@ public class PixelArtDrawer {
 		updateCorkboard(false);
 	}
 	
-	public void interpretDraw(int x, int y, String nom) {
+	public void handleDrawInput(int x, int y, String nom) {
 		manager.drawToPicture(nom, x, y);
 		updateCorkboard(false);
 	}
@@ -348,8 +347,18 @@ public class PixelArtDrawer {
 		//-- Settings Bar  ------------------------------------
 	
 	private void updateColors(String ref) {
-		ArrayList<Color> cols = manager.getPen().getColors();
-		view.updateColors(ref, cols, manager.getPen().getCurrentPalletCodeBase() + CodeReference.CODE_RANGE_SELECT_COLOR, manager.getPen().getActiveColorIndex());
+		ArrayList<Color> cols = new ArrayList<Color>();
+		for(Color c : manager.getPen().getColors()) {
+			cols.add(c);
+		}
+		cols.add(Color.white);
+		int[] codes = new int[cols.size()];
+		int codeBase = manager.getPen().getCurrentPalletCodeBase() + CodeReference.CODE_RANGE_SELECT_COLOR;
+		for(int i = 0; i < cols.size(); i++) {
+			codes[i] = codeBase + i;
+		}
+		codes[cols.size() - 1] = CodeReference.CODE_COLOR_ADD;
+		view.updateColors(ref, cols, codes, manager.getPen().getActiveColorIndex());
 	}
 	
 	private void updatePenSize(String ref) {

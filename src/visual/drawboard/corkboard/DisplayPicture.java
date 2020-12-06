@@ -1,8 +1,8 @@
 package visual.drawboard.corkboard;
 
 import control.CodeReference;
+import control.InputHandler;
 import misc.Canvas;
-import visual.drawboard.DrawingPage;
 
 public class DisplayPicture extends Corkboard{
 	
@@ -12,7 +12,7 @@ public class DisplayPicture extends Corkboard{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayPicture(String nom, String inPanel, Canvas inImg, DrawingPage ref) {
+	public DisplayPicture(String nom, String inPanel, Canvas inImg, InputHandler ref) {
 		super(nom, inPanel, inImg.getCanvasZoomWidth(), inImg.getCanvasZoomHeight(), ref);
 		disp = inImg;
 		updatePanel();

@@ -6,8 +6,7 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import control.CodeReference;
-import control.PixelArtDrawer;
+import control.InputHandler;
 import filemeta.FileChooser;
 import misc.Canvas;
 import visual.composite.popout.PopoutAlert;
@@ -16,7 +15,7 @@ import visual.drawboard.DrawingBoard;
 import visual.frame.WindowFrame;
 import visual.settings.SettingsBar;
 
-public class View {
+public class View implements InputHandler{
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -30,7 +29,7 @@ public class View {
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private PixelArtDrawer reference;
+	private InputHandler reference;
 	
 	private WindowFrame frame;
 	
@@ -40,7 +39,7 @@ public class View {
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public View(PixelArtDrawer in) {
+	public View(InputHandler in) {
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 		//TODO: Make this dynamic to your screen size
 		reference = in;
@@ -57,12 +56,12 @@ public class View {
 	
 	//-- Input Handling  --------------------------------------
 	
-	public void handOffInt(int code, String context) {
-		reference.interpretCode(code, context);
+	public void handleCodeInput(int code, String context) {
+		reference.handleCodeInput(code, context);
 	}
 	
-	public void handOffClick(int x, int y, String nom) {
-		reference.interpretDraw(x, y, nom);
+	public void handleDrawInput(int x, int y, String nom) {
+		reference.handleDrawInput(x, y, nom);
 	}
 
 	public String getTileContents(String ref) {
@@ -122,8 +121,8 @@ public class View {
 	
 	//-- Settings Bar Management  -----------------------------
 	
-	public void updateColors(String ref, ArrayList<Color> cols, int codeRng, int active) {
-		options.updateTileGridColors(ref, cols, codeRng, active);
+	public void updateColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
+		options.updateTileGridColors(ref, cols, codes, active);
 	}
 	
 	public void updatePenSize(String ref, int min, int max, int size) {

@@ -2,18 +2,16 @@ package visual.drawboard;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import control.InputHandler;
 import misc.Canvas;
 import visual.PopoutConfirm;
-import visual.View;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 
-public class DrawingBoard {
+public class DrawingBoard implements InputHandler{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -41,13 +39,13 @@ public class DrawingBoard {
 	
 	private WindowFrame parent;
 	
-	private View reference;
+	private InputHandler reference;
 	
 	private int counter;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DrawingBoard(int inX, int inY, int wid, int hei, WindowFrame par, View ref) {
+	public DrawingBoard(int inX, int inY, int wid, int hei, WindowFrame par, InputHandler ref) {
 		x = inX;
 		y = inY;
 		reference = ref;
@@ -66,12 +64,12 @@ public class DrawingBoard {
 	
 	//-- Input  -----------------------------------------------
 	
-	public void passOnDraw(int x, int y, String nom) {
-		reference.handOffClick(x, y, nom);
+	public void handleDrawInput(int x, int y, String nom) {
+		reference.handleDrawInput(x, y, nom);
 	}
 	
-	public void passOnCode(int code) {
-		reference.handOffInt(code, getActiveElement());
+	public void handleCodeInput(int code, String in) {
+		reference.handleCodeInput(code, in);
 	}
 	
 	//-- Page Management  -------------------------------------

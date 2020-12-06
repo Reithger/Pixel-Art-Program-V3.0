@@ -1,7 +1,6 @@
 package visual.drawboard.corkboard;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 import misc.Canvas;
 import visual.drawboard.DrawingPage;

@@ -1,12 +1,12 @@
 package visual.drawboard.corkboard;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import java.awt.Font;
 
 import control.CodeReference;
+import control.InputHandler;
 import misc.Canvas;
 import visual.composite.HandlePanel;
-import visual.drawboard.DrawingPage;
 
 public abstract class Corkboard {
 
@@ -30,19 +30,22 @@ public abstract class Corkboard {
 	protected final static int CONTENT_X_BUFFER = 1;
 	protected final static int CONTENT_Y_BUFFER = HEADER_HEIGHT + 1;
 	
+	public final static int CODE_CHECK_POSITION = 55;
+	private final static Font TITLE_FONT = new Font("Serif", Font.BOLD, 16);
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private String name;
 	private String panelName;
 	private HandlePanel panel;
-	private DrawingPage reference;
+	private InputHandler reference;
 	private boolean mutex;
 	private boolean contentLocked;
 	private int zoom;
 
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight, DrawingPage ref) {
+	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight, InputHandler ref) {
 		setName(inNom);
 		setPanelName(inPanel);
 		setReference(ref);
@@ -74,7 +77,7 @@ public abstract class Corkboard {
 						break;
 					default:
 						onClick(code, x, y);
-						getReference().passOnCode(code, x, y, getName());
+						getReference().handleCodeInput(code, getName());
 						break;
 				}
 			}
@@ -103,8 +106,7 @@ public abstract class Corkboard {
 				draggingHeader = false;
 				onClickRelease(code, x, y);
 			}
-			
-			
+						
 			@Override
 			public void dragBehaviour(int code, int x, int y) {
 				processDragging(x, y);
@@ -125,8 +127,7 @@ public abstract class Corkboard {
 			private void processDrawing(int x, int y) {
 				int actX = x + getOffsetX() - CONTENT_X_BUFFER;
 				int actY = y + getOffsetY() - CONTENT_Y_BUFFER;
-				System.out.println(actX + " " + actY);
-				getReference().passOnDraw(actX, actY, getName());
+				getReference().handleDrawInput(actX, actY, getName());
 			}
 			
 			private void processDragging(int x, int y) {
@@ -149,7 +150,7 @@ public abstract class Corkboard {
 		getPanel().removeElementPrefixed("texB");
 		int butWid = getWidth() * 9/10;
 		int butHei = HEADER_HEIGHT * 9/10;
-		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, DrawingPage.DEFAULT_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
+		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
 	
 	}
 	
@@ -195,11 +196,8 @@ public abstract class Corkboard {
 	public void move(int x, int y) {
 		int newX = x + getPanel().getPanelXLocation();
 		int newY = y + getPanel().getPanelYLocation();
-		newX = newX < reference.getOriginX() ? reference.getOriginX() : newX;
-		newX = newX > (reference.getOriginX() + reference.getWidth()) ? (reference.getOriginX() + reference.getWidth() - 10) : newX;
-		newY = newY < reference.getOriginY() ? reference.getOriginY() : newY;
-		newY = newY > (reference.getOriginY() + reference.getHeight()) ? (reference.getOriginY() + reference.getHeight() - 10) : newY;
 		setLocation(newX, newY);
+		reference.handleCodeInput(CODE_CHECK_POSITION, name);
 	}
 
 	protected void openLock() {
@@ -236,7 +234,7 @@ public abstract class Corkboard {
 		updatePanel();
 	}
 	
-	public void setReference(DrawingPage ref) {
+	public void setReference(InputHandler ref) {
 		reference = ref;
 	}
 	
@@ -262,12 +260,28 @@ public abstract class Corkboard {
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
-	public DrawingPage getReference() {
+	public InputHandler getReference() {
 		return reference;
 	}
 	
 	public int getZoom() {
 		return zoom;
+	}
+	
+	public int getSidebarWidth() {
+		return SIDEBAR_WIDTH;
+	}
+	
+	public int getHeaderHeight() {
+		return HEADER_HEIGHT;
+	}
+	
+	public int getPositionX() {
+		return getPanel().getPanelXLocation();
+	}
+	
+	public int getPositionY() {
+		return getPanel().getPanelYLocation();
 	}
 	
 	public boolean getContentLocked() {

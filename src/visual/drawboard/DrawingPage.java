@@ -3,6 +3,7 @@ package visual.drawboard;
 import java.awt.Font;
 import java.util.HashMap;
 
+import control.InputHandler;
 import misc.Canvas;
 import visual.drawboard.corkboard.Corkboard;
 import visual.drawboard.corkboard.DisplayAnimation;
@@ -10,7 +11,7 @@ import visual.drawboard.corkboard.DisplayPicture;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
 
-public class DrawingPage {
+public class DrawingPage implements InputHandler{
 
 	public final static Font DEFAULT_FONT = new Font("Serif", Font.BOLD, 12);
 	
@@ -28,7 +29,7 @@ public class DrawingPage {
 	
 	private WindowFrame parent;
 	
-	private DrawingBoard reference;
+	private InputHandler reference;
 	
 	private String windowName;
 	
@@ -49,16 +50,28 @@ public class DrawingPage {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void passOnDraw(int x, int y, String nom) {
+	public void handleDrawInput(int x, int y, String nom) {
 		active = nom;
-		reference.passOnDraw(x, y, nom);
+		reference.handleDrawInput(x, y, nom);
 	}
 	
-	public void passOnCode(int code, int x, int y, String nom) {
+	public void handleCodeInput(int code, String nom) {
 		active = nom;
-		boolean letgo = true;
-		if(letgo && code != -1)
-			reference.passOnCode(code);
+		switch(code) {
+			case Corkboard.CODE_CHECK_POSITION:
+				Corkboard c = getCorkboard(nom);
+				int cX = c.getPositionX();
+				int cY = c.getPositionY();
+				cX = cX < x ? x : cX;
+				cY = cY < y ? y : cY;
+				cX = cX + c.getSidebarWidth() > x + width ? x + width - c.getSidebarWidth() : cX;
+				cY = cY + c.getHeaderHeight() > y + height ? y + height - c.getHeaderHeight() : cY;
+				c.setLocation(cX, cY);
+				break;
+			default:
+				reference.handleCodeInput(code, nom);
+				break;
+		}
 	}
 	
 	//-- Generate Things  -------------------------------------

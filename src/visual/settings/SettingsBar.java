@@ -5,13 +5,13 @@ import java.awt.Font;
 import java.util.ArrayList;
 
 import control.CodeReference;
-import visual.View;
+import control.InputHandler;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 import visual.settings.page.Page;
 import visual.settings.page.PageFactory;
 
-public class SettingsBar {
+public class SettingsBar implements InputHandler{
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -24,13 +24,13 @@ public class SettingsBar {
 	
 	private WindowFrame parent;
 	private HandlePanel menu;
-	private View reference;
+	private InputHandler reference;
 	private ArrayList<Page> pages;
 	private int activePage;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public SettingsBar(int x, int y, int wid, int hei, WindowFrame par, View ref) {
+	public SettingsBar(int x, int y, int wid, int hei, WindowFrame par, InputHandler ref) {
 		parent = par;
 		reference = ref;
 		formatPages(x, y, wid, hei);
@@ -44,12 +44,7 @@ public class SettingsBar {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void updateTileGridColors(String ref, ArrayList<Color> cols, int codeBase, int active) {
-		int[] codes = new int[cols.size() + 1];
-		for(int i = 0; i < cols.size(); i++) {
-			codes[i] = codeBase + i;
-		}
-		codes[cols.size()] = CodeReference.CODE_COLOR_ADD;
+	public void updateTileGridColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
 		getActivePage().assignTileGridColors(ref, cols, codes);
 		getActivePage().assignTileGridActive(ref, active);
 		getActivePage().drawPage();
@@ -78,8 +73,12 @@ public class SettingsBar {
 	
 	//-- Input  -----------------------------------------------
 
-	public void passOnCode(int code, String context) {
-		reference.handOffInt(code, context);
+	public void handleCodeInput(int code, String context) {
+		reference.handleCodeInput(code, context);
+	}
+	
+	public void handleDrawInput(int x, int y, String ref) {
+		reference.handleDrawInput(x, y, ref);
 	}
 	
 	private void formatPages(int x, int y, int wid, int hei) {
@@ -103,7 +102,7 @@ public class SettingsBar {
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
 				if(!changePage(code)) {
-					reference.handOffInt(code, null);
+					reference.handleCodeInput(code, null);
 				}
 			}
 			
@@ -145,10 +144,6 @@ public class SettingsBar {
 			menu.handleButton("butt_title_" + i, false, posX, menu.getHeight() / 2, distX, menu.getHeight(), i);
 			posX += distX;
 		}
-	}
-	
-	public void passInputCode(int code, String context) {
-		reference.handOffInt(code, context);
 	}
 	
 	public String getTileContents(String ref) {

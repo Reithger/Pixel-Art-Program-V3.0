@@ -1,12 +1,12 @@
 package visual.settings.page;
 
-import visual.settings.SettingsBar;
+import control.InputHandler;
 
 public class PageFactory {
 
 	private static boolean assignedRef;
 	
-	public static void assignReference(SettingsBar ref) {
+	public static void assignReference(InputHandler ref) {
 		Page.assignReference(ref);
 		assignedRef = true;
 	}

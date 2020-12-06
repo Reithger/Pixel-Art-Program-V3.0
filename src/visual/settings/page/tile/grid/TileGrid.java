@@ -3,7 +3,6 @@ package visual.settings.page.tile.grid;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import control.CodeReference;
 import visual.composite.HandlePanel;
 import visual.settings.page.tile.Tile;
 
@@ -83,12 +82,10 @@ public class TileGrid extends Tile{
 	}
 	
 	public void updateGridIconsColor(ArrayList<Color> cols, int[] codeSt) {
-		icons = new GridIcon[cols.size() + 1];
+		icons = new GridIcon[cols.size()];
 		for(int i = 0; i < cols.size(); i++) {
-			icons[i] = new GridColor(cols.get(i), codeSt[i], i == getActive());
+			icons[i] = new GridColor(cols.get(i), codeSt[i]);
 		}
-		//TODO: Need to check for max # and not provide adder in that case
-		icons[cols.size()] = new GridColor(Color.white, CodeReference.CODE_COLOR_ADD, false);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

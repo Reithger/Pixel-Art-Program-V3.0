@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import control.CodeReference;
+import control.InputHandler;
 import visual.composite.HandlePanel;
-import visual.settings.SettingsBar;
 import visual.settings.page.tile.Tile;
 import visual.settings.page.tile.TileFactory;
 
-public abstract class Page extends HandlePanel{
+public abstract class Page extends HandlePanel implements InputHandler{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -23,7 +22,7 @@ public abstract class Page extends HandlePanel{
 	private HashMap<String, Tile> tiles;
 	private HashMap<Integer, String> tileCodes;
 	private String name;
-	private static SettingsBar reference;
+	private static InputHandler reference;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -39,7 +38,7 @@ public abstract class Page extends HandlePanel{
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public static void assignReference(SettingsBar ref) {
+	public static void assignReference(InputHandler ref) {
 		reference = ref;
 	}
 
@@ -81,8 +80,12 @@ public abstract class Page extends HandlePanel{
 	
 	//-- Input  -----------------------------------------------
 	
-	protected void passCodeInput(int code, String context) {
-		reference.passInputCode(code, context);
+	public void handleCodeInput(int code, String context) {
+		reference.handleCodeInput(code, context);
+	}
+	
+	public void handleDrawInput(int x, int y, String ref) {
+		reference.handleDrawInput(x, y, ref);
 	}
 
 	//-- Tiles  -----------------------------------------------
@@ -178,7 +181,7 @@ public abstract class Page extends HandlePanel{
 				setOffsetX(getOffsetX() - (getWidth() - 100));
 				break;
 			default:
-				reference.passOnCode(code, tileCodes.get(code));
+				reference.handleCodeInput(code, tileCodes.get(code));
 				refresh();
 				break;
 		}

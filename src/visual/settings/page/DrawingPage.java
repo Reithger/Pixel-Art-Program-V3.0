@@ -14,9 +14,9 @@ public class DrawingPage extends Page {
 	}
 	
 	public void refresh() {
-		passCodeInput(CodeReference.CODE_UPDATE_COLOR, CodeReference.REF_COLOR_GRID);
-		passCodeInput(CodeReference.CODE_UPDATE_PEN_SIZE, CodeReference.REF_PEN_SIZE);
-		passCodeInput(CodeReference.CODE_UPDATE_PEN_TYPE, CodeReference.REF_PEN_TYPE_GRID);
+		handleCodeInput(CodeReference.CODE_UPDATE_COLOR, CodeReference.REF_COLOR_GRID);
+		handleCodeInput(CodeReference.CODE_UPDATE_PEN_SIZE, CodeReference.REF_PEN_SIZE);
+		handleCodeInput(CodeReference.CODE_UPDATE_PEN_TYPE, CodeReference.REF_PEN_TYPE_GRID);
 	}
 
 }

@@ -2,7 +2,6 @@ package manager.pen;
 
 import java.awt.Color;
 
-import manager.curator.picture.ArtPicture;
 import manager.curator.picture.LayerPicture;
 import manager.pen.drawtype.DrawType;
 import manager.pen.drawtype.DrawTypeSelector;
@@ -20,7 +19,7 @@ public class StandardDraw {
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public StandardDraw() {
-		penSize = 13;
+		penSize = 5;
 		updateCurrentDrawMode(DrawTypeSelector.PEN_DRAW_CIRCLE);
 		modeIndex = 1;
 		shade = false;

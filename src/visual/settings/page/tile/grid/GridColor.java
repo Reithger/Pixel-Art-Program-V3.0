@@ -10,10 +10,9 @@ public class GridColor implements GridIcon{
 	private int code;
 	private boolean selected;
 	
-	public GridColor(Color in, int inCode, boolean active) {
+	public GridColor(Color in, int inCode) {
 		col = in;
 		code = inCode;
-		selected = active;
 	}
 	
 	@Override

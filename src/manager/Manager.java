@@ -11,16 +11,12 @@ import manager.sketch.SketchPicture;
 import misc.Canvas;
 
 public class Manager {
-
-	private final static String IMAGE_NAME = "new_image";
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private Pen pen;
 	private Curator curator;
 	private HashMap<String, Sketch> sketches;
-	
-	private int counter;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -172,13 +168,7 @@ public class Manager {
 	}
 	
 	public String getNewPictureName() {
-		String base = IMAGE_NAME;
-		int counter = 0;
-		String use = IMAGE_NAME + "_" + counter;
-		while(sketches.get(use) != null) {
-			use = base + "_" + counter++;
-		}
-		return use;
+		return curator.getNextPictureName();
 	}
 	
 	public String getDefaultFilePath(String nom) {
@@ -193,7 +183,11 @@ public class Manager {
 	}
 	
 	private String getNextSketchName(String base) {
-		return base + "_" + counter++;
+		int use = 0;
+		while(sketches.get(base + "_" + use) != null) {
+			use++;
+		}
+		return base + "_" + use;
 	}
 	
 	public Canvas[] getSketchImages(String nom) {

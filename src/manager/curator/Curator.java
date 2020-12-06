@@ -17,6 +17,8 @@ public class Curator {
 	private final static String DEFAULT_ANIMATION_SAVE_TYPE = "gif";
 	private final static String DEFAULT_PICTURE_SAVE_TYPE = SAVE_TYPE_PNG;
 	
+	private final static String IMAGE_NAME = "new_image";
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private HashMap<String, LayerAnimation> animations;
@@ -146,6 +148,14 @@ public class Curator {
 			return animations.get(nom);
 		}
 		return null;
+	}
+	
+	public String getNextPictureName() {
+		int base = 0;
+		while(getComponent(IMAGE_NAME + "_" + base) != null) {
+			base++;
+		}
+		return IMAGE_NAME + "_" + base;
 	}
 	
 	public boolean getUpdateStatus(String nom) {
