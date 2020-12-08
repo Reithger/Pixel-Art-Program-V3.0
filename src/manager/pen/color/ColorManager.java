@@ -1,4 +1,4 @@
-package manager.pen;
+package manager.pen.color;
 
 import java.awt.Color;
 import java.util.ArrayList;

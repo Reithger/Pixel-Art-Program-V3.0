@@ -2,10 +2,14 @@ package manager.pen;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 import manager.curator.picture.LayerPicture;
+import manager.pen.changes.Change;
+import manager.pen.changes.VersionHistory;
+import manager.pen.color.ColorManager;
 
 public class Pen {
 	
@@ -38,7 +42,7 @@ public class Pen {
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	//This needs to work as a queue of inverse actions to backtrack over for an undo function
-	private volatile HashMap<String, LinkedList<Changes>> changes;	//TODO: Make this its own class
+	private VersionHistory changes;
 	private ColorManager color;
 	private StandardDraw pencil;
 	private volatile boolean mutex;
@@ -47,7 +51,7 @@ public class Pen {
 	
 	public Pen() {
 		mutex = false;
-		changes = new HashMap<String, LinkedList<Changes>>();
+		changes = new VersionHistory();
 		color = new ColorManager();
 		pencil = new StandardDraw();
 	}
@@ -75,10 +79,13 @@ public class Pen {
 
 	//-- StandardDraw  ----------------------------------------
 	
-	public void draw(String nom, LayerPicture lP, int layer, int x, int y) {
+	public void draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
 		openLock();
-		//Changes c = new Changes(nom, layer);	//TODO: Time it so a Change is finalized after ~.25 seconds of inactivity
-		pencil.draw(lP, x, y, layer, color.getActiveColor());	//TODO: integrate change details into drawing
+		//TODO: Completion of series of points via duration for consecutive drawing
+		Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());	//TODO: integrate change details into drawing
+		change[0].setName(nom);
+		change[1].setName(nom);
+		changes.addChange(nom, layer, duration, change[0], change[1]);
 		closeLock();
 	}
 
@@ -89,14 +96,21 @@ public class Pen {
 	//-- Changes  ---------------------------------------------
 	
 	public void undo(String ref, LayerPicture lP) {
-		if(changes.get(ref) != null) {
-			Changes c = changes.get(ref).poll();
-			//TODO:
+		Change c = changes.getUndo(ref);
+		if(c != null) {
+			lP.setRegion(c.getX(), c.getY(), c.getColors(), c.getLayer());
+		}
+	}
+	
+	public void redo(String ref, LayerPicture lP) {
+		Change c = changes.getRedo(ref);
+		if(c != null) {
+			lP.setRegion(c.getX(), c.getY(), c.getColors(), c.getLayer());
 		}
 	}
 	
 	public void disposeChanges() {
-		changes = new HashMap<String, LinkedList<Changes>>();
+		changes = new VersionHistory();
 	}
 	
 	//-- ColorManager  ----------------------------------------

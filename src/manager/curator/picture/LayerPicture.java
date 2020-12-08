@@ -190,9 +190,13 @@ public class LayerPicture implements Component{
 	}
 	
 	public void setRegion(int x, int y, Color[][] cols, int layer) {
+		if(cols == null) {
+			return;
+		}
 		for(int i = x; i < x + cols.length; i++) {
-			for(int j = y; j < cols[i].length; j++) {
-				setPixel(i, j, cols[i - x][j - y], layer);
+			for(int j = y; j < y + cols[i - x].length; j++) {
+				if(cols[i-x][j-y] != null)
+					setPixel(i, j, cols[i - x][j - y], layer);
 			}
 		}
 	}

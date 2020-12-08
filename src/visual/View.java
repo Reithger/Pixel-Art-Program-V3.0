@@ -60,8 +60,12 @@ public class View implements InputHandler{
 		reference.handleCodeInput(code, context);
 	}
 	
-	public void handleDrawInput(int x, int y, String nom) {
-		reference.handleDrawInput(x, y, nom);
+	public void handleDrawInput(int x, int y, int duration, String nom) {
+		reference.handleDrawInput(x, y, duration, nom);
+	}
+	
+	public void handleKeyInput(char code) {
+		reference.handleKeyInput(code);
 	}
 
 	public String getTileContents(String ref) {

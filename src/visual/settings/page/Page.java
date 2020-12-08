@@ -84,8 +84,12 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		reference.handleCodeInput(code, context);
 	}
 	
-	public void handleDrawInput(int x, int y, String ref) {
-		reference.handleDrawInput(x, y, ref);
+	public void handleDrawInput(int x, int y, int duration, String ref) {
+		reference.handleDrawInput(x, y, duration, ref);
+	}
+	
+	public void handleKeyInput(char code) {
+		reference.handleKeyInput(code);
 	}
 
 	//-- Tiles  -----------------------------------------------

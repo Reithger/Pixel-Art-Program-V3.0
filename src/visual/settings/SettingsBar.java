@@ -77,10 +77,14 @@ public class SettingsBar implements InputHandler{
 		reference.handleCodeInput(code, context);
 	}
 	
-	public void handleDrawInput(int x, int y, String ref) {
-		reference.handleDrawInput(x, y, ref);
+	public void handleDrawInput(int x, int y, int duration, String ref) {
+		reference.handleDrawInput(x, y, duration, ref);
 	}
 	
+	public void handleKeyInput(char code) {
+		reference.handleKeyInput(code);
+	}
+
 	private void formatPages(int x, int y, int wid, int hei) {
 		pages = new ArrayList<Page>();
 		PageFactory.assignReference(this);

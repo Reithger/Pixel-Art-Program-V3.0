@@ -67,6 +67,8 @@ public abstract class Corkboard {
 			private boolean draggingHeader;
 			private boolean draggingResize;
 			
+			private int drawCounter;
+			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
 				switch(code) {
@@ -99,6 +101,7 @@ public abstract class Corkboard {
 			
 			@Override
 			public void clickReleaseBehaviour(int code, int x, int y) {
+				drawCounter = 0;
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
 				}
@@ -124,10 +127,15 @@ public abstract class Corkboard {
 				onDrag(code, x, y);
 			}
 			
+			public void keyBehaviour(char code) {
+				reference.handleKeyInput(code);
+			}
+			
 			private void processDrawing(int x, int y) {
 				int actX = x + getOffsetX() - CONTENT_X_BUFFER;
 				int actY = y + getOffsetY() - CONTENT_Y_BUFFER;
-				getReference().handleDrawInput(actX, actY, getName());
+				getReference().handleDrawInput(actX, actY, drawCounter, getName());
+				drawCounter++;
 			}
 			
 			private void processDragging(int x, int y) {
@@ -166,9 +174,14 @@ public abstract class Corkboard {
 		int posX = wid - size;
 		int posY = HEADER_HEIGHT + size;
 		
-		p.handleImageButton("zoomIn", true, posX, posY, size, size, CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.CODE_INCREASE_ZOOM);
-		posY += 3 * size / 2;
-		p.handleImageButton("zoomOut", true, posX, posY, size, size, CodeReference.IMAGE_PATH_ZOOM_OUT, CodeReference.CODE_DECREASE_ZOOM);
+		String[] names = new String[] {"zoomIn", "zoomOut", "undo", "redo"};
+		String[] paths = new String[] {CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.IMAGE_PATH_ZOOM_OUT, CodeReference.IMAGE_PATH_UNDO, CodeReference.IMAGE_PATH_REDO};
+		int[] codes = new int[] {CodeReference.CODE_INCREASE_ZOOM, CodeReference.CODE_DECREASE_ZOOM, CodeReference.CODE_UNDO_CHANGE, CodeReference.CODE_REDO_CHANGE};
+		
+		for(int i = 0; i < names.length; i++) {
+			p.handleImageButton(names[i], true, posX, posY, size, size, paths[i], codes[i]);
+			posY += 3 * size / 2;
+		}
 		
 		posY = hei - size;
 		

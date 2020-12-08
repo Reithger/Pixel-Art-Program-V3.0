@@ -62,6 +62,16 @@ public class Manager {
 		return out;
 	}
 	
+	public void undo(String ref) {
+		Sketch s = getSketch(ref);
+		pen.undo(s.getReference(), curator.getLayerPicture(s.getReference()));
+	}
+	
+	public void redo(String ref) {
+		Sketch s = getSketch(ref);
+		pen.redo(s.getReference(), curator.getLayerPicture(s.getReference()));
+	}
+	
 	public void removeThing(String name) {
 		sketches.remove(name);
 	}
@@ -146,7 +156,7 @@ public class Manager {
 
 	//-- Drawing  -----------------------------------------------------------------------------
 	
-	public void drawToPicture(String name, int x, int y) {
+	public void drawToPicture(String name, int x, int y, int duration) {
 		Sketch spic = sketches.get(name);
 		int actX = x / spic.getZoom();
 		int actY = y / spic.getZoom();
@@ -154,7 +164,7 @@ public class Manager {
 			return;
 		}
 		LayerPicture pic = curator.getLayerPicture(spic.getReference());
-		pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY);
+		pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------

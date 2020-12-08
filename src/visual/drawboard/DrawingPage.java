@@ -50,9 +50,9 @@ public class DrawingPage implements InputHandler{
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void handleDrawInput(int x, int y, String nom) {
+	public void handleDrawInput(int x, int y, int duration, String nom) {
 		active = nom;
-		reference.handleDrawInput(x, y, nom);
+		reference.handleDrawInput(x, y, duration, nom);
 	}
 	
 	public void handleCodeInput(int code, String nom) {
@@ -74,6 +74,10 @@ public class DrawingPage implements InputHandler{
 		}
 	}
 	
+	public void handleKeyInput(char code) {
+		reference.handleKeyInput(code);
+	}
+
 	//-- Generate Things  -------------------------------------
 	
 	public boolean generateAnimationDisplay(String nom, Canvas[] images) {

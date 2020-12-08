@@ -64,14 +64,18 @@ public class DrawingBoard implements InputHandler{
 	
 	//-- Input  -----------------------------------------------
 	
-	public void handleDrawInput(int x, int y, String nom) {
-		reference.handleDrawInput(x, y, nom);
+	public void handleDrawInput(int x, int y, int duration, String nom) {
+		reference.handleDrawInput(x, y, duration, nom);
 	}
 	
 	public void handleCodeInput(int code, String in) {
 		reference.handleCodeInput(code, in);
 	}
 	
+	public void handleKeyInput(char code) {
+		reference.handleKeyInput(code);
+	}
+
 	//-- Page Management  -------------------------------------
 	
 	public void generateSelectBar(int x, int y, int wid, int hei) {
@@ -115,6 +119,12 @@ public class DrawingBoard implements InputHandler{
 			public void clickReleaseBehaviour(int code, int x, int y) {
 				dragging = false;
 			}
+			
+			@Override
+			public void keyBehaviour(char code) {
+				reference.handleKeyInput(code);
+			}
+			
 		};
 		selectBar.setPriority(5);
 		selectBar.setScrollBarVertical(false);

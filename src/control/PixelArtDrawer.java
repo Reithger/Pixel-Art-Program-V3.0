@@ -40,12 +40,14 @@ public class PixelArtDrawer implements InputHandler{
 	
 	private Manager manager;
 	
+	private boolean keyCtrl;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
-		generateEmptyImage("Default", 32, 32);
+		generateEmptyImage("Default", 64, 64);
 		/*Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -76,11 +78,24 @@ public class PixelArtDrawer implements InputHandler{
 		updateCorkboard(false);
 	}
 	
-	public void handleDrawInput(int x, int y, String nom) {
-		manager.drawToPicture(nom, x, y);
+	public void handleDrawInput(int x, int y, int duration, String nom) {
+		manager.drawToPicture(nom, x, y, duration);
 		updateCorkboard(false);
 	}
 
+	public void handleKeyInput(char code) {
+		String use = view.getActiveElement();
+		/*
+		switch(code) {
+			case CodeReference.MODE_CHANGE_CTRL:
+				keyCtrl = !keyCtrl;
+				break;
+			case CodeReference.KEY_UNDO:
+				break;
+		}
+		*/
+	}
+	
 	//-- Codes from Ranges  -----------------------------------
 	
 	private boolean checkRanges(int in, String active) {
@@ -251,6 +266,14 @@ public class PixelArtDrawer implements InputHandler{
 	private boolean checkCorkboardCommands(int in, String active) {
 		String use = view.getActiveElement();
 		switch(in) {
+			case CodeReference.CODE_UNDO_CHANGE:
+				if(use != null)
+					manager.undo(use);
+				return true;
+			case CodeReference.CODE_REDO_CHANGE:
+				if(use != null)
+					manager.redo(use);
+				return true;
 			case CodeReference.CODE_INCREASE_ZOOM:
 				if(use != null)
 					manager.increaseZoom(use);
@@ -277,6 +300,14 @@ public class PixelArtDrawer implements InputHandler{
 		}
 	}
 
+	private boolean checkCorkboardAutomatic(int in, String active) {
+		String use = view.getActiveElement();
+		switch(in) {
+			default:
+				return false;
+		}
+	}
+	
 	//-- Manager Manipulation  --------------------------------
 	
 	

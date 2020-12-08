@@ -5,16 +5,18 @@ public class CodeReference {
 //---  Draw Type Mappings   -------------------------------------------------------------------
 
 	public final static int REF_MAX_DRAW_TYPES = 2;
+	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON, CodeReference.IMAGE_PATH_CIRCLE_ICON};
 	
 //---  File Pathing   -------------------------------------------------------------------------
 	
-	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON, CodeReference.IMAGE_PATH_CIRCLE_ICON};
 	private final static String IMAGE_PATH_CIRCLE_ICON = "./assets/circle_icon.png";
 	private final static String IMAGE_PATH_SQUARE_ICON = "./assets/square_icon.png";
 	
 	public final static String IMAGE_PATH_ZOOM_IN = "./assets/grow_icon.png";
 	public final static String IMAGE_PATH_ZOOM_OUT = "./assets/shrink_icon.png";
 	public final static String IMAGE_PATH_RESIZE_CORKBOARD = "./assets/placeholder.png";
+	public final static String IMAGE_PATH_UNDO = "./assets/placeholder.png";
+	public final static String IMAGE_PATH_REDO = "./assets/placeholder.png";
 	
 //---  Name References   ----------------------------------------------------------------------
 	
@@ -52,6 +54,8 @@ public class CodeReference {
 	public final static int CODE_RESIZE = 61;
 	public final static int CODE_HEADER = 62;
 	public final static int CODE_INTERACT_CONTENT = 63;
+	public final static int CODE_UNDO_CHANGE = 84;
+	public final static int CODE_REDO_CHANGE = 85;
 	
 	//-- Partially Integrated  --------------------------------
 
@@ -69,6 +73,8 @@ public class CodeReference {
 	public final static int CODE_DECREMENT_CANVAS_WID = 77;
 	public final static int CODE_INCREMENT_CANVAS_HEI = 78;
 	public final static int CODE_DECREMENT_CANVAS_HEI = 79;
+	
+	public final static int CODE_UPDATE_DRAW_END = 86;
 	
 	
 //---  Drawing Stuff   ------------------------------------------------------------------------
