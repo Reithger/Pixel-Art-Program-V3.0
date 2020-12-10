@@ -1,18 +1,11 @@
 package visual.drawboard.corkboard;
 
-import java.awt.Image;
-
 import misc.Canvas;
 import visual.drawboard.DrawingPage;
 
 public class DisplayAnimation extends Corkboard{
 	
 //---  Instance Variables   -------------------------------------------------------------------
-	
-	private Image[] frames;
-	private int activeFrame;	//TODO: Support for pausing, slowing, etc. the animation
-	private int period;
-	private double scale;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	

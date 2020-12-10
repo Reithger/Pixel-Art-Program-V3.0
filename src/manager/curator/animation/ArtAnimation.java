@@ -2,7 +2,6 @@ package manager.curator.animation;
 
 import java.util.ArrayList;
 
-import manager.curator.Component;
 import manager.curator.picture.LayerPicture;
 
 public class ArtAnimation implements Comparable<ArtAnimation>{

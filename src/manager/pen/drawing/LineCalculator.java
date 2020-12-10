@@ -4,6 +4,8 @@ import java.util.HashSet;
 
 public class LineCalculator {
 
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public static HashSet<Point> getPointsBetwixt(Point a, Point b){
 		HashSet<Point> out = new HashSet<Point>();
 		out.add(a);

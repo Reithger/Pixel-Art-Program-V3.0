@@ -1,8 +1,6 @@
 package visual;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,7 +38,7 @@ public class View implements InputHandler{
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public View(InputHandler in) {
-		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		//Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 		//TODO: Make this dynamic to your screen size
 		reference = in;
 		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -124,6 +122,10 @@ public class View implements InputHandler{
 	}
 	
 	//-- Settings Bar Management  -----------------------------
+	
+	public void refreshActivePage() {
+		options.refreshActivePage();
+	}
 	
 	public void updateColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
 		options.updateTileGridColors(ref, cols, codes, active);

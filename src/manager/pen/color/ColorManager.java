@@ -2,11 +2,10 @@ package manager.pen.color;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ColorManager {
 	
-	//TODO: Save pallets for easy re-access, and display them conveniently
+//---  Constants   ----------------------------------------------------------------------------
 	
 	private final static int PALLET_CODE_BUFFER = 5;
 	
@@ -74,13 +73,11 @@ public class ColorManager {
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setPallet(int index) {
-		index = fixIndex(index);
-		currPallet = index;
+		currPallet = fixIndex(index);
 	}
 	
 	public void setColor(int index) {
-		index = fixIndex(index);
-		getCurrentPallet().setColor(index);
+		getCurrentPallet().setColor(fixIndex(index));
 	}
 	
 	public void setColor(Color in) {
@@ -95,8 +92,7 @@ public class ColorManager {
 	}
 	
 	public Color getColor(int index) {
-		index = fixIndex(index);
-		return getCurrentPallet().getColor(index);
+		return getCurrentPallet().getColor(fixIndex(index));
 	}
 	
 	public int getActiveColorIndex() {
@@ -112,8 +108,10 @@ public class ColorManager {
 	}
 	
 	public int getCurrentPalletCodeBase() {
-		return currPallet * (PALLET_CODE_BUFFER + Pallet.MAXIMUM_SIZE);
+		return currPallet * (PALLET_CODE_BUFFER + getCurrentPallet().getMaximumPalletSize());
 	}
+	
+//---  Mechanics   ----------------------------------------------------------------------------
 	
 	private int fixIndex(int index) {
 		index = index < 0 ? 0 : index;

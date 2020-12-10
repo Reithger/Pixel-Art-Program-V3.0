@@ -5,10 +5,16 @@ import java.util.ArrayList;
 
 public class Pallet {
 
-	public final static int MAXIMUM_SIZE = 30;
+//---  Constants   ----------------------------------------------------------------------------
+	
+	private final static int MAXIMUM_SIZE = 30;
+	
+//---  Instance Variables   -------------------------------------------------------------------
 	
 	private ArrayList<Color> colors;
 	private int active;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public Pallet() {
 		colors = new ArrayList<Color>();
@@ -33,29 +39,35 @@ public class Pallet {
 		}
 	}
 	
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public void addColor(Color in) {
 		if(colors.size() < MAXIMUM_SIZE)
 			colors.add(in);
 	}
 	
 	public void removeColor(int index) {
-		index = fixIndex(index);
-		colors.remove(index);
+		colors.remove(fixIndex(index));
 	}
 	
+//---  Setter Methods   -----------------------------------------------------------------------
+	
 	public void setColor(int index) {
-		index = fixIndex(index);
-		active = index;
+		active = fixIndex(index);
 	}
 	
 	public void setColor(int index, Color col) {
-		index = fixIndex(index);
-		colors.set(index, col);
+		colors.set(fixIndex(index), col);
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public int getMaximumPalletSize() {
+		return MAXIMUM_SIZE;
 	}
 	
 	public Color getColor(int index) {
-		index = fixIndex(index);
-		return colors.get(index);
+		return colors.get(fixIndex(index));
 	}
 	
 	public ArrayList<Color> getColors(){
@@ -65,6 +77,8 @@ public class Pallet {
 	public int getActiveColor() {
 		return active;
 	}
+	
+//---  Mechanics   ----------------------------------------------------------------------------
 	
 	private int fixIndex(int index) {
 		index = index < 0 ? 0 : index;

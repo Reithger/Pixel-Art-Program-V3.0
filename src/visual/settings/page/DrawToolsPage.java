@@ -2,11 +2,11 @@ package visual.settings.page;
 
 import control.CodeReference;
 
-public class DrawingPage extends Page {
+public class DrawToolsPage extends Page {
 
 	private final static String PAGE_NAME = "Drawing";
 	
-	public DrawingPage() {
+	public DrawToolsPage() {
 		super(PAGE_NAME);
 		addTileGrid(CodeReference.REF_PEN_TYPE_GRID, "Pen Types", 3);
 		addTileGrid(CodeReference.REF_COLOR_GRID, "Colors", 3);

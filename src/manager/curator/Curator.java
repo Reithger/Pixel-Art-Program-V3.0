@@ -1,11 +1,14 @@
 package manager.curator;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import manager.curator.animation.LayerAnimation;
 import manager.curator.picture.LayerPicture;
+import manager.curator.picture.LayerSeries;
 import misc.Canvas;
 
 public class Curator {
@@ -17,7 +20,7 @@ public class Curator {
 	private final static String DEFAULT_ANIMATION_SAVE_TYPE = "gif";
 	private final static String DEFAULT_PICTURE_SAVE_TYPE = SAVE_TYPE_PNG;
 	
-	private final static String IMAGE_NAME = "new_image";
+	private final static String DEFAULT_NAME = "new_art";
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -32,38 +35,35 @@ public class Curator {
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
-
+	
+	//-- Component  -------------------------------------------
+	
 	public void toggleUpdated(String nom) {
-		if(animations.get(nom) != null) {
-			animations.get(nom).designateUpdate();
-		}
-		else if(pictures.get(nom) != null) {
-			pictures.get(nom).designateUpdate();
-		}
+		getComponent(nom).designateUpdate();
 	}
 	
-	public void resolveChanges() {
-		for(LayerAnimation a : animations.values()) {
-			a.resolvedUpdate();
-		}
-		for(LayerPicture p : pictures.values()) {
-			p.resolvedUpdate();
-		}
+	public void resolveChanges(String nom) {
+		getComponent(nom).resolveUpdate();
 	}
 	
 	public void saveAllBackup() {
 		int counter = 0;
 		File f = new File("./backup");
 		f.mkdir();
-		for(String s : animations.keySet()) {
-			animations.get(s).export(f.getAbsolutePath(), "backup_" + counter++, DEFAULT_ANIMATION_SAVE_TYPE, 1, true);
-		}
-		for(String s : pictures.keySet()) {
-			pictures.get(s).export(f.getAbsolutePath(), "backup_" + counter++, DEFAULT_PICTURE_SAVE_TYPE, 1, true);
+		for(String s : getNames()) {
+			getComponent(s).export(f.getAbsolutePath(), "backup_" + counter++, DEFAULT_ANIMATION_SAVE_TYPE, 1, true);
 		}
 	}
 	
-	//-- Things  ----------------------------------------------
+	public void saveThing(String name, String path, int scale, boolean composite) {
+		getComponent(name).export(path, name, DEFAULT_PICTURE_SAVE_TYPE, scale, composite);
+	}
+	
+	public void saveThing(String name, String savName, String path, int scale, boolean composite) {
+		getComponent(name).export(path, savName, DEFAULT_PICTURE_SAVE_TYPE, scale, composite);
+	}
+	
+	//-- Universal  -------------------------------------------
 	
 	public void rename(String ref, String newName) {
 		if(animations.get(ref) != null) {
@@ -77,19 +77,22 @@ public class Curator {
 			pictures.put(newName, lP);
 		}
 	}
-	
-	public void saveThing(String name, String path, int scale, boolean composite) {
-		getComponent(name).export(path, name, SAVE_TYPE_PNG, scale, composite);
-	}
-	
-	public void saveThing(String name, String savName, String path, int scale, boolean composite) {
-		getComponent(name).export(path, savName, SAVE_TYPE_PNG, scale, composite);
-	}
-	
-	//-- Animation Display  -------------------------------------------------------------------
-	
-	//-- Picture Display  ---------------------------------------------------------------------
 
+	//-- Animation Display  -----------------------------------
+	
+	//-- Picture Display  -------------------------------------
+
+	public void optimizeStorage(String ref, Collection<LayerSeries> lS) {
+		HashSet<LayerSeries> use = new HashSet<LayerSeries>();
+		for(LayerSeries l : lS) {
+			use.add(l);
+		}
+		pictures.get(ref).optimizeStorage(use);
+	}
+	
+	public void optimizeStorage(String ref, LayerSeries lS, HashSet<Integer> zooms) {
+		pictures.get(ref).optimizeStorage(lS, zooms);
+	}
 	
 	public void makeNewPicture(String name, int wid, int hei) {
 		LayerPicture lP = new LayerPicture(wid, hei);
@@ -114,33 +117,18 @@ public class Curator {
 		pictures.get(name).removeLayer(layer);
 	}
 
-	public BufferedImage producePictureLayer(String name, int layer) {
-		return pictures.get(name).getLayer(layer).generateImage();
-	}
-	
-	public BufferedImage producePictureImage(String name) {
-		return pictures.get(name).generateImage();
-	}
-	
-	public BufferedImage produceLayeredPictureImage(String name, int layStart, int layEnd) {
-		return pictures.get(name).generateImageSetLayers(layStart, layEnd);
-	}
-
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public int getNumLayers(String nom) {
-		return getComponent(nom).getNumLayers();
+	//-- Components  ------------------------------------------
+	
+	private ArrayList<String> getNames(){
+		ArrayList<String> out = new ArrayList<String>();
+		out.addAll(pictures.keySet());
+		out.addAll(animations.keySet());
+		return out;
 	}
 	
-	public Canvas getPictureCanvas(String reference, int lS, int lE, int zoom) {
-		return pictures.get(reference).getCanvas(lS, lE).getCanvas(zoom);
-	}
-	
-	public String getDefaultPath(String nom) {
-		return getComponent(nom).getDefaultFilePath();
-	}
-	
-	public Component getComponent(String nom) {
+	private Component getComponent(String nom) {
 		if(pictures.get(nom) != null) {
 			return pictures.get(nom);
 		}
@@ -150,32 +138,38 @@ public class Curator {
 		return null;
 	}
 	
-	public String getNextPictureName() {
-		int base = 0;
-		while(getComponent(IMAGE_NAME + "_" + base) != null) {
-			base++;
-		}
-		return IMAGE_NAME + "_" + base;
+	public String getDefaultPath(String nom) {
+		return getComponent(nom).getDefaultFilePath();
 	}
 	
 	public boolean getUpdateStatus(String nom) {
-		if(pictures.get(nom) != null) {
-			return pictures.get(nom).getUpdateStatus();
-		}
-		if(animations.get(nom) != null) {
-			return animations.get(nom).getUpdateStatus();
-		}
-		return false;
+		return getComponent(nom).getUpdateStatus();
 	}
 	
+	public String getNextDefaultName() {
+		int base = 0;
+		while(getComponent(DEFAULT_NAME + "_" + base) != null) {
+			base++;
+		}
+		return DEFAULT_NAME + "_" + base;
+	}
+	
+	public int getNumLayers(String nom) {
+		return getComponent(nom).getNumLayers();
+	}
+
+	//-- Picture  ---------------------------------------------
+
+	public Canvas getPictureCanvas(String reference, int lS, int lE, int zoom) {
+		return pictures.get(reference).getCanvas(lS, lE).getCanvas(zoom);
+	}
+
 	public LayerPicture getLayerPicture(String nom) {
 		return pictures.get(nom);
 	}
 	
-	public BufferedImage getPictureImage(String nom, int layerSt, int layerEn) {
-		return pictures.get(nom).generateImageSetLayers(layerSt, layerEn);
-	}
-
+	//-- Animation  -------------------------------------------
+	
 	public Canvas[] getAnimationFrames(String nom, int layerSt, int layerEn) {
 		return animations.get(nom).getCanvasImages();
 	}

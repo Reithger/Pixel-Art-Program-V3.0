@@ -4,6 +4,8 @@ import java.awt.Color;
 
 public class DrawTypeCircle implements DrawType{
 
+//---  Operations   ---------------------------------------------------------------------------
+	
 	@Override
 	public Color[][] draw(Color col, int penSize) {
 		int size = penSize;

@@ -44,7 +44,7 @@ public class ChangeStep {
 
 	public void export(String path) {
 		int size = getSize();
-		//redo.save(path + "redo_" + size);
+		redo.save(path + "redo_" + size);
 		undo.save(path + "undo_" + size);
 	}
 	

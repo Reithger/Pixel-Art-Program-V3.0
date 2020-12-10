@@ -2,10 +2,14 @@ package manager.pen.drawtype;
 
 public class DrawTypeSelector {
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	public final static int PEN_DRAW_SQUARE = 0;
 	public final static int PEN_DRAW_CIRCLE = 1;
 
 	//TODO: Let user make dynamic draw patterns
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public static DrawType getDrawType(int index) {
 		DrawType out = null;

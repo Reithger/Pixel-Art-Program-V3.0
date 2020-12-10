@@ -22,7 +22,7 @@ public class PageFactory {
 	
 	public static Page generateDrawingPage() {
 		if(assignedRef)
-			return new DrawingPage();
+			return new DrawToolsPage();
 		else {
 			error();
 			return null;

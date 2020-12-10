@@ -40,21 +40,15 @@ public class PixelArtDrawer implements InputHandler{
 	
 	private Manager manager;
 	
-	private boolean keyCtrl;
+	private KeyBindings keyBind;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
-		generateEmptyImage("Default", 32, 32);
-		/*Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				updateView(false);
-			}
-		}, 0, 1000 / 30);*/
+		keyBind = new KeyBindings();
+		generateEmptyImage("Default", 128, 128);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -75,6 +69,9 @@ public class PixelArtDrawer implements InputHandler{
 		if(!happ) {
 			checkCommands(in, active);
 		}
+		if(happ) {
+			view.refreshActivePage();
+		}
 		updateCorkboard(false);
 	}
 	
@@ -84,16 +81,8 @@ public class PixelArtDrawer implements InputHandler{
 	}
 
 	public void handleKeyInput(char code) {
-		String use = view.getActiveElement();
-		/*
-		switch(code) {
-			case CodeReference.MODE_CHANGE_CTRL:
-				keyCtrl = !keyCtrl;
-				break;
-			case CodeReference.KEY_UNDO:
-				break;
-		}
-		*/
+		System.out.println(code);
+		handleCodeInput(keyBind.interpretKeyInput(code), null);
 	}
 	
 	//-- Codes from Ranges  -----------------------------------
@@ -221,12 +210,14 @@ public class PixelArtDrawer implements InputHandler{
 				manager.getPen().decrementPenSize();
 				return true;
 			case CodeReference.CODE_PEN_SIZE_SET:
-				int val = Integer.parseInt(view.getTileContents(active));
-				manager.getPen().setPenSize(val);
+				try {
+					int val = Integer.parseInt(view.getTileContents(active));
+					manager.getPen().setPenSize(val);
+				}
+				catch(Exception e) {}
 				return true;
 			case CodeReference.CODE_COLOR_ADD:
 				Color nC = view.requestColorChoice(null);
-				System.out.println("here");
 				manager.getPen().addColor(nC);
 				return true;
 			case CodeReference.CODE_COLOR_EDIT:
@@ -320,14 +311,6 @@ public class PixelArtDrawer implements InputHandler{
 		}
 	}
 
-	private boolean checkCorkboardAutomatic(int in, String active) {
-		String use = view.getActiveElement();
-		switch(in) {
-			default:
-				return false;
-		}
-	}
-	
 	//-- Manager Manipulation  --------------------------------
 	
 		//-- Add  ---------------------------------------------
@@ -340,7 +323,7 @@ public class PixelArtDrawer implements InputHandler{
 		String choice = view.requestListChoice(new String[] {TEXT_CHOICE_PICTURE, TEXT_CHOICE_ANIMATION});
 		switch(choice) {
 			case TEXT_CHOICE_PICTURE:
-				generateEmptyImage(manager.getNewPictureName(), view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+				generateEmptyImage(manager.getNextName(), view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
 
 				break;
 			case TEXT_CHOICE_ANIMATION:

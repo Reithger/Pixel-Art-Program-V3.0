@@ -5,30 +5,26 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 
 import manager.curator.Component;
 
-public class LayerPicture implements Component{
+public class LayerPicture extends Component{
 
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private int width;
-	private int height;
 	private ArrayList<ArtPicture> layers;	
 	private HashMap<LayerSeries, ZoomCanvas> cache;
-	private String savePath;
-	private boolean changed;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public LayerPicture(String path) {
 		File f = new File(path);
-		changed = true;
-		savePath = f.getParentFile().getAbsolutePath();
+		designateUpdate();
+		setDefaultFilePath(f.getParentFile().getAbsolutePath());
 		cache = new HashMap<LayerSeries, ZoomCanvas>();
 		if(f.isDirectory()) {
 			//TODO: Get width, height from valid image and use if any images are broken to assign empty canvas
@@ -38,9 +34,8 @@ public class LayerPicture implements Component{
 		else {
 			try {
 				ArtPicture aP = new ArtPicture(f, 0);
-				width = aP.getWidth();
-				height = aP.getHeight();
-				changed = true;
+				setWidth(aP.getWidth());
+				setHeight(aP.getHeight());
 				layers = new ArrayList<ArtPicture>();
 				layers.add(aP);
 				cache = new HashMap<LayerSeries, ZoomCanvas>();
@@ -53,15 +48,24 @@ public class LayerPicture implements Component{
 	}
 	
 	public LayerPicture(int inWid, int inHei) {
-		width = inWid;
-		height = inHei;
-		changed = true;
+		setWidth(inWid);
+		setHeight(inHei);
+		designateUpdate();
 		layers = new ArrayList<ArtPicture>();
 		cache = new HashMap<LayerSeries, ZoomCanvas>();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
-
+	
+	private void clearCache() {
+		openLock();
+		cache.clear();
+		designateUpdate();
+		closeLock();
+	}
+	
+	//-- Meta Behaviour  --------------------------------------
+	
 	public void export(String path, String name, String typ, int scale, boolean composite) {
 		File savePoint = new File(path + "/" + name + "." + typ);
 		if(savePoint.exists()) {
@@ -69,6 +73,7 @@ public class LayerPicture implements Component{
 		}
 		try {
 			ImageIO.write(generateImage(), typ, savePoint);
+			setDefaultFilePath(path);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -80,6 +85,22 @@ public class LayerPicture implements Component{
 		}
 	}
 
+	//-- Image Generation  ------------------------------------
+	
+	public BufferedImage generateImage() {
+		return generateImageSetLayers(0, layers.size() - 1);
+	}
+
+	public BufferedImage generateImageSetLayers(int startLay, int endLay) {
+		LayerSeries lS = new LayerSeries(startLay, endLay);
+		if(invalidLayerSeries(lS)) {
+			return null;
+		}
+		return getCanvas(lS).getImage();
+	}
+	
+	//-- Layer Manipulation  ----------------------------------
+	
 	public void moveLayers(int st, int en) {
 		ArtPicture a = layers.get(st);
 		layers.remove(st);
@@ -89,8 +110,29 @@ public class LayerPicture implements Component{
 		else {
 			layers.add(en, a);
 		}
+		updateLayers();
 	}
 	
+	//TODO: Also provide needed zoom values to filter out unused ones
+	
+	public void optimizeStorage(HashSet<LayerSeries> layers) {
+		openLock();
+		for(LayerSeries lS : cache.keySet()) {
+			if(!layers.contains(lS)) {
+				cache.remove(lS);
+				layers.remove(lS);
+			}
+		}
+		for(LayerSeries lS : layers) {
+			cache.put(lS, composeColorZoomCanvas(lS));
+		}
+		closeLock();
+	}
+	
+	public void optimizeStorage(LayerSeries ref, HashSet<Integer> zooms) {
+		getCanvas(ref).optimizeStorage(zooms);
+	}
+
 	private void updateLayers() {
 		boolean change = false;
 		for(int i = 0; i < layers.size(); i++) {
@@ -103,39 +145,28 @@ public class LayerPicture implements Component{
 			clearCache();
 	}
 	
-	public BufferedImage generateImage() {
-		return generateImageSetLayers(0, layers.size() - 1);
+	//-- Canvas Generation  -----------------------------------
+	
+	private ZoomCanvas composeColorZoomCanvas(LayerSeries lay) {
+		return composeColorZoomCanvas(0, 0, getWidth(), getHeight(), lay);
 	}
 
-	public BufferedImage generateImageSetLayers(int startLay, int endLay) {
-		if(startLay < 0 || startLay > endLay || endLay > layers.size()) {
-			System.out.println("Error: Illegal start or end indexes for generating an Image using a specific series of Layers");
-			return null;
-		}
-		updateLayers();
-		LayerSeries lS = new LayerSeries(startLay, endLay);
-		if(cache.get(lS) != null) {
-			return cache.get(lS).getImage();
-		}
-		ZoomCanvas zc = new ZoomCanvas(composeColorZoomCanvas(0, 0, width, height, startLay, endLay));
-		cache.put(lS, zc);
-		return zc.getImage();
-	}
-	
-	private Color[][] composeColorZoomCanvas(int stX, int stY, int enX, int enY, int lS, int lE){
-		if(lS < 0 || lE < 0) {
+	private ZoomCanvas composeColorZoomCanvas(int stX, int stY, int enX, int enY, LayerSeries lay){
+		if(invalidLayerSeries(lay)) {
 			return null;
 		}
 		Color[][] out = new Color[enX - stX][enY - stY];
 		for(int i = stX; i < enX; i++) {
 			for(int j = stY; j < enY; j++) {
-				out[i][j] = composeLayerColor(i, j, lS, lE);
+				out[i][j] = composeLayerColor(i, j, lay);
 			}
 		}
-		return out;
+		return new ZoomCanvas(out);
 	}
 	
-	private Color composeLayerColor(int x, int y, int lS, int lE) {
+	private Color composeLayerColor(int x, int y, LayerSeries lay) {
+		int lS = lay.getLayerStart();
+		int lE = lay.getLayerEnd();
 		Color c = layers.get(lS).getColor(x, y);
 		for(int i = lS + 1; i <= lE; i++) {
 			c = mergeLayerColor(layers.get(i).getColor(x, y), c);
@@ -155,39 +186,47 @@ public class LayerPicture implements Component{
 			return new Color((int)(c.getRed() * alph) + (int)(o.getRed() * (1 - alph)), (int)(c.getGreen() * alph) + (int)(o.getGreen() * (1 - alph)), (int)(c.getBlue() * alph) + (int)(o.getBlue() * (1 - alph)));
 		}
 	}
+
+//---  Adder Methods   ------------------------------------------------------------------------
 	
-//---  Setter Methods   -----------------------------------------------------------------------
-	
-	private void clearCache() {
-		cache.clear();
-		ensureDefaultImage();
+	public void addLayer() {
+		addLayer(new ArtPicture(getWidth(), getHeight(), layers.size()));
 	}
 	
-	private void ensureDefaultImage() {
-		if(cache.get(new LayerSeries(0, layers.size() - 1)) == null) {
-			Color[][] use = composeColorZoomCanvas(0, 0, width, height, 0, layers.size() - 1);
-			if(use != null)
-				cache.put(new LayerSeries(0, layers.size() - 1), new ZoomCanvas(use));
+	public void addLayer(ArtPicture in) {
+		if(in.getWidth() != getWidth() || in.getHeight() != getHeight()) {
+			System.out.println("Error: New ArtPicture object not of same size as composite Picture object");
+			return;
 		}
+		in.setLayer(layers.size());
+		layers.add(in);
+		updateLayers();
 	}
 	
-	public void designateUpdate() {
-		changed = true;
+	public void addLayer(ArtPicture in, int lH) {
+		in.setLayer(lH);
+		layers.add(lH, in);
+		updateLayers();
 	}
 
-	public void resolvedUpdate() {
-		changed = false;
+//---  Remove Methods   -----------------------------------------------------------------------
+	
+	public void removeLayer(int ind) {
+		layers.remove(ind);
+		updateLayers();
 	}
+
+//---  Setter Methods   -----------------------------------------------------------------------
 
 	public void setPixel(int x, int y, Color col, int layer) {
 		if(layers.get(layer) == null) {
 			return;
 		}
 		layers.get(layer).setPixel(x, y, col);
-		ensureDefaultImage();
 		for(LayerSeries lS : cache.keySet()) {
 			if(lS.contains(layer)) {
-				cache.get(lS).setPixelColor(x, y, composeLayerColor(x, y, lS.getLayerStart(), lS.getLayerEnd()));
+				Color col2 = composeLayerColor(x, y, lS);
+				getCanvas(lS).setPixelColor(x, y, col2);
 			}
 		}
 	}
@@ -206,81 +245,49 @@ public class LayerPicture implements Component{
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public boolean contains(int x, int y) {
-		return x >= 0 && y >= 0 && x < width && y < height;
-	}
+	//-- Layer  -----------------------------------------------
 	
-	public int getNumLayers() {
-		return layers.size();
-	}
-	
-	public String getDefaultFilePath() {
-		return savePath;
-	}
-	
-	public boolean getUpdateStatus() {
-		return changed;
+	public Color[][] getColorData(int layer){
+		return getLayer(layer).getColorData();
 	}
 
 	public ArtPicture getLayer(int layer) {
 		return layers.get(layer);
 	}
 	
+	public ZoomCanvas getCanvas(LayerSeries lS) {
+		return getCanvas(lS.getLayerStart(), lS.getLayerEnd());
+	}
+	
 	public ZoomCanvas getCanvas(int lS, int lE) {
-		generateImageSetLayers(lS, lE);	//TODO: Make an 'ensureExists' method
-		return cache.get(new LayerSeries(lS, lE));
+		LayerSeries use = new LayerSeries(lS, lE);
+		if(invalidLayerSeries(use)) {
+			return null;
+		}
+		openLock();
+		if(cache.get(use) == null) {
+			cache.put(use, composeColorZoomCanvas(use));
+		}
+		ZoomCanvas out = cache.get(use);
+		closeLock();
+		return out;
 	}
 	
 	public Color getColor(int x, int y, int layer) {
 		return getLayer(layer).getColor(x, y);
 	}
 	
-	public Color[][] getColorData(int layer){
-		return getLayer(layer).getColorData();
-	}
-	
-	public int getWidth() {
-		return width;
-	}
-	
-	public int getHeight() {
-		return height;
-	}
-	
-//---  Adder Methods   ------------------------------------------------------------------------
-	
-	public void addLayer() {
-		addLayer(new ArtPicture(width, height, layers.size()));
-		clearCache();
-	}
-	
-	public void addLayer(ArtPicture in) {
-		if(in.getWidth() != width || in.getHeight() != height) {
-			System.out.println("Error: New ArtPicture object not of same size as composite Picture object");
-			return;
+	private boolean invalidLayerSeries(LayerSeries lay) {
+		if(lay.getLayerStart() < 0 || lay.getLayerEnd() >= layers.size() || lay.getLayerStart() > lay.getLayerEnd()) {
+			return true;
 		}
-		layers.add(in);
-		Collections.sort(layers);
-		clearCache();
+		return false;
 	}
 	
-	public void addLayer(ArtPicture in, int lH) {
-		if(lH <= layers.size()) {
-			layers.add(lH, in);
-			updateLayers();
-		}
-		else {
-			addLayer(in);
-		}
-		clearCache();
-	}
-
-//---  Remove Methods   -----------------------------------------------------------------------
+	//-- Meta Properties  -------------------------------------
 	
-	public void removeLayer(int ind) {
-		layers.remove(ind);
-		updateLayers();
-		clearCache();
+	public int getNumLayers() {
+		return layers.size();
 	}
-
+	
 }

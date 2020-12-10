@@ -1,15 +1,11 @@
 package manager.sketch;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
 import manager.curator.Curator;
 import misc.Canvas;
 
 public class SketchAnimation extends Sketch{
 	
-	private int activeFrame;	//TODO: Controls for how it should be configured
-	private int speed;
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public SketchAnimation(String nom, String ref) {
 		super(nom, ref);
@@ -21,16 +17,14 @@ public class SketchAnimation extends Sketch{
 		setLayerEnd(layEn);
 	}
 	
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public Sketch produceLayers(int layerSt, int layerEn) {
 		Sketch sk = new SketchAnimation(getName(), getReference());
 		sk.setLayerStart(layerSt);
 		sk.setLayerEnd(layerEn);
 		sk.setActiveLayer(layerSt);
 		return sk;
-	}
-	
-	public Canvas[] getUpdateImages(Curator c) {
-		return c.getAnimationFrames(getReference(), getLayerStart(), getLayerEnd());
 	}
 
 	@Override
@@ -44,4 +38,10 @@ public class SketchAnimation extends Sketch{
 		return sk;
 	}
 	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public Canvas[] getUpdateImages(Curator c) {
+		return c.getAnimationFrames(getReference(), getLayerStart(), getLayerEnd());
+	}
+
 }

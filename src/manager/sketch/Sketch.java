@@ -7,7 +7,6 @@ public abstract class Sketch {
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	protected static int counter;
 	private String reference;
 	private String name;
 	private int layerStart;

@@ -5,6 +5,8 @@ import java.awt.Color;
 
 public class DrawTypeSquare implements DrawType{
 
+//---  Operations   ---------------------------------------------------------------------------
+
 	@Override
 	public Color[][] draw(Color col, int penSize) {
 		Color[][] out = new Color[penSize][penSize];

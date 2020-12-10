@@ -4,13 +4,19 @@ import java.util.Comparator;
 
 public class Point implements Comparable<Point>, Comparator<Point> {
 
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private int x;
 	private int y;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public Point(int xIn, int yIn) {
 		x = xIn;
 		y = yIn;
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public int getX() {
 		return x;
@@ -19,6 +25,8 @@ public class Point implements Comparable<Point>, Comparator<Point> {
 	public int getY() {
 		return y;
 	}
+	
+//---  Mechanics   ----------------------------------------------------------------------------
 	
 	@Override
 	public int hashCode() {
@@ -36,6 +44,18 @@ public class Point implements Comparable<Point>, Comparator<Point> {
 	public boolean equals(Object o) {
 		return toString().equals(o.toString());
 	}
+
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y +")";
+	}
+
+	@Override
+	public int compare(Point o1, Point o2) {
+		int out = compareInteger(o1.getX(), o2.getX());
+		out = out == 0 ? compareInteger(o1.getY(), o2.getY()) : out;
+		return out;
+	}
 	
 	private int compareInteger(int a, int b) {
 		if(a < b) {
@@ -47,18 +67,6 @@ public class Point implements Comparable<Point>, Comparator<Point> {
 		else {
 			return 0;
 		}
-	}
-	
-	@Override
-	public String toString() {
-		return "(" + x + ", " + y +")";
-	}
-
-	@Override
-	public int compare(Point o1, Point o2) {
-		int out = compareInteger(o1.getX(), o2.getX());
-		out = out == 0 ? compareInteger(o1.getY(), o2.getY()) : out;
-		return out;
 	}
 	
 }

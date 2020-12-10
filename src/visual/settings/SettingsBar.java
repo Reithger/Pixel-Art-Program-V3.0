@@ -71,6 +71,10 @@ public class SettingsBar implements InputHandler{
 		getActivePage().drawPage();
 	}
 	
+	public void refreshActivePage() {
+		getActivePage().refresh();
+	}
+	
 	//-- Input  -----------------------------------------------
 
 	public void handleCodeInput(int code, String context) {

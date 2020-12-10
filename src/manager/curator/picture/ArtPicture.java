@@ -50,7 +50,7 @@ public class ArtPicture implements Comparable<ArtPicture>{
 			savePoint.delete();
 		}
 		try {
-			System.out.println(ImageIO.write(generateImage(), saveType, savePoint));
+			ImageIO.write(generateImage(), saveType, savePoint);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -75,9 +75,10 @@ public class ArtPicture implements Comparable<ArtPicture>{
 	}
 	
 	public void setRegion(int x, int y, Color[][] cols) {
-		for(int i = x; i < canvas.getCanvasWidth(); i++) {
-			for(int j = y; j < canvas.getCanvasHeight(); j++) {
-				canvas.setPixelColor(i, j, cols[i - x][j - y]);
+		for(int i = x; i < x + cols.length; i++) {
+			for(int j = y; j < y + cols[i].length; j++) {
+				if(cols[i - x][j - y] != null)
+					canvas.setPixelColor(i, j, cols[i - x][j - y]);
 			}
 		}
 		update = true;

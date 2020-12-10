@@ -27,7 +27,7 @@ public class VersionHistory {
 	public void addChange(String ref, int layer, int duration, Change undo, Change redo) {
 		ensureChangeStep(ref, layer);
 		if((durationSurpassed() && ref.equals(active)) || changes.get(ref).getLayer() != layer) {
-			commitChangeStep(active, changes.get(ref).getLayer());
+			commitChangeStep(ref, layer);
 		}
 		active = ref;
 		ChangeStep cS = changes.get(ref);
@@ -77,7 +77,7 @@ public class VersionHistory {
 	private void commitChangeStep(String ref, int layer) {
 		ChangeStep curr = changes.get(ref);
 		if(curr.hasContent()) {
-			ChangeStep next = new ChangeStep(ref, curr.getLayer());
+			ChangeStep next = new ChangeStep(ref, layer);
 			curr.setNext(next);
 			next.setPrevious(curr);
 			changes.put(ref, next);

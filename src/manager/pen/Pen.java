@@ -2,9 +2,6 @@ package manager.pen;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
@@ -42,7 +39,6 @@ public class Pen {
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	//This needs to work as a queue of inverse actions to backtrack over for an undo function
 	private VersionHistory changes;
 	private ColorManager color;
 	private StandardDraw pencil;
@@ -72,7 +68,7 @@ public class Pen {
 		openLock();
 		for(int i = 0; i < lP.getWidth(); i++) {
 			for(int j = 0; j < lP.getHeight(); j++) {
-				lP.setPixel(i, j, Color.white, layer);
+				lP.setPixel(i, j, new Color(255, 255, 255, 0), layer);
 			}
 		}
 		closeLock();
@@ -82,8 +78,7 @@ public class Pen {
 	
 	public void draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
 		openLock();
-		//TODO: Completion of series of points via duration for consecutive drawing
-		Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());	//TODO: integrate change details into drawing
+		Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());
 		change[0].setName(nom);
 		change[1].setName(nom);
 		changes.addChange(nom, layer, duration, change[0], change[1]);

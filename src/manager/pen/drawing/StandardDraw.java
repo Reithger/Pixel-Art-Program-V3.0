@@ -13,15 +13,15 @@ public class StandardDraw {
 
 //---  Instance Variables   -------------------------------------------------------------------
 
-	private int penSize;
 	private DrawType currMode;
 	private int modeIndex;
+	private int penSize;
+	
 	private boolean shade;
 	private double blendQuotient;
 	
 	private int lastX;
 	private int lastY;
-	
 	private int nextDuration;
 	
 	private HashMap<Integer, DrawInstruction> instructions;
@@ -49,11 +49,11 @@ public class StandardDraw {
 			lastY = y;
 			nextDuration = 0;
 		}
-		instructions.put(duration, new DrawInstruction(x, y, col, layer, aP));
+		instructions.put(duration, new DrawInstruction(x, y, col, layer));
 
 		Change[] out = prepareChanges(layer);
 		while(instructions.get(nextDuration) != null) {
-			drawSequence(instructions.get(nextDuration), out);
+			drawSequence(instructions.get(nextDuration), out, aP);
 			instructions.remove(nextDuration);
 			nextDuration++;
 		}
@@ -61,7 +61,7 @@ public class StandardDraw {
 		return out;
 	}
 
-	private void drawSequence(DrawInstruction in, Change[] out) {
+	private void drawSequence(DrawInstruction in, Change[] out, LayerPicture ref) {
 		int layer = in.getLayer();
 		Color col = in.getColor();
 		int x = in.getX();
@@ -75,7 +75,7 @@ public class StandardDraw {
 		points = LineCalculator.getPointsBetwixt(a, b);
 		
 		for(Point p : points) {
-			drawToPoint(in.getPicture(), p.getX(), p.getY(), layer, col, out, apply);
+			drawToPoint(ref, p.getX(), p.getY(), layer, col, out, apply);
 		}
 		
 		lastX = x;

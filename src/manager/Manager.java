@@ -2,8 +2,10 @@ package manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import manager.curator.picture.LayerPicture;
+import manager.curator.picture.LayerSeries;
 import manager.pen.Pen;
 import manager.curator.Curator;
 import manager.sketch.Sketch;
@@ -59,6 +61,30 @@ public class Manager {
 	
 		//-- Generic  -----------------------------------------
 	
+	public void optimizeStorage() {
+		//TODO: Figure out a way to only do this when it seems necessary, remove LayerSeries dependency, simplify?
+		HashSet<String> visited = new HashSet<String>();
+		for(Sketch s : sketches.values()) {
+			if(!visited.contains(s.getReference())) {
+				visited.add(s.getReference());
+				HashMap<LayerSeries, HashSet<Integer>> mappings = new HashMap<LayerSeries, HashSet<Integer>>();
+				for(Sketch t : sketches.values()) {
+					if(t.getReference().equals(s.getReference())) {
+						LayerSeries curr = new LayerSeries(t.getLayerStart(), t.getLayerEnd());
+						if(mappings.get(curr) == null) {
+							mappings.put(curr, new HashSet<Integer>());
+						}
+						mappings.get(curr).add(t.getZoom());
+					}
+				}
+				curator.optimizeStorage(s.getReference(), mappings.keySet());
+				for(LayerSeries l : mappings.keySet()) {
+					curator.optimizeStorage(s.getReference(), l, mappings.get(l));
+				}
+			}
+		}
+	}
+	
 	public HashMap<String, String> rename(String old, String newName) {
 		Sketch sk = sketches.get(old);
 		String ref = sk.getReference();
@@ -103,18 +129,21 @@ public class Manager {
 	}
 
 	public void addLayer(String name) {
-		curator.addLayer(getSketch(name).getReference());
-		getSketch(name).flagUpdate();
+		Sketch k = getSketch(name);
+		curator.addLayer(k.getReference());
+		flagUpdate(k);
 	}
 	
 	public void moveLayer(String name, int start, int end) {
-		curator.moveLayer(getSketch(name).getReference(), start, end);
-		getSketch(name).flagUpdate();
+		Sketch k = getSketch(name);
+		curator.moveLayer(k.getReference(), start, end);
+		flagUpdate(k);
 	}
 	
 	public void removeLayer(String name, int layer) {
-		curator.removeLayer(getSketch(name).getReference(), layer);
-		getSketch(name).flagUpdate();
+		Sketch k = getSketch(name);
+		curator.removeLayer(k.getReference(), layer);
+		flagUpdate(k);
 	}
 
 	public String duplicate(String nom) {
@@ -175,7 +204,7 @@ public class Manager {
 				s.setLayerEnd(s.getActiveLayer());
 			}
 		}
-		s.flagUpdate();
+		flagUpdate(s);
 	}
 	
 	public void moveSketchActiveLayerDown(String sket) {
@@ -186,7 +215,7 @@ public class Manager {
 				s.setLayerStart(s.getActiveLayer());
 			}
 		}
-		s.flagUpdate();
+		flagUpdate(s);
 	}
 	
 	public void setSketchLayerValues(String sket, int lStart, int lActive, int lEnd) {
@@ -194,33 +223,38 @@ public class Manager {
 		k.setLayerStart(lStart);
 		k.setActiveLayer(lActive);
 		k.setLayerEnd(lEnd);
-		k.flagUpdate();
+		flagUpdate(k);
 	}
 	
 	public void increaseZoom(String nom) {
 		Sketch k = getSketch(nom);
 		k.setZoom(k.getZoom() + 1);
-		k.flagUpdate();
+		flagUpdate(k);
 	}
 	
 	public void decreaseZoom(String nom) {
 		Sketch k = getSketch(nom);
 		k.setZoom(k.getZoom() - 1);
-		k.flagUpdate();
+		flagUpdate(k);
+	}
+	
+	private void flagUpdate(Sketch in) {
+		optimizeStorage();
+		in.flagUpdate();
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
+	//-- Pen  -------------------------------------------------
+	
 	public Pen getPen() {
 		return pen;
 	}
 	
-	private Sketch getSketch(String nom) {
-		return sketches.get(nom);
-	}
+	//-- Curator  ---------------------------------------------
 	
-	public String getNewPictureName() {
-		return curator.getNextPictureName();
+	public String getNextName() {
+		return curator.getNextDefaultName();
 	}
 	
 	public String getDefaultFilePath(String nom) {
@@ -228,6 +262,22 @@ public class Manager {
 			return null;
 		}
 		return curator.getDefaultPath(getSketch(nom).getReference());
+	}
+	
+	public Canvas getPictureCanvas(String nom) {
+		Sketch pic = getSketch(nom);
+		return curator.getPictureCanvas(pic.getReference(), pic.getLayerStart(), pic.getLayerEnd(), pic.getZoom());
+	}
+	
+	public Canvas[] getSketchImages(String nom) {
+		Sketch ska = getSketch(nom);
+		return ska.getUpdateImages(curator);
+	}
+
+	//-- Sketches  --------------------------------------------
+	
+	private Sketch getSketch(String nom) {
+		return sketches.get(nom);
 	}
 	
 	public int getSketchZoom(String nom) {
@@ -241,22 +291,13 @@ public class Manager {
 		}
 		return base + "_" + use;
 	}
-	
-	public Canvas[] getSketchImages(String nom) {
-		Sketch ska = getSketch(nom);
-		return ska.getUpdateImages(curator);
-	}
-	
-	public Canvas getPictureCanvas(String nom) {
-		Sketch pic = getSketch(nom);
-		return curator.getPictureCanvas(pic.getReference(), pic.getLayerStart(), pic.getLayerEnd(), pic.getZoom());
-	}
 
 	public ArrayList<String> getSketchNames(boolean force){
 		ArrayList<String> out = new ArrayList<String>();
 		for(Sketch k : sketches.values()) {
 			if(force || k.needsUpdate()) {
 				k.releaseUpdate();
+				curator.resolveChanges(k.getReference());
 				out.add(k.getName());
 			}
 		}

@@ -4,6 +4,8 @@ import manager.curator.Curator;
 import misc.Canvas;
 
 public class SketchPicture extends Sketch{
+
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public SketchPicture(String nom, String ref) {
 		super(nom, ref);
@@ -16,17 +18,14 @@ public class SketchPicture extends Sketch{
 		setActiveLayer(layAc);
 	}
 
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public Sketch produceLayers(int layerSt, int layerEn) {
 		SketchPicture out = new SketchPicture(getName() + "_layer_" + layerSt + ":" + layerEn, getReference());
 		out.setActiveLayer(layerSt);
 		out.setLayerStart(layerSt);
 		out.setLayerEnd(layerEn);
 		return out;
-	}
-
-	public Canvas[] getUpdateImages(Curator c) {
-		//TODO: Locally handle single image preparation of translucent under/overlay
-		return new Canvas[] {c.getPictureCanvas(getReference(), getLayerStart(), getLayerEnd(), getZoom())};
 	}
 
 	@Override
@@ -40,4 +39,11 @@ public class SketchPicture extends Sketch{
 		return sk;
 	}
 	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public Canvas[] getUpdateImages(Curator c) {
+		//TODO: Locally handle single image preparation of translucent under/overlay
+		return new Canvas[] {c.getPictureCanvas(getReference(), getLayerStart(), getLayerEnd(), getZoom())};
+	}
+
 }

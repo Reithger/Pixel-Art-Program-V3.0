@@ -1,13 +1,12 @@
 package manager.curator.animation;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import manager.curator.Component;
 import misc.Canvas;
 
-public class LayerAnimation implements Component{
+public class LayerAnimation extends Component{
 
 	private ArrayList<ArtAnimation> animLayers;
 	private boolean changes;

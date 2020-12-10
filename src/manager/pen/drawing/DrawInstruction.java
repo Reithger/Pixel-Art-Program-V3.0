@@ -2,23 +2,25 @@ package manager.pen.drawing;
 
 import java.awt.Color;
 
-import manager.curator.picture.LayerPicture;
-
 public class DrawInstruction {
 
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private int x;
 	private int y;
 	private Color col;
 	private int layer;
-	private LayerPicture ref;
 	
-	public DrawInstruction(int inX, int inY, Color inCol, int inLayer, LayerPicture inRef) {
+//---  Constructors   -------------------------------------------------------------------------
+	
+	public DrawInstruction(int inX, int inY, Color inCol, int inLayer) {
 		x = inX;
 		y = inY;
 		col = inCol;
 		layer = inLayer;
-		ref = inRef;
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public int getX() {
 		return x;
@@ -34,10 +36,6 @@ public class DrawInstruction {
 	
 	public Color getColor() {
 		return col;
-	}
-	
-	public LayerPicture getPicture() {
-		return ref;
 	}
 	
 }
