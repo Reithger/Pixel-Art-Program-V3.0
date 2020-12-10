@@ -10,6 +10,7 @@ import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
 import manager.pen.changes.VersionHistory;
 import manager.pen.color.ColorManager;
+import manager.pen.drawing.StandardDraw;
 
 public class Pen {
 	

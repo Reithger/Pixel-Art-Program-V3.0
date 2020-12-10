@@ -137,7 +137,7 @@ public class LayerPicture implements Component{
 	
 	private Color composeLayerColor(int x, int y, int lS, int lE) {
 		Color c = layers.get(lS).getColor(x, y);
-		for(int i = lS + 1; i < lE; i++) {
+		for(int i = lS + 1; i <= lE; i++) {
 			c = mergeLayerColor(layers.get(i).getColor(x, y), c);
 		}
 		return c;
@@ -180,6 +180,9 @@ public class LayerPicture implements Component{
 	}
 
 	public void setPixel(int x, int y, Color col, int layer) {
+		if(layers.get(layer) == null) {
+			return;
+		}
 		layers.get(layer).setPixel(x, y, col);
 		ensureDefaultImage();
 		for(LayerSeries lS : cache.keySet()) {
@@ -190,7 +193,7 @@ public class LayerPicture implements Component{
 	}
 	
 	public void setRegion(int x, int y, Color[][] cols, int layer) {
-		if(cols == null) {
+		if(cols == null || layers.get(layer) == null) {
 			return;
 		}
 		for(int i = x; i < x + cols.length; i++) {

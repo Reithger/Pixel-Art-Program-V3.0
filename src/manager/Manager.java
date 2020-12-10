@@ -32,7 +32,32 @@ public class Manager {
 		curator.saveAllBackup();
 	}
 	
-	//-- Things  ----------------------------------------------
+	//-- Pen  -------------------------------------------------
+	
+	public void undo(String ref) {
+		Sketch s = getSketch(ref);
+		pen.undo(s.getReference(), curator.getLayerPicture(s.getReference()));
+	}
+	
+	public void redo(String ref) {
+		Sketch s = getSketch(ref);
+		pen.redo(s.getReference(), curator.getLayerPicture(s.getReference()));
+	}
+	
+	public void drawToPicture(String name, int x, int y, int duration) {
+		Sketch spic = sketches.get(name);
+		int actX = x / spic.getZoom();
+		int actY = y / spic.getZoom();
+		if(actX < 0 || actY < 0) {
+			return;
+		}
+		LayerPicture pic = curator.getLayerPicture(spic.getReference());
+		pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
+	}
+
+	//-- Curator  ---------------------------------------------
+	
+		//-- Generic  -----------------------------------------
 	
 	public HashMap<String, String> rename(String old, String newName) {
 		Sketch sk = sketches.get(old);
@@ -41,11 +66,12 @@ public class Manager {
 		ArrayList<Sketch> addBack = new ArrayList<Sketch>();
 		ArrayList<String> remove = new ArrayList<String>();
 		HashMap<String, String> out = new HashMap<String, String>();
+		int counter = 0;
 		for(Sketch s : sketches.values()) {
 			if(s.getReference().equals(ref)) {
 				s.setReference(newName);
 				remove.add(s.getName());
-				out.put(s.getName(), getNextSketchName(newName));
+				out.put(s.getName(), newName + "_" + counter++);
 				s.setName(out.get(s.getName()));
 				addBack.add(s);
 			}
@@ -61,17 +87,7 @@ public class Manager {
 		
 		return out;
 	}
-	
-	public void undo(String ref) {
-		Sketch s = getSketch(ref);
-		pen.undo(s.getReference(), curator.getLayerPicture(s.getReference()));
-	}
-	
-	public void redo(String ref) {
-		Sketch s = getSketch(ref);
-		pen.redo(s.getReference(), curator.getLayerPicture(s.getReference()));
-	}
-	
+
 	public void removeThing(String name) {
 		sketches.remove(name);
 	}
@@ -85,19 +101,22 @@ public class Manager {
 		Sketch use = sketches.get(name);
 		curator.saveThing(use.getReference(), savNam, path, scale, composite);
 	}
-	
-	public void increaseZoom(String nom) {
-		Sketch k = getSketch(nom);
-		k.setZoom(k.getZoom() + 1);
-		k.flagUpdate();
+
+	public void addLayer(String name) {
+		curator.addLayer(getSketch(name).getReference());
+		getSketch(name).flagUpdate();
 	}
 	
-	public void decreaseZoom(String nom) {
-		Sketch k = getSketch(nom);
-		k.setZoom(k.getZoom() - 1);
-		k.flagUpdate();
+	public void moveLayer(String name, int start, int end) {
+		curator.moveLayer(getSketch(name).getReference(), start, end);
+		getSketch(name).flagUpdate();
 	}
 	
+	public void removeLayer(String name, int layer) {
+		curator.removeLayer(getSketch(name).getReference(), layer);
+		getSketch(name).flagUpdate();
+	}
+
 	public String duplicate(String nom) {
 		Sketch sk = getSketch(nom).copy();
 		String skName = getNextSketchName(sk.getReference());
@@ -105,37 +124,10 @@ public class Manager {
 		sketches.put(skName, sk);
 		return skName;
 	}
-	
-	public void setSketchLayerStart(String sket, int lS) {
-		sketches.get(sket).setLayerStart(lS);
-		sketches.get(sket).flagUpdate();
-	}
-	
-	public void setSketchActiveLayer(String sket, int lA) {
-		sketches.get(sket).setActiveLayer(lA);
-		sketches.get(sket).flagUpdate();
-	}
-	
-	public void setSketchLayerEnd(String sket, int lE) {
-		sketches.get(sket).setLayerEnd(lE);
-		sketches.get(sket).flagUpdate();
-	}
-	
-	public void addLayer(String name) {
-		curator.addLayer(getSketch(name).getReference());
-	}
-	
-	public void moveLayer(String name, int start, int end) {
-		curator.moveLayer(getSketch(name).getReference(), start, end);
-	}
-	
-	public void removeLayer(String name, int layer) {
-		curator.removeLayer(getSketch(name).getReference(), layer);
-	}
-
-	//-- Animations  ------------------------------------------
-	
-	//-- Pictures  --------------------------------------------
+		
+		//-- Animations  --------------------------------------
+		
+		//-- Pictures  ----------------------------------------
 
 	public String makeNewPicture(String name, int wid, int hei) {
 		curator.makeNewPicture(name, wid, hei);
@@ -154,17 +146,67 @@ public class Manager {
 		return sketchName;
 	}
 
-	//-- Drawing  -----------------------------------------------------------------------------
+	//-- Sketches  --------------------------------------------
 	
-	public void drawToPicture(String name, int x, int y, int duration) {
-		Sketch spic = sketches.get(name);
-		int actX = x / spic.getZoom();
-		int actY = y / spic.getZoom();
-		if(actX < 0 || actY < 0) {
-			return;
+	public void setSketchLayersAll(String sket) {
+		Sketch s = getSketch(sket);
+		int active = s.getActiveLayer();
+		active = active < 0 ? 0 : active;
+		int max = curator.getNumLayers(s.getReference());
+		active = active >= max ? max - 1 : active;
+		setSketchLayerValues(sket, 0, s.getActiveLayer(), max - 1);
+	}
+	
+	public void setSketchLayersBeneath(String sket) {
+		Sketch s = getSketch(sket);
+		setSketchLayerValues(sket, 0, s.getActiveLayer(), s.getActiveLayer());
+	}
+	
+	public void setSketchLayersActive(String sket) {
+		Sketch s = getSketch(sket);
+		setSketchLayerValues(sket, s.getActiveLayer(), s.getActiveLayer(), s.getActiveLayer());
+	}
+	
+	public void moveSketchActiveLayerUp(String sket) {
+		Sketch s = getSketch(sket);
+		if(s.getActiveLayer() + 1 < curator.getNumLayers(s.getReference())) {
+			s.setActiveLayer(s.getActiveLayer() + 1);
+			if(s.getActiveLayer() > s.getLayerEnd()) {
+				s.setLayerEnd(s.getActiveLayer());
+			}
 		}
-		LayerPicture pic = curator.getLayerPicture(spic.getReference());
-		pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
+		s.flagUpdate();
+	}
+	
+	public void moveSketchActiveLayerDown(String sket) {
+		Sketch s = getSketch(sket);
+		if(s.getActiveLayer() - 1 >= 0) {
+			s.setActiveLayer(s.getActiveLayer() - 1);
+			if(s.getActiveLayer() < s.getLayerStart()) {
+				s.setLayerStart(s.getActiveLayer());
+			}
+		}
+		s.flagUpdate();
+	}
+	
+	public void setSketchLayerValues(String sket, int lStart, int lActive, int lEnd) {
+		Sketch k = sketches.get(sket);
+		k.setLayerStart(lStart);
+		k.setActiveLayer(lActive);
+		k.setLayerEnd(lEnd);
+		k.flagUpdate();
+	}
+	
+	public void increaseZoom(String nom) {
+		Sketch k = getSketch(nom);
+		k.setZoom(k.getZoom() + 1);
+		k.flagUpdate();
+	}
+	
+	public void decreaseZoom(String nom) {
+		Sketch k = getSketch(nom);
+		k.setZoom(k.getZoom() - 1);
+		k.flagUpdate();
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------

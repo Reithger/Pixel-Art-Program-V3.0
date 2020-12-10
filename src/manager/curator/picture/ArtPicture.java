@@ -13,14 +13,23 @@ public class ArtPicture implements Comparable<ArtPicture>{
 
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private Canvas canvas;		//TODO: Make this a Canvas like DrawnCanvas to update more easily, same to LayerPicture as a meta
+	private Canvas canvas;
 	private int layer;
 	private boolean update;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public ArtPicture(int wid, int hei, int lay) {
-		canvas = new Canvas(wid, hei);
+		canvas = new Canvas(wid, hei) {
+			@Override
+			public void initialize() {
+				for(int i = 0; i < getCanvasWidth(); i++) {
+					for(int j = 0; j < getCanvasHeight(); j++) {
+						this.setPixelColor(i, j, new Color(255, 255, 255, 0));
+					}
+				}
+			}
+		};
 		layer = lay;
 	}
 	

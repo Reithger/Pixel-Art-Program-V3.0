@@ -1,6 +1,8 @@
-package manager.pen;
+package manager.pen.drawing;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
@@ -17,22 +19,70 @@ public class StandardDraw {
 	private boolean shade;
 	private double blendQuotient;
 	
+	private int lastX;
+	private int lastY;
+	
+	private int nextDuration;
+	
+	private HashMap<Integer, DrawInstruction> instructions;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public StandardDraw() {
-		penSize = 5;
+		penSize = 2;
 		updateCurrentDrawMode(DrawTypeSelector.PEN_DRAW_CIRCLE);
 		modeIndex = 1;
 		shade = false;
+		instructions = new HashMap<Integer, DrawInstruction>();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
 	public Change[] draw(LayerPicture aP, int x, int y, int layer, int duration, Color col) {
+		x = x < 0 ? 0 : x;
+		y = y < 0 ? 0 : y;
+		x = x > aP.getWidth() ? aP.getWidth() : x;
+		y = y > aP.getHeight() ? aP.getHeight() : y;
+		if(duration == 0) {
+			instructions.clear();
+			lastX = x;
+			lastY = y;
+			nextDuration = 0;
+		}
+		instructions.put(duration, new DrawInstruction(x, y, col, layer, aP));
+
+		Change[] out = prepareChanges(layer);
+		while(instructions.get(nextDuration) != null) {
+			drawSequence(instructions.get(nextDuration), out);
+			instructions.remove(nextDuration);
+			nextDuration++;
+		}
+		
+		return out;
+	}
+
+	private void drawSequence(DrawInstruction in, Change[] out) {
+		int layer = in.getLayer();
+		Color col = in.getColor();
+		int x = in.getX();
+		int y = in.getY();
 		Color[][] apply = currMode.draw(col, penSize);
-		Change[] out = new Change[2];
-		out[0] = new Change("", layer);	//undo
-		out[1] = new Change("", layer);	//redo
+		
+		HashSet<Point> points = new HashSet<Point>();
+		Point a = new Point(x, y);
+		Point b = new Point(lastX, lastY);
+		
+		points = LineCalculator.getPointsBetwixt(a, b);
+		
+		for(Point p : points) {
+			drawToPoint(in.getPicture(), p.getX(), p.getY(), layer, col, out, apply);
+		}
+		
+		lastX = x;
+		lastY = y;
+	}
+	
+	private void drawToPoint(LayerPicture aP, int x, int y, int layer, Color col, Change[] out, Color[][] apply) {
 		for(int i = 0; i < apply.length; i++) {
 			for(int j = 0; j < apply[i].length; j++) {
 				Color newCol = apply[i][j];
@@ -47,7 +97,6 @@ public class StandardDraw {
 				}
 			}
 		}
-		return out;
 	}
 	
 	private Color blend(Color curr, Color newCol) {
@@ -58,11 +107,14 @@ public class StandardDraw {
 		int b = (int)(curr.getBlue() * keep) + (int)(newCol.getBlue() * bq);
 		int a = (int)(curr.getAlpha() * keep) + (int)(newCol.getAlpha() * bq);
 		return new Color(r, g, b, a);
-		
 	}
-	
-	private void updateCurrentDrawMode(int index) {
-		currMode = DrawTypeSelector.getDrawType(index);
+
+	private Change[] prepareChanges(int layer) {
+		Change[] out = new Change[2];
+		out[0] = new Change("", layer);	//undo
+		out[0].setOverwrite(false);
+		out[1] = new Change("", layer);	//redo
+		return out;
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
@@ -84,6 +136,10 @@ public class StandardDraw {
 	
 	public void toggleShading() {
 		shade = !shade;
+	}
+	
+	private void updateCurrentDrawMode(int index) {
+		currMode = DrawTypeSelector.getDrawType(index);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

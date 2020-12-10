@@ -46,8 +46,6 @@ public class ChangeStep {
 		int size = getSize();
 		//redo.save(path + "redo_" + size);
 		undo.save(path + "undo_" + size);
-		if(previous != null)
-			previous.export(path);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

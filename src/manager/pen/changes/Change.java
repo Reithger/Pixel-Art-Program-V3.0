@@ -37,6 +37,9 @@ public class Change{
 	}
 	
 	public void addChange(int xIn, int yIn, Color[][] colsIn) {
+		if(colsIn == null) {
+			return;
+		}
 		openLock();
 		if(cols == null) {
 			x = xIn;

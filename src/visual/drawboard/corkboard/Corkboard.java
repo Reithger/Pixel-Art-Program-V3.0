@@ -67,7 +67,17 @@ public abstract class Corkboard {
 			private boolean draggingHeader;
 			private boolean draggingResize;
 			
-			private int drawCounter;
+			private volatile int drawCounter;
+			private volatile boolean mutexHere;
+			
+			private void openLockHere() {
+				while(mutexHere) {}
+				mutexHere = true;
+			}
+			
+			private void closeLockHere() {
+				mutexHere = false;
+			}
 			
 			@Override
 			public void clickBehaviour(int code, int x, int y) {
@@ -132,10 +142,11 @@ public abstract class Corkboard {
 			}
 			
 			private void processDrawing(int x, int y) {
+				openLockHere();
 				int actX = x + getOffsetX() - CONTENT_X_BUFFER;
 				int actY = y + getOffsetY() - CONTENT_Y_BUFFER;
-				getReference().handleDrawInput(actX, actY, drawCounter, getName());
-				drawCounter++;
+				getReference().handleDrawInput(actX, actY, drawCounter++, getName());
+				closeLockHere();
 			}
 			
 			private void processDragging(int x, int y) {
@@ -174,9 +185,15 @@ public abstract class Corkboard {
 		int posX = wid - size;
 		int posY = HEADER_HEIGHT + size;
 		
-		String[] names = new String[] {"zoomIn", "zoomOut", "undo", "redo"};
-		String[] paths = new String[] {CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.IMAGE_PATH_ZOOM_OUT, CodeReference.IMAGE_PATH_UNDO, CodeReference.IMAGE_PATH_REDO};
-		int[] codes = new int[] {CodeReference.CODE_INCREASE_ZOOM, CodeReference.CODE_DECREASE_ZOOM, CodeReference.CODE_UNDO_CHANGE, CodeReference.CODE_REDO_CHANGE};
+		String[] names = new String[] {"zoomIn", "zoomOut", "undo", "redo", "all", "beneath", "active", "add", "up", "down"};
+		String[] paths = new String[] {CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.IMAGE_PATH_ZOOM_OUT, 
+				CodeReference.IMAGE_PATH_UNDO, CodeReference.IMAGE_PATH_REDO, CodeReference.IMAGE_PATH_LAYER_ALL,
+				CodeReference.IMAGE_PATH_LAYER_BENEATH, CodeReference.IMAGE_PATH_LAYER_ACTIVE, CodeReference.IMAGE_PATH_ADD_LAYER,
+				CodeReference.IMAGE_PATH_ACTIVE_LAYER_UP, CodeReference.IMAGE_PATH_ACTIVE_LAYER_DOWN};
+		int[] codes = new int[] {CodeReference.CODE_INCREASE_ZOOM, CodeReference.CODE_DECREASE_ZOOM,
+				CodeReference.CODE_UNDO_CHANGE, CodeReference.CODE_REDO_CHANGE, CodeReference.CODE_LAYER_DISPLAY_ALL,
+				CodeReference.CODE_LAYER_DISPLAY_BENEATH, CodeReference.CODE_LAYER_DISPLAY_ACTIVE, CodeReference.CODE_ADD_LAYER,
+				CodeReference.CODE_ACTIVE_LAYER_UP, CodeReference.CODE_ACTIVE_LAYER_DOWN};
 		
 		for(int i = 0; i < names.length; i++) {
 			p.handleImageButton(names[i], true, posX, posY, size, size, paths[i], codes[i]);

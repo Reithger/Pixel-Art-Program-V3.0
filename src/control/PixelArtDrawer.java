@@ -47,7 +47,7 @@ public class PixelArtDrawer implements InputHandler{
 	public PixelArtDrawer() {
 		manager = new Manager();
 		view = new View(this);
-		generateEmptyImage("Default", 64, 64);
+		generateEmptyImage("Default", 32, 32);
 		/*Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
@@ -266,6 +266,26 @@ public class PixelArtDrawer implements InputHandler{
 	private boolean checkCorkboardCommands(int in, String active) {
 		String use = view.getActiveElement();
 		switch(in) {
+			case CodeReference.CODE_ACTIVE_LAYER_UP:
+				if(use != null)
+					manager.moveSketchActiveLayerUp(use);
+				return true;
+			case CodeReference.CODE_ACTIVE_LAYER_DOWN:
+				if(use != null)
+					manager.moveSketchActiveLayerDown(use);
+				return true;
+			case CodeReference.CODE_LAYER_DISPLAY_ALL:
+				if(use != null)
+					manager.setSketchLayersAll(use);
+				return true;
+			case CodeReference.CODE_LAYER_DISPLAY_BENEATH:
+				if(use != null)
+					manager.setSketchLayersBeneath(use);
+				return true;
+			case CodeReference.CODE_LAYER_DISPLAY_ACTIVE:
+				if(use != null)
+					manager.setSketchLayersActive(use);
+				return true;
 			case CodeReference.CODE_UNDO_CHANGE:
 				if(use != null)
 					manager.undo(use);
@@ -309,7 +329,6 @@ public class PixelArtDrawer implements InputHandler{
 	}
 	
 	//-- Manager Manipulation  --------------------------------
-	
 	
 		//-- Add  ---------------------------------------------
 	
