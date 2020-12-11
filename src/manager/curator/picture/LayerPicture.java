@@ -182,8 +182,12 @@ public class LayerPicture extends Component{
 		}
 		else {
 			Color o = bottom;
-			o = o == null ? new Color(0, 0, 0) : o;
-			return new Color((int)(c.getRed() * alph) + (int)(o.getRed() * (1 - alph)), (int)(c.getGreen() * alph) + (int)(o.getGreen() * (1 - alph)), (int)(c.getBlue() * alph) + (int)(o.getBlue() * (1 - alph)));
+			o = o == null ? new Color(255, 255, 255, 0) : o;
+			int r = (int)(c.getRed() * alph) + (int)(o.getRed() * (1 - alph));
+			int g = (int)(c.getGreen() * alph) + (int)(o.getGreen() * (1 - alph));
+			int b = (int)(c.getBlue() * alph) + (int)(o.getBlue() * (1 - alph));
+			int a = (int)(255 * (1.0 - (1.0 - alph) * (1.0 - (o.getAlpha() / 255.0))));
+			return new Color(r, g, b, a);
 		}
 	}
 

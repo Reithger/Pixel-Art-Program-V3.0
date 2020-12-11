@@ -6,13 +6,14 @@ import java.util.HashMap;
 import control.InputHandler;
 import misc.Canvas;
 import visual.drawboard.corkboard.Corkboard;
-import visual.drawboard.corkboard.DisplayAnimation;
-import visual.drawboard.corkboard.DisplayPicture;
+import visual.drawboard.corkboard.CorkboardGenerator;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
 
 public class DrawingPage implements InputHandler{
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	public final static Font DEFAULT_FONT = new Font("Serif", Font.BOLD, 12);
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -80,31 +81,22 @@ public class DrawingPage implements InputHandler{
 
 	//-- Generate Things  -------------------------------------
 	
-	public boolean generateAnimationDisplay(String nom, Canvas[] images) {
-		String useName = getUniqueName("animation_" + nom);
-		
-		DisplayAnimation anim = new DisplayAnimation(nom, useName, images, this);
-		int[] coords = findOpenSpot(anim.getContentWidth(), anim.getContentHeight());
-		if(coords == null)
-			return false;
-		anim.setLocation(x + coords[0],  y + coords[1]);
-		ElementPanel disp = anim.getPanel();
-		displays.put(nom, anim);
-		parent.addPanelToWindow(windowName, useName, disp);
-		return true;
+	public void generateAnimationDisplay(String nom, Canvas[] images) {
+		Corkboard anim = CorkboardGenerator.generateDisplayAnimation(nom, getUniqueName("animation_" + nom), images);
+		setupCorkboard(anim);
 	}
 
-	public boolean generatePictureDisplay(String nom, Canvas in) {
-		String useName = getUniqueName("picture_" + nom);
-		DisplayPicture pic = new DisplayPicture(nom, useName, in, this);
-		int[] coords = findOpenSpot(pic.getContentWidth(), pic.getContentHeight());
-		if(coords == null)
-			return false;
-		pic.setLocation(x + coords[0],  y + coords[1]);
-		ElementPanel disp = pic.getPanel();
-		displays.put(nom, pic);
-		parent.addPanelToWindow(windowName, useName, disp);
-		return true;
+	public void generatePictureDisplay(String nom, Canvas in) {
+		Corkboard pic = CorkboardGenerator.generateDisplayPicture(nom, getUniqueName("picture_" + nom), in);
+		setupCorkboard(pic);
+	}
+	
+	private void setupCorkboard(Corkboard newCork) {
+		newCork.setReference(this);
+		newCork.setLocation(x + 2,  y + 1);
+		ElementPanel disp = newCork.getPanel();
+		displays.put(newCork.getName(), newCork);
+		parent.addPanelToWindow(windowName, newCork.getPanelName(), disp);
 	}
 
 	//-- Thing Management  ------------------------------------
@@ -156,6 +148,10 @@ public class DrawingPage implements InputHandler{
 		displays.remove(nom);
 	}
 	
+	public void toggleContentLock(String nom) {
+		getCorkboard(nom).toggleContentLocked();
+	}
+	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	public int getOriginX() {
@@ -193,10 +189,6 @@ public class DrawingPage implements InputHandler{
 	
 	public String getWindowName() {
 		return windowName;
-	}
-	
-	private int[] findOpenSpot(int width, int height) {
-		return new int[] {0, 0}; //TODO: Find an open spot in the screen given other extant displays/canvases to place something
 	}
 	
 }

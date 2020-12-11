@@ -1,4 +1,4 @@
-package visual;
+package visual.popouts;
 
 import java.awt.Color;
 
@@ -6,13 +6,19 @@ import visual.composite.popout.PopoutWindow;
 
 public class PopoutInputRequest extends PopoutWindow{
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private final static int POPUP_WIDTH = 300;
 	private final static int POPUP_HEIGHT = 200;
 	private final static int CODE_SUBMIT = 5;
 	private final static String ELEMENT_NAME_ENTRY = "entry";
 	
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private volatile boolean ready;
 	private String out;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public PopoutInputRequest(String text) {
 		super(POPUP_WIDTH, POPUP_HEIGHT);
@@ -36,19 +42,23 @@ public class PopoutInputRequest extends PopoutWindow{
 		this.handleTextButton("subm", false, posX, posY, submitWidth, submitHeight, null, "Submit", CODE_SUBMIT, Color.white, Color.black);
 	}
 
-	@Override
-	public void clickAction(int arg0, int arg1, int arg2) {
-		if(arg0 == CODE_SUBMIT) {
-			out = this.getStoredText(ELEMENT_NAME_ENTRY);
-			ready = true;
-		}
-	}
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public String getSubmitted() {
 		while(!ready) {
 			Thread.onSpinWait();
 		};
 		return out;
+	}
+
+//---  Input Handling   -----------------------------------------------------------------------
+	
+	@Override
+	public void clickAction(int arg0, int arg1, int arg2) {
+		if(arg0 == CODE_SUBMIT) {
+			out = this.getStoredText(ELEMENT_NAME_ENTRY);
+			ready = true;
+		}
 	}
 
 	@Override

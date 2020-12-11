@@ -1,7 +1,6 @@
 package visual.drawboard.corkboard;
 
 import misc.Canvas;
-import visual.drawboard.DrawingPage;
 
 public class DisplayAnimation extends Corkboard{
 	
@@ -9,8 +8,8 @@ public class DisplayAnimation extends Corkboard{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayAnimation(String nom, String inPanel, Canvas[] inFrames, DrawingPage ref) {
-		super(nom, inPanel, inFrames[0].getCanvasZoomWidth(), inFrames[0].getCanvasZoomHeight(), ref);
+	public DisplayAnimation(String nom, String inPanel, Canvas[] inFrames) {
+		super(nom, inPanel, inFrames[0].getCanvasZoomWidth(), inFrames[0].getCanvasZoomHeight());
 		updateImages(inFrames);
 	}
 

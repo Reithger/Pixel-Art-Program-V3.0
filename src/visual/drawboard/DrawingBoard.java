@@ -5,17 +5,19 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import control.CodeReference;
 import control.InputHandler;
 import misc.Canvas;
-import visual.PopoutConfirm;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
+import visual.popouts.PopoutConfirm;
 
 public class DrawingBoard implements InputHandler{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
 	private final static String BODY_WINDOW_NAME = "body";
+	private final static String HEADER_WINDOW_NAME = "body_header";
 	private final static int PROPORTION_TOP_SELECT = 25;
 	private final static int SELECT_BAR_MIN_SECTIONS = 12;
 	private final static Font MENU_FONT = new Font("Serif", Font.BOLD, 12);
@@ -53,11 +55,16 @@ public class DrawingBoard implements InputHandler{
 		height = hei;
 		pages = new HashMap<Integer, DrawingPage>();
 		parent = par;
+		reserveWindows();
 		generateSelectBar(inX, inY, wid, hei / PROPORTION_TOP_SELECT);
-		drawSelectBar();
 		addNewPage();
-		par.addPanelToWindow("drawing board", "select bar", selectBar);
-		par.showActiveWindow("drawing board");
+	}
+	
+	private void reserveWindows() {
+		parent.reserveWindow(getBodyWindowName());
+		parent.reserveWindow(getHeaderWindowName());
+		parent.showActiveWindow(getBodyWindowName());
+		parent.showActiveWindow(getHeaderWindowName());
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -130,6 +137,9 @@ public class DrawingBoard implements InputHandler{
 		selectBar.setScrollBarVertical(false);
 		selectBar.setScrollBarHorizontal(false);
 		selectBar.getPanel().setBackground(null);
+
+		drawSelectBar();
+		parent.addPanelToWindow(HEADER_WINDOW_NAME, "select bar", selectBar);
 	}
 
 	public void addNewPage() {
@@ -182,8 +192,8 @@ public class DrawingBoard implements InputHandler{
 		int butSize = hei / 2;
 		selectBar.removeElementPrefixed("page_");
 		for(int i = 0; i < pages.keySet().size(); i++) {
-			selectBar.handleTextButton("page_" + i, false, posX, hei / 2, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
-			selectBar.addImage("page_close_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, "/assets/placeholder.png", true);
+			selectBar.handleTextButton("page_" + i, false, posX, butSize, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
+			selectBar.addImage("page_close_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, CodeReference.IMAGE_PATH_CLOSE_PAGE, true);
 			selectBar.addButton("page_close_butt_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, null, i + pages.keySet().size(), true);
 			posX += wid;
 		}
@@ -193,17 +203,11 @@ public class DrawingBoard implements InputHandler{
 	//-- Generate Things  -------------------------------------
 	
 	public void generateAnimationDisplay(String nom, Canvas[] images) {
-		if(!getCurrentPage().generateAnimationDisplay(nom, images)) {
-			addNewPage();
-			getCurrentPage().generateAnimationDisplay(nom, images);
-		}
+		getCurrentPage().generateAnimationDisplay(nom, images);
 	}
 
 	public void generatePictureDisplay(String nom, Canvas in) {
-		if(!getCurrentPage().generatePictureDisplay(nom, in)) {
-			addNewPage();
-			getCurrentPage().generatePictureDisplay(nom, in);
-		}
+		getCurrentPage().generatePictureDisplay(nom, in);
 	}
 	
 	//-- Thing Management  ------------------------------------
@@ -220,12 +224,12 @@ public class DrawingBoard implements InputHandler{
 		getCurrentPage().updateDisplay(nom, images, zoom);
 	}
 	
-	public void addAnimation(String nom, Canvas[] imgs) {
-		//TODO
-	}
-	
 	public void removeFromDisplay(String nom) {
 		getCurrentPage().removeFromDisplay(nom);
+	}
+	
+	public void toggleContentLock(String nom) {
+		getCurrentPage().toggleContentLock(nom);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
@@ -241,16 +245,20 @@ public class DrawingBoard implements InputHandler{
 		return getCurrentPage().getActiveElement();
 	}
 	
+	public String getHeaderWindowName() {
+		return HEADER_WINDOW_NAME;
+	}
+	
+	public String getBodyWindowName() {
+		return BODY_WINDOW_NAME;
+	}
+	
 	private String formPageName(int index) {
-		return getWindowName() + "_" + index;
+		return getBodyWindowName() + "_" + index;
 	}
 	
 	private DrawingPage getCurrentPage() {
 		return pages.get(active);
 	}
-	
-	public String getWindowName() {
-		return BODY_WINDOW_NAME;
-	}
-	
+
 }

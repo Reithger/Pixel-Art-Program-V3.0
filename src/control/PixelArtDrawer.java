@@ -64,7 +64,7 @@ public class PixelArtDrawer implements InputHandler{
 	 */
 	
 	public void handleCodeInput(int in, String active) {
-		System.out.println(in + " " + active);
+		//System.out.println(in + " " + active + " " + Thread.currentThread());
 		boolean happ = checkRanges(in, active);
 		if(!happ) {
 			checkCommands(in, active);
@@ -305,6 +305,10 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_MOVE_LAYER:
 				if(use != null)
 					manager.moveLayer(active, view.requestIntInput("Start Layer"), view.requestIntInput("End Layer"));
+				return true;
+			case CodeReference.CODE_TOGGLE_LOCK_CANVAS:
+				if(use != null)
+					view.toggleContentLock(use);
 				return true;
 			default:
 				return false;

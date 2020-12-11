@@ -9,7 +9,7 @@ public class SettingsPage extends Page{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void refresh() {
+	protected void refreshLocal(boolean pushUpdate) {
 		
 	}
 

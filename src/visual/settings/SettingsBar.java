@@ -72,7 +72,7 @@ public class SettingsBar implements InputHandler{
 	}
 	
 	public void refreshActivePage() {
-		getActivePage().refresh();
+		getActivePage().refresh(false);
 	}
 	
 	//-- Input  -----------------------------------------------
@@ -90,11 +90,8 @@ public class SettingsBar implements InputHandler{
 	}
 
 	private void formatPages(int x, int y, int wid, int hei) {
-		pages = new ArrayList<Page>();
-		PageFactory.assignReference(this);
-		pages.add(PageFactory.generateFilePage());
-		pages.add(PageFactory.generateDrawingPage());
-		pages.add(PageFactory.generateSettingsPage());
+		Page.assignReference(this);
+		pages = PageFactory.generateStartingPages();
 		activePage = 0;
 		for(Page p : pages) {
 			p.resize(wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
@@ -133,7 +130,7 @@ public class SettingsBar implements InputHandler{
 			setMenuIndex(code);
 			drawMenuBar();
 			parent.showActiveWindow(getActivePageName());
-			getActivePage().refresh();
+			getActivePage().refresh(false);
 			return true;
 		}
 		return false;
@@ -145,11 +142,13 @@ public class SettingsBar implements InputHandler{
 		}
 		int distX = menu.getWidth() / (pages.size() < SELECT_BAR_MIN_SECTIONS ? SELECT_BAR_MIN_SECTIONS : pages.size());
 		int posX = distX / 2;
+		int posY = menu.getHeight() / 2;
+		int hei = menu.getHeight();
 		menu.removeElementPrefixed("rect_title_");
 		for(int i = 0; i < pages.size(); i++) {
-			menu.handleText("text_title_" + i, false, posX, menu.getHeight() / 2, distX, menu.getHeight(), MENU_FONT, pages.get(i).getName());
-			menu.handleRectangle("rect_title_" + i, false, 10, posX, menu.getHeight() / 2, distX, menu.getHeight(), i == activePage ? Color.green : Color.gray, Color.black);
-			menu.handleButton("butt_title_" + i, false, posX, menu.getHeight() / 2, distX, menu.getHeight(), i);
+			menu.handleText("text_title_" + i, false, posX, posY, distX, hei, MENU_FONT, pages.get(i).getName());
+			menu.handleRectangle("rect_title_" + i, false, 10, posX, posY, distX, hei, i == activePage ? Color.green : Color.gray, Color.black);
+			menu.handleButton("butt_title_" + i, false, posX, posY, distX, hei, i);
 			posX += distX;
 		}
 	}

@@ -23,6 +23,8 @@ public class CodeReference {
 	public final static String IMAGE_PATH_LAYER_ALL = "./assets/show_all_layers_icon.png";
 	public final static String IMAGE_PATH_LAYER_ACTIVE = "./assets/show_active_layer_icon.png";
 	public final static String IMAGE_PATH_ADD_LAYER = "./assets/add_layer_icon.png";
+	public final static String IMAGE_PATH_CLOSE_PAGE = "./assets/placeholder.png";
+	public final static String IMAGE_PATH_TOGGLE_LOCK = "./assets/placeholder.png";
 
 	public final static String IMAGE_PATH_RESIZE_CORKBOARD = "./assets/placeholder.png";
 	
@@ -53,6 +55,14 @@ public class CodeReference {
 	
 	public final static int CODE_OPEN_META = 57;
 
+//---  SettingsBar Stuff   --------------------------------------------------------------------
+	
+	//-- Integrated  ------------------------------------------
+	
+	//-- Partially Integrated  --------------------------------
+
+	//-- Not Integrated  --------------------------------------
+	
 //---  Corkboard Stuff   ----------------------------------------------------------------------
 
 	//-- Integrated  ------------------------------------------
@@ -80,7 +90,7 @@ public class CodeReference {
 
 	
 	public final static int CODE_RANGE_LAYER_SELECT = 1500;
-	public final static int CODE_LOCK_CANVAS = 67;
+	public final static int CODE_TOGGLE_LOCK_CANVAS = 67;
 	public final static int CODE_RESIZE_CANVAS = 75;
 	
 	public final static int CODE_INCREMENT_CANVAS_WID = 76;

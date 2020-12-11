@@ -11,6 +11,9 @@ import visual.composite.popout.PopoutAlert;
 import visual.composite.popout.PopoutSelectList;
 import visual.drawboard.DrawingBoard;
 import visual.frame.WindowFrame;
+import visual.popouts.PopoutColorDesigner;
+import visual.popouts.PopoutConfirm;
+import visual.popouts.PopoutInputRequest;
 import visual.settings.SettingsBar;
 
 public class View implements InputHandler{
@@ -46,8 +49,6 @@ public class View implements InputHandler{
 		frame.setName("Test");
 		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
 		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame, this);
-		frame.reserveWindow(body.getWindowName());
-		frame.showActiveWindow(body.getWindowName());
 	}
 
 //---  Operations   ---------------------------------------------------------------------------
@@ -162,11 +163,15 @@ public class View implements InputHandler{
 	}
 	
 	public void addAnimation(String nom, Canvas[] img) {
-		body.addAnimation(nom, img);
+		body.generateAnimationDisplay(nom, img);
 	}
 
 	public void duplicateThing(String old, String nom) {
 		body.duplicateThing(old, nom);
+	}
+	
+	public void toggleContentLock(String nom) {
+		body.toggleContentLock(nom);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

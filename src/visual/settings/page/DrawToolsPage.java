@@ -4,7 +4,11 @@ import control.CodeReference;
 
 public class DrawToolsPage extends Page {
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private final static String PAGE_NAME = "Drawing";
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public DrawToolsPage() {
 		super(PAGE_NAME);
@@ -13,7 +17,12 @@ public class DrawToolsPage extends Page {
 		addTileNumericSelector(CodeReference.REF_PEN_SIZE, "Pen Size", 1, 32, CodeReference.CODE_PEN_SIZE_DECREMENT, CodeReference.CODE_PEN_SIZE_INCREMENT, CodeReference.CODE_PEN_SIZE_SET);
 	}
 	
-	public void refresh() {
+//---  Operations   ---------------------------------------------------------------------------
+	
+	protected void refreshLocal(boolean pushUpdate) {
+		if(pushUpdate) {
+			handleCodeInput(CodeReference.CODE_PEN_SIZE_SET, CodeReference.REF_PEN_SIZE);
+		}
 		handleCodeInput(CodeReference.CODE_UPDATE_COLOR, CodeReference.REF_COLOR_GRID);
 		handleCodeInput(CodeReference.CODE_UPDATE_PEN_SIZE, CodeReference.REF_PEN_SIZE);
 		handleCodeInput(CodeReference.CODE_UPDATE_PEN_TYPE, CodeReference.REF_PEN_TYPE_GRID);

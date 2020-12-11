@@ -18,12 +18,6 @@ public abstract class Tile implements Comparable<Tile>{
 	private int priority;
 	private String name;
 	
-//---  Constructors   -------------------------------------------------------------------------
-	
-	public Tile() {
-		
-	}
-	
 //---  Operations   ---------------------------------------------------------------------------
 	
 	public abstract void drawTile(int x, int y, HandlePanel p);
@@ -32,6 +26,10 @@ public abstract class Tile implements Comparable<Tile>{
 	
 	public void assignMaximumVerticalSpace(int in) {
 		height = (int)(in * SPACE_RATIO_VERTICAL);
+	}
+	
+	protected void drawLabel(String label, int x, int y, HandlePanel p) {
+		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 15 / 32, getTileWidth(), getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

@@ -2,11 +2,13 @@ package visual.drawboard.corkboard;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 
 import control.CodeReference;
 import control.InputHandler;
 import misc.Canvas;
 import visual.composite.HandlePanel;
+import visual.drawboard.corkboard.buttons.ButtonInformation;
 
 public abstract class Corkboard {
 
@@ -25,7 +27,7 @@ public abstract class Corkboard {
 //---  Constants   ----------------------------------------------------------------------------
 	
 	protected static final int HEADER_HEIGHT = 30;
-	protected static final int SIDEBAR_WIDTH = 30;
+	protected static final int SIDEBAR_WIDTH = 46;
 	protected final static int MINIMUM_SIZE = 150;
 	protected final static int CONTENT_X_BUFFER = 1;
 	protected final static int CONTENT_Y_BUFFER = HEADER_HEIGHT + 1;
@@ -38,6 +40,7 @@ public abstract class Corkboard {
 	private String name;
 	private String panelName;
 	private HandlePanel panel;
+	private ArrayList<ButtonInformation> buttons;
 	private InputHandler reference;
 	private boolean mutex;
 	private boolean contentLocked;
@@ -45,10 +48,10 @@ public abstract class Corkboard {
 
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight, InputHandler ref) {
+	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight) {
 		setName(inNom);
 		setPanelName(inPanel);
-		setReference(ref);
+		buttons = new ArrayList<ButtonInformation>();
 		mutex = false;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
@@ -96,15 +99,13 @@ public abstract class Corkboard {
 			
 			@Override
 			public void clickPressBehaviour(int code, int x, int y) {
+				lastX = x;
+				lastY = y;
 				if(code == CodeReference.CODE_HEADER) {
 					draggingHeader = true;
-					lastX = x;
-					lastY = y;
 				}
 				else if(code == CodeReference.CODE_RESIZE) {
 					draggingResize = true;
-					lastX = x;
-					lastY = y;
 				}
 				onClickPress(code, x, y);
 			}
@@ -128,8 +129,9 @@ public abstract class Corkboard {
 						processDrawing(x, y);
 					}
 					else {
-						setOffsetX(getOffsetX() + (lastX - x));
-						setOffsetY(getOffsetY() + (lastY - y));
+						System.out.println(getOffsetX() + " " + getOffsetY());
+						setOffsetX(getOffsetX() + (x - lastX));
+						setOffsetY(getOffsetY() + (y - lastY));
 						lastX = x;
 						lastY = y;
 					}
@@ -143,8 +145,8 @@ public abstract class Corkboard {
 			
 			private void processDrawing(int x, int y) {
 				openLockHere();
-				int actX = x + getOffsetX() - CONTENT_X_BUFFER;
-				int actY = y + getOffsetY() - CONTENT_Y_BUFFER;
+				int actX = x - getOffsetX() - CONTENT_X_BUFFER;
+				int actY = y - getOffsetY() - CONTENT_Y_BUFFER;
 				getReference().handleDrawInput(actX, actY, drawCounter++, getName());
 				closeLockHere();
 			}
@@ -162,17 +164,9 @@ public abstract class Corkboard {
 		hand.getPanel().setBackground(null);
 		getPanel().setScrollBarHorizontal(false);
 		getPanel().setScrollBarVertical(false);
-		setTitle();
+		drawTitle();
 	}
 
-	private void setTitle() {
-		getPanel().removeElementPrefixed("texB");
-		int butWid = getWidth() * 9/10;
-		int butHei = HEADER_HEIGHT * 9/10;
-		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
-	
-	}
-	
 	public void updatePanel() {
 		HandlePanel p = getPanel();
 		int wid = p.getWidth();
@@ -184,19 +178,11 @@ public abstract class Corkboard {
 		
 		int posX = wid - size;
 		int posY = HEADER_HEIGHT + size;
+
 		
-		String[] names = new String[] {"zoomIn", "zoomOut", "undo", "redo", "all", "beneath", "active", "add", "up", "down"};
-		String[] paths = new String[] {CodeReference.IMAGE_PATH_ZOOM_IN, CodeReference.IMAGE_PATH_ZOOM_OUT, 
-				CodeReference.IMAGE_PATH_UNDO, CodeReference.IMAGE_PATH_REDO, CodeReference.IMAGE_PATH_LAYER_ALL,
-				CodeReference.IMAGE_PATH_LAYER_BENEATH, CodeReference.IMAGE_PATH_LAYER_ACTIVE, CodeReference.IMAGE_PATH_ADD_LAYER,
-				CodeReference.IMAGE_PATH_ACTIVE_LAYER_UP, CodeReference.IMAGE_PATH_ACTIVE_LAYER_DOWN};
-		int[] codes = new int[] {CodeReference.CODE_INCREASE_ZOOM, CodeReference.CODE_DECREASE_ZOOM,
-				CodeReference.CODE_UNDO_CHANGE, CodeReference.CODE_REDO_CHANGE, CodeReference.CODE_LAYER_DISPLAY_ALL,
-				CodeReference.CODE_LAYER_DISPLAY_BENEATH, CodeReference.CODE_LAYER_DISPLAY_ACTIVE, CodeReference.CODE_ADD_LAYER,
-				CodeReference.CODE_ACTIVE_LAYER_UP, CodeReference.CODE_ACTIVE_LAYER_DOWN};
-		
-		for(int i = 0; i < names.length; i++) {
-			p.handleImageButton(names[i], true, posX, posY, size, size, paths[i], codes[i]);
+		for(int i = 0; i < buttons.size(); i++) {
+			ButtonInformation bI = buttons.get(i);
+			p.handleImageButton(bI.getName(), true, posX, posY, size, size, bI.getImagePath(), bI.getCode());
 			posY += 3 * size / 2;
 		}
 		
@@ -204,17 +190,27 @@ public abstract class Corkboard {
 		
 		p.handleImageButton("imgB", true, posX, posY, size, size, CodeReference.IMAGE_PATH_RESIZE_CORKBOARD, CodeReference.CODE_RESIZE);
 		
-		setTitle();
+		drawTitle();
 		
 		int rA = CONTENT_X_BUFFER + getContentWidth();
+		int lA = CONTENT_X_BUFFER;
 		int tA = CONTENT_Y_BUFFER;
 		int bA = CONTENT_Y_BUFFER + getContentHeight();
-		p.addLine("line1", 5, true, rA, tA, rA, bA, 1, Color.black);
-		p.addLine("line2", 5, true, 0, bA, rA, bA, 1, Color.black);
+		p.addLine("line1", 5, false, rA, tA, rA, bA, 1, Color.black);
+		p.addLine("line2", 5, false, lA, bA, rA, bA, 1, Color.black);
+		p.addLine("line3", 5, false, lA, tA, lA, bA, 1, Color.black);
+		p.addLine("line4", 5, false, lA, tA, rA, tA, 1, Color.black);
 		p.handleThickRectangle("thck", true, 0, HEADER_HEIGHT, wid, hei, Color.black, 2);
 		updatePanelLocal();
 	}
 
+	private void drawTitle() {
+		getPanel().removeElementPrefixed("texB");
+		int butWid = getWidth() * 9/10;
+		int butHei = HEADER_HEIGHT * 9/10;
+		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
+	}
+	
 	public void resizePanel(int wid, int hei) {
 		wid = wid < MINIMUM_SIZE ? MINIMUM_SIZE : wid;
 		hei = hei < MINIMUM_SIZE ? MINIMUM_SIZE : hei;
@@ -237,6 +233,35 @@ public abstract class Corkboard {
 	
 	protected void closeLock() {
 		mutex = false;
+	}
+
+	//-- Buttons  ---------------------------------------------
+	
+	public void assignButtonInformation(ArrayList<ButtonInformation> in) {
+		buttons = in;
+	}
+	
+	public void addButton(ButtonInformation bI) {
+		buttons.add(bI);
+	}
+	
+	public void removeButton(String nom) {
+		for(int i = 0; i < buttons.size(); i++) {
+			if(buttons.get(i).getName().equals(nom)) {
+				buttons.remove(i);
+				return;
+			}
+		}
+	}
+	
+	public void removeAllButtons() {
+		buttons.clear();
+	}
+	
+	public void moveButton(int i, int j) {
+		ButtonInformation b = buttons.get(i);
+		buttons.remove(i);
+		buttons.add(j + (i < j ? -1 : 0), b);
 	}
 	
 	//-- Abstract  --------------------------------------------

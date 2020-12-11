@@ -4,7 +4,11 @@ import control.CodeReference;
 
 public class FilePage extends Page{
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private final static String PAGE_NAME = "File";
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public FilePage() {
 		super(PAGE_NAME);
@@ -18,7 +22,9 @@ public class FilePage extends Page{
 		addTileBig("H", "Exit", "/assets/placeholder.png", CodeReference.CODE_EXIT);
 	}
 	
-	public void refresh() {
+//---  Operations   ---------------------------------------------------------------------------
+	
+	protected void refreshLocal(boolean pushUpdate) {
 		
 	}
 

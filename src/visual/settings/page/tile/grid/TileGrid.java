@@ -8,6 +8,8 @@ import visual.settings.page.tile.Tile;
 
 public class TileGrid extends Tile{
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	//TODO: Hover-text labels for each button
 	private GridImage DEFAULT_EMERGENCY = new GridImage("./assets/placeholder.png", -1);
 	
@@ -21,16 +23,6 @@ public class TileGrid extends Tile{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public TileGrid(String[] paths, String inLabel, int[] inCodes, int gridHeight) {
-		height = gridHeight;
-		label = inLabel;
-		active = 0;
-		icons = new GridIcon[paths.length];
-		for(int i = 0; i < paths.length; i++) {
-			icons[i] = new GridImage(paths[i], inCodes[i]);
-		}
-	}
-	
 	public TileGrid(String inLabel, int inHeight) {
 		label = inLabel;
 		height = inHeight;
@@ -39,6 +31,7 @@ public class TileGrid extends Tile{
 
 //---  Operations   ---------------------------------------------------------------------------
 	
+	@Override
 	public boolean dragTileProcess(int code, int x, int y) {
 		//TODO: Figure out how to make this rearrange colors in current pallet
 		return false;
@@ -49,10 +42,12 @@ public class TileGrid extends Tile{
 		if(update) {
 			p.removeElementPrefixed("gr_" + label);
 		}
-		p.handleText("gr_" + label, false, x + calculateTileWidth(), y + getHeight() * 7 / 16, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 		int size = calculateTileWidth();
 		int posX = x + size / 2;
-		int posY = y - size;
+		int defaultY = y - size - getHeight() / 16;
+		int posY = defaultY;
+		
+		drawLabel(label, x, y, p);
 		
 		if(icons.length > getActive()) {
 			icons[getActive()].draw(p, "gr_" + label + "_big", posX, y, size * 2);
@@ -66,7 +61,7 @@ public class TileGrid extends Tile{
 		for(int i = 0; i < icons.length; i++) {
 			if(i % (height) == 0 && i != 0) {
 				posX += size;
-				posY = y - size;
+				posY = defaultY;
 			}
 			icons[i].draw(p, "gr_" + label, posX, posY, size);
 			
@@ -75,24 +70,32 @@ public class TileGrid extends Tile{
 	}
 
 	public void updateGridIconsImage(ArrayList<String> imagePaths, int[] codes) {
-		icons = new GridIcon[imagePaths.size()];
+		GridIcon[] newIcons = new GridIcon[imagePaths.size()];
 		for(int i = 0; i < imagePaths.size(); i++) {
-			icons[i] = new GridImage(imagePaths.get(i), codes[i]);
+			newIcons[i] = new GridImage(imagePaths.get(i), codes[i]);
 		}
+		assignGridIcons(newIcons);
 	}
 	
 	public void updateGridIconsColor(ArrayList<Color> cols, int[] codeSt) {
-		icons = new GridIcon[cols.size()];
+		GridIcon[] newIcons = new GridIcon[cols.size()];
 		for(int i = 0; i < cols.size(); i++) {
-			icons[i] = new GridColor(cols.get(i), codeSt[i]);
+			newIcons[i] = new GridColor(cols.get(i), codeSt[i]);
 		}
+		assignGridIcons(newIcons);
 	}
-	
+
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	protected void assignGridIcons(GridIcon[] in) {
+		boolean change = icons.length != in.length;
+		if(!change) {
+			for(int i = 0; i < in.length; i++) {
+				change = change || !in[i].equals(icons[i]);
+			}
+		}
 		icons = in;
-		update = true;
+		update = change;
 	}
 	
 	public void setActive(int in) {
@@ -140,4 +143,5 @@ public class TileGrid extends Tile{
 		}
 		return out;
 	}
+	
 }

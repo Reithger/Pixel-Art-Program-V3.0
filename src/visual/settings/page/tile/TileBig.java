@@ -7,15 +7,21 @@ import visual.composite.HandlePanel;
 
 public class TileBig extends Tile{
 
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private String img;
 	private String label;
 	private int code;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public TileBig(String inImg, String display, int inCode) {
 		img = inImg;
 		label = display;
 		code = inCode;
 	}
+	
+//---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
 	public void drawTile(int x, int y, HandlePanel p) {
@@ -28,9 +34,12 @@ public class TileBig extends Tile{
 		p.handleRectangle("rect_test_" + label + "_" + code, false, 10,  x, y, wid, getHeight(), Color.white, Color.black);
 	}
 
+	@Override
 	public boolean dragTileProcess(int code, int x, int y) {
 		return false;
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	@Override
 	public int getTileWidth() {

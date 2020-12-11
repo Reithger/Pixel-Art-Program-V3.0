@@ -7,7 +7,11 @@ import visual.composite.HandlePanel;
 
 public class TileNumericSelector extends Tile {
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private static int ENTRY_CODE = -1000;
+	
+//---  Instance Variables   -------------------------------------------------------------------
 	
 	private String label;
 	
@@ -21,7 +25,11 @@ public class TileNumericSelector extends Tile {
 	private int entryCode;
 	private int sliderCode;
 	
+	private int lineStart;
+	
 	private String referenceEntry;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public TileNumericSelector(String inLabel, int min, int max, int decrem, int increm, int set) {
 		label = inLabel;
@@ -35,16 +43,26 @@ public class TileNumericSelector extends Tile {
 		storedValue = minVal;
 	}
 	
+//---  Operations   ---------------------------------------------------------------------------
+	
 	public boolean dragTileProcess(int code, int x, int y) {
+		int len = getHeight() * 2 / 3;
+
+		double weight = len / (double)(maxVal - minVal);
+		
+		int post = lineStart + (int)(weight * (storedValue - minVal));
+		
+		int dX = x - post;
+		int change = (int)(dX * weight);
+		System.out.println(x + " " + post + " " +  change + " " + weight);
+		storedValue += change;
 		//TODO: Drag slider to change penSize, update back-end accordingly
-		return false;
+		return true;
 	}
 	
 	@Override
 	public void drawTile(int x, int y, HandlePanel p) {
 		p.setElementStoredText(referenceEntry, ""+storedValue);
-		//Two rows, top has button, textEntry, button
-		//Bottom has a slider, need to carefully measure drag speed
 		int posX = x;
 		int posY = y - (getHeight() / 3) / 2;
 		int size = getHeight() / 3;
@@ -62,12 +80,16 @@ public class TileNumericSelector extends Tile {
 		posX = x;
 		posY += size;
 		
+		lineStart = posX - size;
 		p.handleLine("gr_" + label + "_line", false, 5, posX, posY, posX + 2 * size, posY, 2, Color.black);
+		p.handleButton("gr_" + label + "_slider_detect", false, posX + size, posY, 2 * size, posY, sliderCode);
 		double prop = (double)(storedValue - minVal) / (double)(maxVal - minVal);
 
 		posX += (int)(prop * 2 * size);
-		p.handleImageButton("gr_" + label + "_slider", false, posX, posY, iconSize, size, "./assets/placeholder.png", sliderCode);
+		p.handleImage("gr_" + label + "_slider", false, posX, posY, iconSize, size, "./assets/placeholder.png");
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 
 	@Override
 	public ArrayList<Integer> getAssociatedCodes() {
@@ -75,6 +97,8 @@ public class TileNumericSelector extends Tile {
 		out.add(decCode);
 		out.add(incCode);
 		out.add(setCode);
+		out.add(sliderCode);
+		out.add(entryCode);
 		return out;
 	}
 
@@ -87,6 +111,8 @@ public class TileNumericSelector extends Tile {
 	public int getTileWidth() {
 		return getHeight() * 4 / 6;
 	}
+	
+//---  Setter Methods   -----------------------------------------------------------------------
 
 	public void setValues(int min, int max, int display) {
 		minVal = min;

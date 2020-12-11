@@ -12,17 +12,17 @@ import visual.settings.page.tile.TileFactory;
 
 public abstract class Page extends HandlePanel implements InputHandler{
 
-//---  Constants   ----------------------------------------------------------------------------
-	
-	private final static int CODE_BACK_SCROLL = -47;
-	private final static int CODE_FORWARD_SCROLL = -48;
-	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private HashMap<String, Tile> tiles;
 	private HashMap<Integer, String> tileCodes;
 	private String name;
 	private static InputHandler reference;
+	
+	private volatile boolean mutexHere;
+	
+	private boolean dragging;
+	private int lastX;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -31,7 +31,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		name = inName;
 		tiles = new HashMap<String, Tile>();
 		tileCodes = new HashMap<Integer, String>();
-		this.setScrollBarVertical(false);
+		setScrollBarVertical(false);
 		setScrollBarHorizontal(false);
 		getPanel().setBackground(null);
 	}
@@ -43,11 +43,11 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	}
 
 	public void drawPage() {
+		openLockHere();
 		int buffer = getWidth() / 50;
 		int posX = buffer / 2;
 		int posY = getHeight() / 2;
 		
-		removeElementPrefixed("navigate");
 		ArrayList<Tile> disp = new ArrayList<Tile>(tiles.values());
 		Collections.sort(disp);
 		for(int i = 0; i < disp.size(); i++) {
@@ -57,26 +57,26 @@ public abstract class Page extends HandlePanel implements InputHandler{
 			t.drawTile(posX, posY, this);
 			posX += t.getTileWidth() + buffer;
 		}
-		this.handleLine("line_" + disp.size(), false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
+		handleLine("line_" + disp.size(), false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 		
 		handleThickRectangle("outline", true, 0, 0, getWidth(), getHeight(), Color.black, 2);
-		
-		if(getMaximumScreenX() > getWidth()) {
-			int size = getWidth() / 30;
-			posX = buffer;
-			if(getWidth() - getOffsetX() < getMaximumScreenX()) {
-				handleButton("navigate_butt_forward", true, getWidth() - posX, posY + getHeight() / 4, size, size, CODE_FORWARD_SCROLL);
-				handleRectangle("navigate_rect_forward", true, 15, getWidth() - posX, posY + getHeight() / 4, size, size, Color.white, Color.black);
-			}
-			if(getOffsetX() != 0) {
-				handleButton("navigate_butt_back", true, posX, posY + getHeight() / 4, size, size, CODE_BACK_SCROLL);
-				handleRectangle("navigate_rect_back", true, 15, posX, posY + getHeight() / 4, size, size, Color.white, Color.black);
-			}
-		}
-		
+		closeLockHere();
 	}
-
-	public abstract void refresh();
+	
+	private void openLockHere() {
+		while(mutexHere) {};
+		mutexHere = true;
+	}
+	
+	private void closeLockHere() {
+		mutexHere = false;
+	}
+	
+	public void refresh(boolean pushUpdate) {
+		refreshLocal(pushUpdate);
+	}
+	
+	protected abstract void refreshLocal(boolean pushUpdate);
 	
 	//-- Input  -----------------------------------------------
 	
@@ -124,21 +124,29 @@ public abstract class Page extends HandlePanel implements InputHandler{
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void assignTileGridColors(String ref, ArrayList<Color> cols, int[] codeStart) {
+		openLockHere();
 		TileFactory.updateTileGridColors(getTile(ref), cols, codeStart);
 		updateCodeAssociations(getTile(ref));
+		closeLockHere();
 	}
 	
 	public void assignTileGridImages(String ref, ArrayList<String> paths, int[] codes) {
+		openLockHere();
 		TileFactory.updateTileGridImages(getTile(ref), paths, codes);
 		updateCodeAssociations(getTile(ref));
+		closeLockHere();
 	}
 	
 	public void assignTileGridActive(String ref, int inde) {
+		openLockHere();
 		TileFactory.updateTileGridActive(getTile(ref), inde);
+		closeLockHere();
 	}
 	
 	public void assignTileNumericSelectorValues(String ref, int min, int max, int store) {
+		openLockHere();
 		TileFactory.updateTileNumericSelectorValues(getTile(ref), min, max, store);
+		closeLockHere();
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -159,36 +167,39 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 	@Override
 	public void keyBehaviour(char code) {
-		
+		reference.handleKeyInput(code);
+	}
+	
+	@Override
+	public void clickPressBehaviour(int code, int x, int y) {
+		lastX = x;
+		if(code == -1) {
+			dragging = true;
+		}
+	}
+	
+	@Override
+	public void clickReleaseBehaviour(int code, int x, int y) {
+		dragging = false;
 	}
 	
 	@Override
 	public void dragBehaviour(int code, int x, int y) {
-		if(tileCodes.get(code) == null) {
-			return;
+		System.out.println("D: " + code);
+		if(dragging) {
+			setOffsetXBounded(getOffsetX() + x - lastX);
+			lastX = x;
 		}
-		if(getTile(tileCodes.get(code)).dragTileProcess(code, x, y)) {
-			refresh();
-		}
-		else {
-			//Meta movement
+		else if(tileCodes.get(code) != null && getTile(tileCodes.get(code)).dragTileProcess(code, x - getOffsetX(), y - getOffsetY())) {
+			refresh(true);
 		}
 	}
 	
 	@Override
 	public void clickBehaviour(int code, int x, int y) {
-		switch(code) {
-			case CODE_BACK_SCROLL:
-				setOffsetX(getOffsetX() + getWidth() - 100);
-				break;
-			case CODE_FORWARD_SCROLL:
-				setOffsetX(getOffsetX() - (getWidth() - 100));
-				break;
-			default:
-				reference.handleCodeInput(code, tileCodes.get(code));
-				refresh();
-				break;
-		}
+		System.out.println("C: " + code);
+		reference.handleCodeInput(code, tileCodes.get(code));
+		refresh(false);
 		drawPage();
 	}
 	

@@ -1,4 +1,4 @@
-package visual;
+package visual.popouts;
 
 import java.awt.Color;
 
@@ -6,13 +6,19 @@ import visual.composite.popout.PopoutWindow;
 
 public class PopoutColorDesigner extends PopoutWindow{
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private final static String[] SUBMIT_NAMES = new String[] {"Red", "Green", "Blue", "Alpha"};
 	private final static int CODE_COLOR_MAKE = 55;
 	private final static int CODE_COLOR_SUBMIT = 56;
 	
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private Color currColor;
 	
 	private volatile boolean ready;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public PopoutColorDesigner(int wid, int hei, Color defCol) {
 		super(wid, hei);
@@ -24,6 +30,8 @@ public class PopoutColorDesigner extends PopoutWindow{
 		drawPage();
 	}
 
+//---  Operations   ---------------------------------------------------------------------------
+	
 	private void drawPage() {
 		int rows = SUBMIT_NAMES.length + 1;
 		int posX = getWidth() / 2;
@@ -46,15 +54,22 @@ public class PopoutColorDesigner extends PopoutWindow{
 		this.handleTextButton("txButCol", false, posX - getWidth() / 4, posY, size, hei, null, "Generate", CODE_COLOR_MAKE, Color.white, Color.black);
 		this.handleTextButton("txButSub", false, posX + getWidth() / 4, posY, size, hei, null, "Submit", CODE_COLOR_SUBMIT, Color.white, Color.black);
 	}
+
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public Color getChoice() {
 		while(!ready) {}
 		return currColor;
 	}
+
+	private int[] getColorValues() {
+		return new int[] {currColor.getRed(), currColor.getGreen(), currColor.getBlue(), currColor.getAlpha()};
+	}
+	
+//---  Input Handling   -----------------------------------------------------------------------
 	
 	@Override
 	public void clickAction(int arg0, int arg1, int arg2) {
-		System.out.println(ready);
 		switch(arg0) {
 			case CODE_COLOR_MAKE:
 				try {
@@ -79,10 +94,6 @@ public class PopoutColorDesigner extends PopoutWindow{
 			}
 	}
 	
-	private int[] getColorValues() {
-		return new int[] {currColor.getRed(), currColor.getGreen(), currColor.getBlue(), currColor.getAlpha()};
-	}
-
 	@Override
 	public void clickPressAction(int arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub

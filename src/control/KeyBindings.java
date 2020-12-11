@@ -12,8 +12,8 @@ public class KeyBindings {
 	
 	public KeyBindings() {
 		mappings = new HashMap<Character, Integer>();
-		mappings.put('k', CodeReference.CODE_PEN_SIZE_DECREMENT);
-		mappings.put('l', CodeReference.CODE_PEN_SIZE_INCREMENT);
+		setKeyBinding('k', CodeReference.CODE_PEN_SIZE_DECREMENT);
+		setKeyBinding('l', CodeReference.CODE_PEN_SIZE_INCREMENT);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -24,6 +24,14 @@ public class KeyBindings {
 			return -1;
 		}
 		return out;
+	}
+	
+	public void setKeyBinding(char key, int code) {
+		mappings.put(key, code);
+	}
+	
+	public void releaseKeyBinding(char key) {
+		mappings.remove(key);
 	}
 	
 }

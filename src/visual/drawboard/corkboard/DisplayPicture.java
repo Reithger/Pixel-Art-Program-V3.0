@@ -1,7 +1,6 @@
 package visual.drawboard.corkboard;
 
 import control.CodeReference;
-import control.InputHandler;
 import misc.Canvas;
 
 public class DisplayPicture extends Corkboard{
@@ -12,8 +11,8 @@ public class DisplayPicture extends Corkboard{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DisplayPicture(String nom, String inPanel, Canvas inImg, InputHandler ref) {
-		super(nom, inPanel, inImg.getCanvasZoomWidth(), inImg.getCanvasZoomHeight(), ref);
+	public DisplayPicture(String nom, String inPanel, Canvas inImg) {
+		super(nom, inPanel, inImg.getCanvasZoomWidth(), inImg.getCanvasZoomHeight());
 		disp = inImg;
 		updatePanel();
 	}
@@ -28,7 +27,8 @@ public class DisplayPicture extends Corkboard{
 
 	@Override
 	public Corkboard duplicate(String nom, String panelName) {
-		Corkboard c = new DisplayPicture(nom, panelName, disp, getReference());
+		Corkboard c = new DisplayPicture(nom, panelName, disp);
+		c.setReference(this.getReference());
 		return c;
 	}
 
