@@ -48,6 +48,7 @@ public class Pallet {
 	
 	public void removeColor(int index) {
 		colors.remove(fixIndex(index));
+		fixActive();
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
@@ -79,6 +80,10 @@ public class Pallet {
 	}
 	
 //---  Mechanics   ----------------------------------------------------------------------------
+	
+	private void fixActive() {
+		active = fixIndex(active);
+	}
 	
 	private int fixIndex(int index) {
 		index = index < 0 ? 0 : index;

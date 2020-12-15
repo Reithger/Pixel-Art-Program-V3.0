@@ -22,8 +22,8 @@ public class TileFactory {
 		return new TileBig(path, label, code);
 	}
 	
-	public static TileGrid generateTileGrid(String label,  int gridHeight) {
-		return new TileGrid(label, gridHeight);
+	public static TileGrid generateTileGrid(String label,  int gridHeight, boolean showSelection) {
+		return new TileGrid(label, gridHeight, showSelection);
 	}
 	
 //---  Update Methods   -----------------------------------------------------------------------

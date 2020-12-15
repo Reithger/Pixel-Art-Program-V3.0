@@ -51,12 +51,15 @@ public class StandardDraw {
 		}
 		instructions.put(duration, new DrawInstruction(x, y, col, layer));
 
+		long tim = System.currentTimeMillis();
+		System.out.println("Pre: " + tim + " " + Thread.currentThread());
 		Change[] out = prepareChanges(layer);
 		while(instructions.get(nextDuration) != null) {
 			drawSequence(instructions.get(nextDuration), out, aP);
 			instructions.remove(nextDuration);
 			nextDuration++;
 		}
+		System.out.println("Post: " + (System.currentTimeMillis() - tim));
 		
 		return out;
 	}
@@ -73,30 +76,44 @@ public class StandardDraw {
 		Point b = new Point(lastX, lastY);
 		
 		points = LineCalculator.getPointsBetwixt(a, b);
+
+
+		long tim = System.currentTimeMillis();
+		System.out.println("	Pre: ");
 		
 		for(Point p : points) {
 			drawToPoint(ref, p.getX(), p.getY(), layer, col, out, apply);
 		}
 		
+
+		System.out.println("	Post: " + (System.currentTimeMillis() - tim));
+		
 		lastX = x;
 		lastY = y;
 	}
 	
+	//TODO: Massive slowdown at some point here or in the mutex of Pen's draw function
+	
 	private void drawToPoint(LayerPicture aP, int x, int y, int layer, Color col, Change[] out, Color[][] apply) {
+		long tim = System.currentTimeMillis();
+		System.out.println("		Pre: ");
 		for(int i = 0; i < apply.length; i++) {
 			for(int j = 0; j < apply[i].length; j++) {
 				Color newCol = apply[i][j];
 				int actX = (x - apply.length / 2) + i;
 				int actY = (y - apply[i].length / 2) + j;
-				if(aP.contains(actX, actY) && newCol != null) {
+				if(aP.contains(actX, actY) && newCol != null && !newCol.equals(aP.getColor(actX, actY, layer))) {
 					Color old = aP.getColor(actX, actY, layer);
 					newCol = shade ? blend(old, newCol) : newCol;
 					out[0].addChange(actX, actY, old);
-					aP.setPixel(actX, actY, newCol, layer);
 					out[1].addChange(actX, actY, newCol);
 				}
 			}
 		}
+		System.out.println("		Post: " + (System.currentTimeMillis() - tim));
+		aP.setRegion(out[1].getX(), out[1].getY(), out[1].getColors(), layer);
+
+		System.out.println("		Post Set: " + (System.currentTimeMillis() - tim));
 	}
 	
 	private Color blend(Color curr, Color newCol) {

@@ -16,9 +16,21 @@ public abstract class Tile implements Comparable<Tile>{
 	
 	private int height;
 	private int priority;
-	private String name;
+	private TileMetaInfo info;
+	
+	private int remX;
+	private int remY;
 	
 //---  Operations   ---------------------------------------------------------------------------
+	
+	public void drawTileMemory(HandlePanel p) {
+		drawTile(remX, remY, p);
+	}
+	
+	protected void logPosition(int x, int y) {
+		remX = x;
+		remY = y;
+	}
 	
 	public abstract void drawTile(int x, int y, HandlePanel p);
 	
@@ -29,7 +41,7 @@ public abstract class Tile implements Comparable<Tile>{
 	}
 	
 	protected void drawLabel(String label, int x, int y, HandlePanel p) {
-		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 15 / 32, getTileWidth(), getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
+		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 15 / 32, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
@@ -38,8 +50,8 @@ public abstract class Tile implements Comparable<Tile>{
 		priority = in;
 	}
 	
-	public void setName(String in) {
-		name = in;
+	public void setTileMetaInfo(String reference, Integer refresh, Integer push) {
+		info = new TileMetaInfo(reference, refresh, push);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -48,8 +60,16 @@ public abstract class Tile implements Comparable<Tile>{
 	
 	public abstract String getInfo();
 	
-	public String getName() {
-		return name;
+	public String getReference() {
+		return info.getReference();
+	}
+	
+	public Integer getRefreshCode() {
+		return info.getRefreshCode();
+	}
+	
+	public Integer getPushChangeCode() {
+		return info.getPushChangeCode();
 	}
 	
 	public abstract int getTileWidth();

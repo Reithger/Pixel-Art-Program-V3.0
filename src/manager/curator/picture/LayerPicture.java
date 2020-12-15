@@ -223,7 +223,7 @@ public class LayerPicture extends Component{
 //---  Setter Methods   -----------------------------------------------------------------------
 
 	public void setPixel(int x, int y, Color col, int layer) {
-		if(layers.get(layer) == null) {
+		if(layers.get(layer) == null || col.equals(getLayer(layer).getColor(x, y))) {
 			return;
 		}
 		layers.get(layer).setPixel(x, y, col);

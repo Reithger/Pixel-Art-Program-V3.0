@@ -50,12 +50,7 @@ public class SettingsBar implements InputHandler{
 		getActivePage().drawPage();
 	}
 	
-	public void updateTileGridImages(String ref, ArrayList<String> paths, int codeBase, int active) {
-		int[] codes = new int[paths.size() + 1];
-		for(int i = 0; i < paths.size(); i++) {
-			codes[i] = codeBase + i;
-		}
-		codes[paths.size()] = CodeReference.CODE_COLOR_ADD;
+	public void updateTileGridImages(String ref, ArrayList<String> paths, int[] codes, int active) {
 		getActivePage().assignTileGridImages(ref, paths, codes);
 		getActivePage().assignTileGridActive(ref, active);
 		getActivePage().drawPage();
@@ -72,7 +67,7 @@ public class SettingsBar implements InputHandler{
 	}
 	
 	public void refreshActivePage() {
-		getActivePage().refresh(false);
+		getActivePage().refresh();
 	}
 	
 	//-- Input  -----------------------------------------------
@@ -130,7 +125,7 @@ public class SettingsBar implements InputHandler{
 			setMenuIndex(code);
 			drawMenuBar();
 			parent.showActiveWindow(getActivePageName());
-			getActivePage().refresh(false);
+			getActivePage().refresh();
 			return true;
 		}
 		return false;

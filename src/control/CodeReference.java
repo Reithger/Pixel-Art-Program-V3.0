@@ -2,10 +2,16 @@ package control;
 
 public class CodeReference {
 
-//---  Draw Type Mappings   -------------------------------------------------------------------
+//---  TileGrid Mappings   --------------------------------------------------------------------
 
-	public final static int REF_MAX_DRAW_TYPES = 2;
-	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON, CodeReference.IMAGE_PATH_CIRCLE_ICON};
+	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON,
+			CodeReference.IMAGE_PATH_CIRCLE_ICON};
+	
+	public final static String[] REF_COLOR_OPTION_PATHS = new String[] {CodeReference.IMAGE_PATH_ADD_COLOR_ICON,
+			CodeReference.IMAGE_PATH_EDIT_COLOR_ICON, CodeReference.IMAGE_PATH_REMOVE_COLOR_ICON};
+	
+	public final static int[] REF_COLOR_OPTION_CODES = new int[] {CodeReference.CODE_COLOR_ADD, CodeReference.CODE_COLOR_EDIT,
+			CodeReference.CODE_COLOR_REMOVE};
 	
 //---  File Pathing   -------------------------------------------------------------------------
 	
@@ -25,12 +31,18 @@ public class CodeReference {
 	public final static String IMAGE_PATH_ADD_LAYER = "./assets/add_layer_icon.png";
 	public final static String IMAGE_PATH_CLOSE_PAGE = "./assets/placeholder.png";
 	public final static String IMAGE_PATH_TOGGLE_LOCK = "./assets/placeholder.png";
+	
+	public final static String IMAGE_PATH_ADD_COLOR_ICON = "./assets/placeholder.png";
+	public final static String IMAGE_PATH_EDIT_COLOR_ICON = "./assets/placeholder.png";
+	public final static String IMAGE_PATH_REMOVE_COLOR_ICON = "./assets/placeholder.png";
 
 	public final static String IMAGE_PATH_RESIZE_CORKBOARD = "./assets/placeholder.png";
 	
 //---  Name References   ----------------------------------------------------------------------
 	
+	public final static String REF_SELECTION_MODE = "selection_mode";
 	public final static String REF_COLOR_GRID = "color_grid";
+	public final static String REF_COLOR_OPTIONS = "color_options";
 	public final static String REF_PEN_TYPE_GRID = "pen_type_grid";
 	public final static String REF_PEN_SIZE = "pen_det";
 	public final static String REF_PEN_BLEND = "pen_blen";
@@ -74,23 +86,23 @@ public class CodeReference {
 	public final static int CODE_INTERACT_CONTENT = 63;
 	public final static int CODE_UNDO_CHANGE = 84;
 	public final static int CODE_REDO_CHANGE = 85;
-	
-	//-- Partially Integrated  --------------------------------
+	public final static int CODE_TOGGLE_LOCK_CANVAS = 67;
 
-	public final static int CODE_ADD_LAYER = 64;
-	public final static int CODE_REMOVE_LAYER = 65;
-	public final static int CODE_MOVE_LAYER = 66;
 	public final static int CODE_LAYER_DISPLAY_ALL = 86;
 	public final static int CODE_LAYER_DISPLAY_BENEATH = 87;
 	public final static int CODE_LAYER_DISPLAY_ACTIVE = 88;
+	public final static int CODE_ADD_LAYER = 64;
 	public final static int CODE_ACTIVE_LAYER_UP = 89;
 	public final static int CODE_ACTIVE_LAYER_DOWN = 90;
 	
-	//-- Not Integrated  --------------------------------------
+	//-- Partially Integrated  --------------------------------
 
+	public final static int CODE_REMOVE_LAYER = 65;
+	public final static int CODE_MOVE_LAYER = 66;
+	
+	//-- Not Integrated  --------------------------------------
 	
 	public final static int CODE_RANGE_LAYER_SELECT = 1500;
-	public final static int CODE_TOGGLE_LOCK_CANVAS = 67;
 	public final static int CODE_RESIZE_CANVAS = 75;
 	
 	public final static int CODE_INCREMENT_CANVAS_WID = 76;
@@ -110,22 +122,23 @@ public class CodeReference {
 	public final static int CODE_UPDATE_COLOR = 80;
 	public final static int CODE_UPDATE_PEN_SIZE = 81;
 	public final static int CODE_UPDATE_PEN_TYPE = 83;
+	public final static int CODE_UPDATE_COLOR_OPTIONS = 91;
+
+	public final static int CODE_COLOR_ADD = 72;
+	public final static int CODE_COLOR_REMOVE = 73;
+	public final static int CODE_COLOR_EDIT = 74;
 	
 	//-- Partially Integrated  --------------------------------
 
+	public final static int CODE_PEN_SIZE_SET = 70;
 	
 	//-- Not Integrated  --------------------------------------
 													//TODO: Save color set palletes for re-access without bloating main color selection
 
-	
-	public final static int CODE_PEN_SIZE_SET = 70;
-	
+	public final static int CODE_UPDATE_SELECTION_MODE = 94;
+	public final static int CODE_PEN_INCREMENT_BLEND_QUOTIENT = 92;
+	public final static int CODE_PEN_DECREMENT_BLEND_QUOTIENT = 93;
 	public final static int CODE_PEN_SET_BLEND_QUOTIENT = 71;
 	public final static int CODE_UPDATE_PEN_BLEND = 82;
-	
-	public final static int CODE_COLOR_ADD = 72;
-	public final static int CODE_COLOR_REMOVE = 73;
-	public final static int CODE_COLOR_EDIT = 74;
-
 	
 }

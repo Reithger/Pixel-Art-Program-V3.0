@@ -76,13 +76,11 @@ public class Pen {
 
 	//-- StandardDraw  ----------------------------------------
 	
-	public void draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
-		openLock();
+	public synchronized void draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
 		Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());
 		change[0].setName(nom);
 		change[1].setName(nom);
 		changes.addChange(nom, layer, duration, change[0], change[1]);
-		closeLock();
 	}
 
 	public void toggleShading() {

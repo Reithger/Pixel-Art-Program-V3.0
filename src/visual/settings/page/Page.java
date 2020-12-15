@@ -21,6 +21,8 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 	private volatile boolean mutexHere;
 	
+	private boolean tileDrag;
+	private int draggedCode;
 	private boolean dragging;
 	private int lastX;
 	
@@ -72,11 +74,21 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		mutexHere = false;
 	}
 	
-	public void refresh(boolean pushUpdate) {
-		refreshLocal(pushUpdate);
+	public  void refresh() {
+		for(Tile t : tiles.values()) {
+			if(t.getRefreshCode() != null) {
+				handleCodeInput(t.getRefreshCode(), t.getReference());
+			}
+		}
 	}
 	
-	protected abstract void refreshLocal(boolean pushUpdate);
+	public  void pushChanges() {
+		for(Tile t : tiles.values()) {
+			if(t.getPushChangeCode() != null) {
+				handleCodeInput(t.getPushChangeCode(), t.getReference());
+			}
+		}
+	}
 	
 	//-- Input  -----------------------------------------------
 	
@@ -94,21 +106,21 @@ public abstract class Page extends HandlePanel implements InputHandler{
 
 	//-- Tiles  -----------------------------------------------
 	
-	public void addTileBig(String ref, String label, String path, int code) {
-		addTile(ref, TileFactory.generateTileBig(path, label, code));
+	public void addTileBig(String ref, Integer refresh, Integer push, String label, String path, int code) {
+		addTile(ref, refresh, push, TileFactory.generateTileBig(path, label, code));
 	}
 	
-	public void addTileGrid(String ref, String label, int gridHeight) {
-		addTile(ref, TileFactory.generateTileGrid(label, gridHeight));
+	public void addTileGrid(String ref, Integer refresh, Integer push, String label, int gridHeight, boolean showSelection) {
+		addTile(ref, refresh, push, TileFactory.generateTileGrid(label, gridHeight, showSelection));
 	}
 	
-	public void addTileNumericSelector(String ref, String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
-		addTile(ref, TileFactory.generateTileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode));
+	public void addTileNumericSelector(String ref, Integer refresh, Integer push, String label, int minVal, int maxVal, int decCode, int incCode, int setCode) {
+		addTile(ref, refresh, push, TileFactory.generateTileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode));
 	}
 	
-	private void addTile(String ref, Tile in) {
+	private void addTile(String ref, Integer refresh, Integer push, Tile in) {
 		in.setPriority(tiles.size());
-		in.setName(ref);
+		in.setTileMetaInfo(ref, refresh, push);
 		updateCodeAssociations(in);
 		//TODO: Complexity for removing/moving tiles?
 		tiles.put(ref, in);
@@ -117,7 +129,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 	private void updateCodeAssociations(Tile in) {
 		for(int i : in.getAssociatedCodes()) {
-			tileCodes.put(i, in.getName());
+			tileCodes.put(i, in.getReference());
 		}
 	}
 	
@@ -181,25 +193,33 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	@Override
 	public void clickReleaseBehaviour(int code, int x, int y) {
 		dragging = false;
+		if(tileDrag) {
+			pushChanges();
+			tileDrag = false;
+		}
 	}
 	
 	@Override
 	public void dragBehaviour(int code, int x, int y) {
-		System.out.println("D: " + code);
 		if(dragging) {
 			setOffsetXBounded(getOffsetX() + x - lastX);
 			lastX = x;
 		}
-		else if(tileCodes.get(code) != null && getTile(tileCodes.get(code)).dragTileProcess(code, x - getOffsetX(), y - getOffsetY())) {
-			refresh(true);
+		else if(tileCodes.get(tileDrag ? draggedCode : code) != null && getTile(tileCodes.get(tileDrag ? draggedCode : code)).dragTileProcess(tileDrag ? draggedCode : code, x - getOffsetX(), y - getOffsetY())) {
+			getTile(tileCodes.get(tileDrag ? draggedCode : code)).drawTileMemory(this);
+			tileDrag = true;
+			draggedCode = code;
 		}
 	}
 	
 	@Override
 	public void clickBehaviour(int code, int x, int y) {
-		System.out.println("C: " + code);
+		if(tileDrag) {
+			pushChanges();
+			tileDrag = false;
+		}
 		reference.handleCodeInput(code, tileCodes.get(code));
-		refresh(false);
+		refresh();
 		drawPage();
 	}
 	

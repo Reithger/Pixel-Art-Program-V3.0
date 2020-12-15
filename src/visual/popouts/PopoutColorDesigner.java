@@ -77,7 +77,7 @@ public class PopoutColorDesigner extends PopoutWindow{
 					int g = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[1]));
 					int b = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[2]));
 					int a = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[3]));
-					currColor = new Color(r, g, b, a);
+					currColor = new Color(r % 256, g % 256, b % 256, a % 256);
 					this.removeElementPrefixed("col");
 					drawPage();
 				}

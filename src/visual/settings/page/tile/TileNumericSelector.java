@@ -48,27 +48,22 @@ public class TileNumericSelector extends Tile {
 	public boolean dragTileProcess(int code, int x, int y) {
 		int len = getHeight() * 2 / 3;
 
-		double weight = len / (double)(maxVal - minVal);
+		int dX = x - lineStart;
+		double prop = (dX / (double)len);
 		
-		int post = lineStart + (int)(weight * (storedValue - minVal));
-		
-		int dX = x - post;
-		int change = (int)(dX * weight);
-		System.out.println(x + " " + post + " " +  change + " " + weight);
-		storedValue += change;
-		//TODO: Drag slider to change penSize, update back-end accordingly
+		setStoredValue(minVal + (int)(prop * (maxVal - minVal)));
 		return true;
 	}
 	
 	@Override
 	public void drawTile(int x, int y, HandlePanel p) {
+		logPosition(x, y);
 		p.setElementStoredText(referenceEntry, ""+storedValue);
 		int posX = x;
 		int posY = y - (getHeight() / 3) / 2;
 		int size = getHeight() / 3;
 		int iconSize = size / 2;
-		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 7 / 16, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
-		
+		drawLabel(label, x, y, p);
 		p.handleImageButton("gr_" + label + "_dec", false, posX, posY, iconSize, iconSize, "./assets/placeholder.png", decCode);
 		posX += size;
 		p.handleRectangle("gr_" + label + "_rect", false, 5, posX, posY, size, size, Color.white, Color.black);
@@ -80,7 +75,7 @@ public class TileNumericSelector extends Tile {
 		posX = x;
 		posY += size;
 		
-		lineStart = posX - size;
+		lineStart = posX;
 		p.handleLine("gr_" + label + "_line", false, 5, posX, posY, posX + 2 * size, posY, 2, Color.black);
 		p.handleButton("gr_" + label + "_slider_detect", false, posX + size, posY, 2 * size, posY, sliderCode);
 		double prop = (double)(storedValue - minVal) / (double)(maxVal - minVal);
@@ -117,7 +112,13 @@ public class TileNumericSelector extends Tile {
 	public void setValues(int min, int max, int display) {
 		minVal = min;
 		maxVal = max;
-		storedValue = display;
+		setStoredValue(display);
+	}
+	
+	private void setStoredValue(int in) {
+		in = in < minVal ? minVal : in;
+		in = in > maxVal ? maxVal : in;
+		storedValue = in;
 	}
 	
 }

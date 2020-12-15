@@ -12,20 +12,12 @@ public class DrawToolsPage extends Page {
 	
 	public DrawToolsPage() {
 		super(PAGE_NAME);
-		addTileGrid(CodeReference.REF_PEN_TYPE_GRID, "Pen Types", 3);
-		addTileGrid(CodeReference.REF_COLOR_GRID, "Colors", 3);
-		addTileNumericSelector(CodeReference.REF_PEN_SIZE, "Pen Size", 1, 32, CodeReference.CODE_PEN_SIZE_DECREMENT, CodeReference.CODE_PEN_SIZE_INCREMENT, CodeReference.CODE_PEN_SIZE_SET);
+		addTileGrid(CodeReference.REF_SELECTION_MODE, CodeReference.CODE_UPDATE_SELECTION_MODE, null, "Mode", 3, false);
+		addTileGrid(CodeReference.REF_PEN_TYPE_GRID, CodeReference.CODE_UPDATE_PEN_TYPE, null, "Pen Types", 3, true);
+		addTileGrid(CodeReference.REF_COLOR_GRID, CodeReference.CODE_UPDATE_COLOR, null, "Colors", 3, true);
+		addTileGrid(CodeReference.REF_COLOR_OPTIONS, CodeReference.CODE_UPDATE_COLOR_OPTIONS, null, "Edit Colors", 3, false);
+		addTileNumericSelector(CodeReference.REF_PEN_SIZE, CodeReference.CODE_UPDATE_PEN_SIZE, CodeReference.CODE_PEN_SIZE_SET, "Pen Size", 1, 32, CodeReference.CODE_PEN_SIZE_DECREMENT, CodeReference.CODE_PEN_SIZE_INCREMENT, CodeReference.CODE_PEN_SIZE_SET);
+		addTileNumericSelector(CodeReference.REF_PEN_BLEND, CodeReference.CODE_UPDATE_PEN_BLEND, CodeReference.CODE_PEN_SET_BLEND_QUOTIENT, "Blend Quotient", 1, 32, CodeReference.CODE_PEN_DECREMENT_BLEND_QUOTIENT, CodeReference.CODE_PEN_INCREMENT_BLEND_QUOTIENT, CodeReference.CODE_PEN_SET_BLEND_QUOTIENT);
 	}
 	
-//---  Operations   ---------------------------------------------------------------------------
-	
-	protected void refreshLocal(boolean pushUpdate) {
-		if(pushUpdate) {
-			handleCodeInput(CodeReference.CODE_PEN_SIZE_SET, CodeReference.REF_PEN_SIZE);
-		}
-		handleCodeInput(CodeReference.CODE_UPDATE_COLOR, CodeReference.REF_COLOR_GRID);
-		handleCodeInput(CodeReference.CODE_UPDATE_PEN_SIZE, CodeReference.REF_PEN_SIZE);
-		handleCodeInput(CodeReference.CODE_UPDATE_PEN_TYPE, CodeReference.REF_PEN_TYPE_GRID);
-	}
-
 }

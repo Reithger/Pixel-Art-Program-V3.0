@@ -140,8 +140,12 @@ public class View implements InputHandler{
 		options.updateNumericSelector(ref, 0, 100, val);
 	}
 	
-	public void updatePenType(String ref, ArrayList<String> paths, int codeRng, int index) {
-		options.updateTileGridImages(ref, paths, codeRng, index);
+	public void updatePenType(String ref, ArrayList<String> paths, int[] codes, int index) {
+		options.updateTileGridImages(ref, paths, codes, index);
+	}
+	
+	public void updateColorOptions(String ref, ArrayList<String> paths, int[] codes) {
+		options.updateTileGridImages(ref, paths, codes, 0);
 	}
 	
 	//-- Drawing Board Management  ----------------------------

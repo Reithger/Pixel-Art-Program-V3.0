@@ -47,9 +47,6 @@ public class ColorManager {
 	
 	public void removeColor(int in) {
 		getCurrentPallet().removeColor(in);
-		if(getActiveColorIndex() >= in) {
-			setColor(getActiveColorIndex() - 1);
-		}
 		if(getCurrentPallet().getColors().size() == 0) {
 			getCurrentPallet().addColor(Color.black);
 		}

@@ -20,13 +20,15 @@ public class TileGrid extends Tile{
 	private int height;
 	private boolean update;
 	private int active;
+	private boolean showSelection;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public TileGrid(String inLabel, int inHeight) {
+	public TileGrid(String inLabel, int inHeight, boolean show) {
 		label = inLabel;
 		height = inHeight;
 		icons = new GridIcon[0];
+		showSelection = show;
 	}
 
 //---  Operations   ---------------------------------------------------------------------------
@@ -39,24 +41,27 @@ public class TileGrid extends Tile{
 	
 	@Override
 	public void drawTile(int x, int y, HandlePanel p) {
+		logPosition(x, y);
 		if(update) {
 			p.removeElementPrefixed("gr_" + label);
 		}
 		int size = calculateTileWidth();
-		int posX = x + size / 2;
+		int posX = x + (showSelection ? size / 2 : 0);
 		int defaultY = y - size - getHeight() / 16;
 		int posY = defaultY;
 		
 		drawLabel(label, x, y, p);
 		
-		if(icons.length > getActive()) {
-			icons[getActive()].draw(p, "gr_" + label + "_big", posX, y, size * 2);
-		}
-		else {
-			DEFAULT_EMERGENCY.draw(p, "gr_" + label + "_big", posX, y, size * 2);
+		if(showSelection) {
+			if(icons.length > getActive()) {
+				icons[getActive()].draw(p, "gr_" + label + "_big", posX, y, size * 2);
+			}
+			else {
+				DEFAULT_EMERGENCY.draw(p, "gr_" + label + "_big", posX, y, size * 2);
+			}
+			posX += size * 2;
 		}
 		
-		posX += size * 2;
 		
 		for(int i = 0; i < icons.length; i++) {
 			if(i % (height) == 0 && i != 0) {
@@ -104,7 +109,8 @@ public class TileGrid extends Tile{
 		}
 		in = in < 0 ? 0 : in;
 		in = in >= icons.length ? icons.length - 1 : in;
-		getGridIcons()[active].toggleSelected();
+		if(active < icons.length)
+			getGridIcons()[active].toggleSelected();
 		active = in;
 		getGridIcons()[active].toggleSelected();
 		update = true;
@@ -115,8 +121,8 @@ public class TileGrid extends Tile{
 	@Override
 	public int getTileWidth() {
 		int useWid = icons.length;
-		useWid = useWid < 6 ? 6 : useWid;
-		return (int)(calculateTileWidth() * (2.5 + useWid / (height)));
+		useWid = useWid < 3 ? 3 : useWid;
+		return (int)(calculateTileWidth() * ((showSelection ? 2.5 : .5) + useWid / (height)));
 	}
 	
 	private int calculateTileWidth() {

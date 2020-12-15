@@ -48,7 +48,7 @@ public class PixelArtDrawer implements InputHandler{
 		manager = new Manager();
 		view = new View(this);
 		keyBind = new KeyBindings();
-		generateEmptyImage("Default", 128, 128);
+		generateEmptyImage("Default", 640, 640);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -64,15 +64,15 @@ public class PixelArtDrawer implements InputHandler{
 	 */
 	
 	public void handleCodeInput(int in, String active) {
-		//System.out.println(in + " " + active + " " + Thread.currentThread());
+		System.out.println(in + " " + active + " " + Thread.currentThread());
 		boolean happ = checkRanges(in, active);
 		if(!happ) {
-			checkCommands(in, active);
+			happ = checkCommands(in, active);
 		}
 		if(happ) {
-			view.refreshActivePage();
+			refreshSettingsBar();
+			updateCorkboard(false);
 		}
-		updateCorkboard(false);
 	}
 	
 	public void handleDrawInput(int x, int y, int duration, String nom) {
@@ -237,16 +237,19 @@ public class PixelArtDrawer implements InputHandler{
 		switch(in) {
 			case CodeReference.CODE_UPDATE_COLOR:
 				updateColors(active);
-				return true;
+				return false;
 			case CodeReference.CODE_UPDATE_PEN_SIZE:
 				updatePenSize(active);
-				return true;
+				return false;
 			case CodeReference.CODE_UPDATE_PEN_TYPE:
 				updatePenType(active);
-				return true;
+				return false;
 			case CodeReference.CODE_UPDATE_PEN_BLEND:
 				updatePenBlend(active);
-				return true;
+				return false;
+			case CodeReference.CODE_UPDATE_COLOR_OPTIONS:
+				updateColorOptions(active);
+				return false;
 			default:
 				return false;
 		}
@@ -383,18 +386,20 @@ public class PixelArtDrawer implements InputHandler{
 	
 		//-- Settings Bar  ------------------------------------
 	
+	private void refreshSettingsBar() {
+		view.refreshActivePage();
+	}
+	
 	private void updateColors(String ref) {
 		ArrayList<Color> cols = new ArrayList<Color>();
 		for(Color c : manager.getPen().getColors()) {
 			cols.add(c);
 		}
-		cols.add(Color.white);
 		int[] codes = new int[cols.size()];
 		int codeBase = manager.getPen().getCurrentPalletCodeBase() + CodeReference.CODE_RANGE_SELECT_COLOR;
 		for(int i = 0; i < cols.size(); i++) {
 			codes[i] = codeBase + i;
 		}
-		codes[cols.size() - 1] = CodeReference.CODE_COLOR_ADD;
 		view.updateColors(ref, cols, codes, manager.getPen().getActiveColorIndex());
 	}
 	
@@ -409,11 +414,27 @@ public class PixelArtDrawer implements InputHandler{
 	private void updatePenType(String ref) {
 		ArrayList<String> paths = new ArrayList<String>();
 		for(int i : manager.getPen().getPenDrawTypes()) {
-			if(i < CodeReference.REF_MAX_DRAW_TYPES) {
+			if(i < CodeReference.REF_DRAW_TYPE_PATHS.length) {
 				paths.add(CodeReference.REF_DRAW_TYPE_PATHS[i]);
 			}
 		}
-		view.updatePenType(ref, paths, CodeReference.CODE_RANGE_SELECT_DRAW_TYPE, manager.getPen().getPenType());
+		int[] out = new int[paths.size()];
+		for(int i = 0; i < out.length; i++) {
+			out[i] = CodeReference.CODE_RANGE_SELECT_DRAW_TYPE + i;
+		}
+		view.updatePenType(ref, paths, out, manager.getPen().getPenType());
+	}
+	
+	private void updateColorOptions(String ref) {
+		ArrayList<String> paths = new ArrayList<String>();
+		for(String s : CodeReference.REF_COLOR_OPTION_PATHS) {
+			paths.add(s);
+		}
+		int[] codes = new int[paths.size()];
+		for(int i = 0; i < CodeReference.REF_COLOR_OPTION_CODES.length; i++) {
+			codes[i] = CodeReference.REF_COLOR_OPTION_CODES[i];
+		}
+		view.updateColorOptions(ref, paths, codes);
 	}
 	
 		//-- Corkboard  ---------------------------------------
