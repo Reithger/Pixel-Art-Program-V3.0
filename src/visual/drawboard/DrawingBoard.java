@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import control.CodeReference;
 import control.InputHandler;
+import input.CustomEventReceiver;
 import misc.Canvas;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
@@ -86,12 +87,13 @@ public class DrawingBoard implements InputHandler{
 	//-- Page Management  -------------------------------------
 	
 	public void generateSelectBar(int x, int y, int wid, int hei) {
-		selectBar = new HandlePanel(x, y, wid, hei) {
+		selectBar = new HandlePanel(x, y, wid, hei);
+		selectBar.setEventReceiver(new CustomEventReceiver() {
 			private boolean dragging;
 			private int lastX;
 			
 			@Override
-			public void clickBehaviour(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y) {
 				if(code == CODE_NEW_PAGE) {
 					addNewPage();
 				}
@@ -108,31 +110,31 @@ public class DrawingBoard implements InputHandler{
 			}
 			
 			@Override
-			public void clickPressBehaviour(int code, int x, int y) {
+			public void clickPressEvent(int code, int x, int y) {
 				dragging = true;
 				lastX = x;
 			}
 			
 			@Override
-			public void dragBehaviour(int code, int x, int y) {
+			public void dragEvent(int code, int x, int y) {
 				if(dragging) {
 					int difX = x - lastX;
-					setOffsetXBounded(getOffsetX() + difX);
+					selectBar.setOffsetXBounded(selectBar.getOffsetX() + difX);
 					lastX = x;
 				}
 			}
 			
 			@Override
-			public void clickReleaseBehaviour(int code, int x, int y) {
+			public void clickReleaseEvent(int code, int x, int y) {
 				dragging = false;
 			}
 			
 			@Override
-			public void keyBehaviour(char code) {
+			public void keyEvent(char code) {
 				reference.handleKeyInput(code);
 			}
 			
-		};
+		});
 		selectBar.setPriority(5);
 		selectBar.setScrollBarVertical(false);
 		selectBar.setScrollBarHorizontal(false);
@@ -194,7 +196,7 @@ public class DrawingBoard implements InputHandler{
 		for(int i = 0; i < pages.keySet().size(); i++) {
 			selectBar.handleTextButton("page_" + i, false, posX, butSize, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
 			selectBar.addImage("page_close_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, CodeReference.IMAGE_PATH_CLOSE_PAGE, true);
-			selectBar.addButton("page_close_butt_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, null, i + pages.keySet().size(), true);
+			selectBar.addButton("page_close_butt_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, i + pages.keySet().size(), true);
 			posX += wid;
 		}
 		selectBar.handleTextButton("add_page", false, posX, hei / 2, wid, hei, MENU_FONT, "+New Page", CODE_NEW_PAGE, Color.gray, Color.black);

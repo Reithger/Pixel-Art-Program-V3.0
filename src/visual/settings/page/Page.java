@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import control.InputHandler;
+import input.CustomEventReceiver;
 import visual.composite.HandlePanel;
 import visual.settings.page.tile.Tile;
 import visual.settings.page.tile.TileFactory;
@@ -36,6 +37,56 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		setScrollBarVertical(false);
 		setScrollBarHorizontal(false);
 		getPanel().setBackground(null);
+		Page p = this;
+		setEventReceiver(new CustomEventReceiver() {
+			private Page use = p;
+			
+			@Override
+			public void keyEvent(char code) {
+				reference.handleKeyInput(code);
+			}
+			
+			@Override
+			public void clickPressEvent(int code, int x, int y) {
+				lastX = x;
+				if(code == -1) {
+					dragging = true;
+				}
+			}
+			
+			@Override
+			public void clickReleaseEvent(int code, int x, int y) {
+				dragging = false;
+				if(tileDrag) {
+					pushChanges();
+					tileDrag = false;
+				}
+			}
+			
+			@Override
+			public void dragEvent(int code, int x, int y) {
+				if(dragging) {
+					setOffsetXBounded(getOffsetX() + x - lastX);
+					lastX = x;
+				}
+				else if(tileCodes.get(tileDrag ? draggedCode : code) != null && getTile(tileCodes.get(tileDrag ? draggedCode : code)).dragTileProcess(tileDrag ? draggedCode : code, x - getOffsetX(), y - getOffsetY())) {
+					getTile(tileCodes.get(tileDrag ? draggedCode : code)).drawTileMemory(use);
+					tileDrag = true;
+					draggedCode = code;
+				}
+			}
+			
+			@Override
+			public void clickEvent(int code, int x, int y) {
+				if(tileDrag) {
+					pushChanges();
+					tileDrag = false;
+				}
+				reference.handleCodeInput(code, tileCodes.get(code));
+				refresh();
+				drawPage();
+			}
+		});
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -74,7 +125,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		mutexHere = false;
 	}
 	
-	public  void refresh() {
+	public void refresh() {
 		for(Tile t : tiles.values()) {
 			if(t.getRefreshCode() != null) {
 				handleCodeInput(t.getRefreshCode(), t.getReference());
@@ -82,7 +133,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		}
 	}
 	
-	public  void pushChanges() {
+	public void pushChanges() {
 		for(Tile t : tiles.values()) {
 			if(t.getPushChangeCode() != null) {
 				handleCodeInput(t.getPushChangeCode(), t.getReference());
@@ -173,54 +224,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 	public String getTileInfo(String ref) {
 		return getTile(ref).getInfo();
-	}
-	
-//---  Reactions   ----------------------------------------------------------------------------
-	
-	@Override
-	public void keyBehaviour(char code) {
-		reference.handleKeyInput(code);
-	}
-	
-	@Override
-	public void clickPressBehaviour(int code, int x, int y) {
-		lastX = x;
-		if(code == -1) {
-			dragging = true;
-		}
-	}
-	
-	@Override
-	public void clickReleaseBehaviour(int code, int x, int y) {
-		dragging = false;
-		if(tileDrag) {
-			pushChanges();
-			tileDrag = false;
-		}
-	}
-	
-	@Override
-	public void dragBehaviour(int code, int x, int y) {
-		if(dragging) {
-			setOffsetXBounded(getOffsetX() + x - lastX);
-			lastX = x;
-		}
-		else if(tileCodes.get(tileDrag ? draggedCode : code) != null && getTile(tileCodes.get(tileDrag ? draggedCode : code)).dragTileProcess(tileDrag ? draggedCode : code, x - getOffsetX(), y - getOffsetY())) {
-			getTile(tileCodes.get(tileDrag ? draggedCode : code)).drawTileMemory(this);
-			tileDrag = true;
-			draggedCode = code;
-		}
-	}
-	
-	@Override
-	public void clickBehaviour(int code, int x, int y) {
-		if(tileDrag) {
-			pushChanges();
-			tileDrag = false;
-		}
-		reference.handleCodeInput(code, tileCodes.get(code));
-		refresh();
-		drawPage();
 	}
 	
 }

@@ -9,6 +9,7 @@ import control.InputHandler;
 import misc.Canvas;
 import visual.composite.HandlePanel;
 import visual.drawboard.corkboard.buttons.ButtonInformation;
+import input.CustomEventReceiver;
 
 public abstract class Corkboard {
 
@@ -62,7 +63,8 @@ public abstract class Corkboard {
 //---  Operations   ---------------------------------------------------------------------------
 
 	protected void generatePanel(int width, int height) {
-		HandlePanel hand = new HandlePanel(0, 0, width + SIDEBAR_WIDTH, height + HEADER_HEIGHT) {
+		HandlePanel hand = new HandlePanel(0, 0, width + SIDEBAR_WIDTH, height + HEADER_HEIGHT);
+		hand.setEventReceiver(new CustomEventReceiver() {
 			
 			private int lastX;
 			private int lastY;	
@@ -83,7 +85,7 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickBehaviour(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y) {
 				switch(code) {
 					case CodeReference.CODE_INTERACT_CONTENT :
 						if(!contentLocked) {
@@ -98,7 +100,7 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickPressBehaviour(int code, int x, int y) {
+			public void clickPressEvent(int code, int x, int y) {
 				lastX = x;
 				lastY = y;
 				if(code == CodeReference.CODE_HEADER) {
@@ -111,7 +113,7 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickReleaseBehaviour(int code, int x, int y) {
+			public void clickReleaseEvent(int code, int x, int y) {
 				drawCounter = 0;
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
@@ -122,16 +124,16 @@ public abstract class Corkboard {
 			}
 						
 			@Override
-			public void dragBehaviour(int code, int x, int y) {
+			public void dragEvent(int code, int x, int y) {
 				processDragging(x, y);
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
 					if(!contentLocked) {
 						processDrawing(x, y);
 					}
 					else {
-						System.out.println(getOffsetX() + " " + getOffsetY());
-						setOffsetX(getOffsetX() + (x - lastX));
-						setOffsetY(getOffsetY() + (y - lastY));
+						System.out.println(hand.getOffsetX() + " " + hand.getOffsetY());
+						hand.setOffsetX(hand.getOffsetX() + (x - lastX));
+						hand.setOffsetY(hand.getOffsetY() + (y - lastY));
 						lastX = x;
 						lastY = y;
 					}
@@ -145,8 +147,8 @@ public abstract class Corkboard {
 			
 			private void processDrawing(int x, int y) {
 				openLockHere();
-				int actX = x - getOffsetX() - CONTENT_X_BUFFER;
-				int actY = y - getOffsetY() - CONTENT_Y_BUFFER;
+				int actX = x - hand.getOffsetX() - CONTENT_X_BUFFER;
+				int actY = y - hand.getOffsetY() - CONTENT_Y_BUFFER;
 				getReference().handleDrawInput(actX, actY, drawCounter++, getName());
 				closeLockHere();
 			}
@@ -159,7 +161,7 @@ public abstract class Corkboard {
 					//TODO: Transparent panel showing new corner size roughly
 				}
 			}
-		};
+		});
 		setPanel(hand);
 		hand.getPanel().setBackground(null);
 		getPanel().setScrollBarHorizontal(false);

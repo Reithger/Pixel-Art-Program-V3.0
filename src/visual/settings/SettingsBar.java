@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import control.CodeReference;
 import control.InputHandler;
+import input.CustomEventReceiver;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 import visual.settings.page.Page;
@@ -97,26 +98,28 @@ public class SettingsBar implements InputHandler{
 	}
 	
 	private HandlePanel generateMenuBar(int x, int y, int wid, int hei) {
-		return new HandlePanel(x, y, wid, (int)(hei * RATIO_MENU_SELECTION)) {
+		HandlePanel p =  new HandlePanel(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
+		p.setEventReceiver(new CustomEventReceiver(){
 			
 			@Override
-			public void clickBehaviour(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y) {
 				if(!changePage(code)) {
 					reference.handleCodeInput(code, null);
 				}
 			}
 			
 			@Override
-			public void keyBehaviour(char code) {
+			public void keyEvent(char code) {
 				
 			}
 			
 			@Override
-			public void mouseWheelBehaviour(int rotation) {
+			public void mouseWheelEvent(int rotation) {
 				
 			}
 			
-		};
+		});
+		return p;
 	}
 
 	private boolean changePage(int code) {

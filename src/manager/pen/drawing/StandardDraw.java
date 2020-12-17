@@ -52,14 +52,12 @@ public class StandardDraw {
 		instructions.put(duration, new DrawInstruction(x, y, col, layer));
 
 		long tim = System.currentTimeMillis();
-		System.out.println("Pre: " + tim + " " + Thread.currentThread());
 		Change[] out = prepareChanges(layer);
 		while(instructions.get(nextDuration) != null) {
 			drawSequence(instructions.get(nextDuration), out, aP);
 			instructions.remove(nextDuration);
 			nextDuration++;
 		}
-		System.out.println("Post: " + (System.currentTimeMillis() - tim));
 		
 		return out;
 	}
@@ -77,26 +75,17 @@ public class StandardDraw {
 		
 		points = LineCalculator.getPointsBetwixt(a, b);
 
-
-		long tim = System.currentTimeMillis();
-		System.out.println("	Pre: ");
-		
 		for(Point p : points) {
 			drawToPoint(ref, p.getX(), p.getY(), layer, col, out, apply);
 		}
-		
 
-		System.out.println("	Post: " + (System.currentTimeMillis() - tim));
-		
 		lastX = x;
 		lastY = y;
 	}
 	
-	//TODO: Massive slowdown at some point here or in the mutex of Pen's draw function
-	
 	private void drawToPoint(LayerPicture aP, int x, int y, int layer, Color col, Change[] out, Color[][] apply) {
 		long tim = System.currentTimeMillis();
-		System.out.println("		Pre: ");
+		//System.out.println("		Pre: ");
 		for(int i = 0; i < apply.length; i++) {
 			for(int j = 0; j < apply[i].length; j++) {
 				Color newCol = apply[i][j];
@@ -110,10 +99,7 @@ public class StandardDraw {
 				}
 			}
 		}
-		System.out.println("		Post: " + (System.currentTimeMillis() - tim));
 		aP.setRegion(out[1].getX(), out[1].getY(), out[1].getColors(), layer);
-
-		System.out.println("		Post Set: " + (System.currentTimeMillis() - tim));
 	}
 	
 	private Color blend(Color curr, Color newCol) {
