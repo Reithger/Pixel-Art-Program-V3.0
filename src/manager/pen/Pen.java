@@ -2,34 +2,30 @@ package manager.pen;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
 import manager.pen.changes.VersionHistory;
 import manager.pen.color.ColorManager;
+import manager.pen.drawing.Point;
+import manager.pen.drawing.RegionDraw;
 import manager.pen.drawing.StandardDraw;
 
 public class Pen {
 	
 	/*
-	 * Select colors - reassign activeColor from stored list
-	 * Make new colors - add/edit to stored list, casual interface 'qwaszx' rgb sliders, or pop-up with more fine tools
-	 * Transparency - ^^^, part of all that!
 	 * 
-	 * Pen size - integer value, visual representation of current size with ^/v buttons, keyboard shortcut 'lk'
-	 * Pen shape - constant array of choices to select from, different draw function for each
-	 * Pen shading - boolean, blends current pen color with canvas pixels (different degrees)
 	 * 
 	 	 * Eraser?
 	 	 * 
-		 * Undo - invert Changes class, store as queue to undo gradually
 		 * 
 		 * Select mode - go into region select, after marking an area then pick contextual action vvv
 			 * Copy region - boolean to initiate a region-select mode, integers for start position, activeColor[][] storage (multiple copied?)
 			 * Outline region - ^^^, no activeColor[][] though just draw along edges
 			 * Fill region - ^^^ but fill
 		 *
-		 * Color picker - boolean, next click adds grabbed color to color list/active color
 		 * 
 		 * Mirroring image - just do it, flip canvas x/y
 		 * Arbitrary color[][] to draw patterns - borrow from copy region activeColor[][] storage, need to gate the drawing for larger images
@@ -37,20 +33,43 @@ public class Pen {
 		 * 
 	 */
 	
+	/*
+	 * 
+	 * Select Region (multiple contextual actions after this)
+	 * Superlayer marking
+	 * Pattern drawing
+	 * Shape drawing (arbitrary polygon)
+	 * 
+	 */
+	
+//---  Constants   ----------------------------------------------------------------------------
+	
+	public final static int PEN_MODE_DRAW = 0;
+	public final static int PEN_MODE_MOVE_CANVAS = 1;
+	public final static int PEN_MODE_COLOR_PICK = 2;
+	public final static int PEN_MODE_FILL = 3;
+	public final static int PEN_MODE_REGION_SELECT = 4;
+	public final static int PEN_MODE_REGION_APPLY = 5;
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private VersionHistory changes;
 	private ColorManager color;
 	private StandardDraw pencil;
+	private RegionDraw region;
 	private volatile boolean mutex;
+	
+	private int setMode;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Pen() {
 		mutex = false;
+		setMode = PEN_MODE_DRAW;
 		changes = new VersionHistory();
 		color = new ColorManager();
 		pencil = new StandardDraw();
+		region = new RegionDraw();
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -76,11 +95,59 @@ public class Pen {
 
 	//-- StandardDraw  ----------------------------------------
 	
-	public synchronized void draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
-		Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());
-		change[0].setName(nom);
-		change[1].setName(nom);
-		changes.addChange(nom, layer, duration, change[0], change[1]);
+	public boolean draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
+		boolean release = duration == -1;
+		switch(setMode) {
+			case PEN_MODE_DRAW:
+				openLock();
+				Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());
+				changes.addChange(nom, layer, duration, change[0], change[1]);
+				closeLock();
+				return false;
+			case PEN_MODE_COLOR_PICK:
+				Color nCol = lP.getColor(x, y, layer);
+				color.editColor(color.getActiveColorIndex(), nCol);
+				setMode = PEN_MODE_DRAW;
+				return true;
+			case PEN_MODE_FILL:
+				Color root = lP.getColor(x, y, layer);
+				fill(lP, layer, new Point(x, y), root, color.getActiveColor());
+				return false;
+			case PEN_MODE_REGION_SELECT:
+				if(duration == 0) {
+					region.resetPoints();
+					region.assignPoint(new Point(x, y));
+				}
+				else if(release) {
+					region.assignPoint(new Point(x, y));
+					region.applyPointEffect(lP, layer, color.getActiveColor());
+				}
+				return true;
+			case PEN_MODE_REGION_APPLY:
+				region.applySavedRegion(lP, layer, new Point(x, y));
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	private void fill(LayerPicture lP, int layer, Point start, Color oldCol, Color newCol) {
+		LinkedList<Point> queue = new LinkedList<Point>();
+		queue.add(start);
+		HashSet<Point> visited = new HashSet<Point>();
+		while(!queue.isEmpty()) {
+			Point loc = queue.poll();
+			int x = loc.getX();
+			int y = loc.getY();
+			if(visited.contains(loc) || !lP.contains(x, y) || !lP.getColor(x, y, layer).equals(oldCol)) {
+				continue;
+			}
+			visited.add(loc);
+			lP.setPixel(x, y, newCol, layer);
+			for(int i = 0; i < 4; i++) {
+				queue.add(new Point(loc.getX() + (1 * (i - 2 >= 0 ? i % 2 == 0 ? 1 : -1 : 0)), loc.getY() + (1 * (i < 2 ? i % 2 == 0 ? 1 : -1 : 0))));
+			}
+		}
 	}
 
 	public void toggleShading() {
@@ -137,7 +204,13 @@ public class Pen {
 		color.removePallet(index);
 	}
 	
+	//-- RegionDraw  ------------------------------------------
+	
 //---  Setter Methods   -----------------------------------------------------------------------
+	
+	public void setPenMode(int in) {
+		setMode = in;
+	}
 	
 	//-- StandardDraw  ----------------------------------------
 	
@@ -174,6 +247,16 @@ public class Pen {
 	public void setPallet(int in) {
 		color.setPallet(in);
 	}
+
+	//-- RegionDraw  ------------------------------------------
+	
+	public void setRegionMode(int in) {
+		region.setMode(in);
+	}
+	
+	public void setRegionActiveSelect(int in) {
+		region.setActiveSelect(in);
+	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
@@ -193,6 +276,10 @@ public class Pen {
 	
 	public int[] getPenDrawTypes() {
 		return pencil.getDrawTypes();
+	}
+	
+	public int getPenMode() {
+		return setMode;
 	}
 	
 	//-- ColorManager  ----------------------------------------
@@ -215,6 +302,16 @@ public class Pen {
 	
 	public int getCurrentPalletCodeBase() {
 		return color.getCurrentPalletCodeBase();
+	}
+	
+	//-- RegionDraw  ------------------------------------------
+	
+	public int getRegionMode() {
+		return region.getMode();
+	}
+	
+	public int getRegionActiveSelect() {
+		return region.getActiveSelect();
 	}
 	
 }

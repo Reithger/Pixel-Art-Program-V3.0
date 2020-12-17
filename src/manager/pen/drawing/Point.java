@@ -52,9 +52,7 @@ public class Point implements Comparable<Point>, Comparator<Point> {
 
 	@Override
 	public int compare(Point o1, Point o2) {
-		int out = compareInteger(o1.getX(), o2.getX());
-		out = out == 0 ? compareInteger(o1.getY(), o2.getY()) : out;
-		return out;
+		return o1.toString().compareTo(o2.toString());
 	}
 	
 	private int compareInteger(int a, int b) {

@@ -128,24 +128,16 @@ public class View implements InputHandler{
 		options.refreshActivePage();
 	}
 	
-	public void updateColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
+	public void updateTileGridColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
 		options.updateTileGridColors(ref, cols, codes, active);
 	}
 	
-	public void updatePenSize(String ref, int min, int max, int size) {
+	public void updateTileNumericSelector(String ref, int min, int max, int size) {
 		options.updateNumericSelector(ref, min, max, size);
 	}
 	
-	public void updatePenBlend(String ref, int val) {
-		options.updateNumericSelector(ref, 0, 100, val);
-	}
-	
-	public void updatePenType(String ref, ArrayList<String> paths, int[] codes, int index) {
+	public void updateTileGridImages(String ref, ArrayList<String> paths, int[] codes, int index) {
 		options.updateTileGridImages(ref, paths, codes, index);
-	}
-	
-	public void updateColorOptions(String ref, ArrayList<String> paths, int[] codes) {
-		options.updateTileGridImages(ref, paths, codes, 0);
 	}
 	
 	//-- Drawing Board Management  ----------------------------

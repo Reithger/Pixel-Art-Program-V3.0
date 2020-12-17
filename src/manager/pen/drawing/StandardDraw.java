@@ -51,7 +51,6 @@ public class StandardDraw {
 		}
 		instructions.put(duration, new DrawInstruction(x, y, col, layer));
 
-		long tim = System.currentTimeMillis();
 		Change[] out = prepareChanges(layer);
 		while(instructions.get(nextDuration) != null) {
 			drawSequence(instructions.get(nextDuration), out, aP);
@@ -74,24 +73,28 @@ public class StandardDraw {
 		Point b = new Point(lastX, lastY);
 		
 		points = LineCalculator.getPointsBetwixt(a, b);
-
+		
+		HashSet<Point> visited = new HashSet<Point>();
+		
 		for(Point p : points) {
-			drawToPoint(ref, p.getX(), p.getY(), layer, col, out, apply);
+			drawToPoint(ref, p.getX(), p.getY(), layer, col, out, apply, visited);
 		}
 
 		lastX = x;
 		lastY = y;
 	}
 	
-	private void drawToPoint(LayerPicture aP, int x, int y, int layer, Color col, Change[] out, Color[][] apply) {
-		long tim = System.currentTimeMillis();
-		//System.out.println("		Pre: ");
+	private void drawToPoint(LayerPicture aP, int x, int y, int layer, Color col, Change[] out, Color[][] apply, HashSet<Point> visited) {
+		int wid = aP.getWidth();
+		int hei = aP.getHeight();
 		for(int i = 0; i < apply.length; i++) {
 			for(int j = 0; j < apply[i].length; j++) {
-				Color newCol = apply[i][j];
 				int actX = (x - apply.length / 2) + i;
 				int actY = (y - apply[i].length / 2) + j;
-				if(aP.contains(actX, actY) && newCol != null && !newCol.equals(aP.getColor(actX, actY, layer))) {
+				Point here = new Point(actX, actY);
+				Color newCol = apply[i][j];
+				if(!visited.contains(here) && actX >= 0 && actY >= 0 && actX < wid && actY < hei && newCol != null){
+					visited.add(here);
 					Color old = aP.getColor(actX, actY, layer);
 					newCol = shade ? blend(old, newCol) : newCol;
 					out[0].addChange(actX, actY, old);
@@ -133,7 +136,7 @@ public class StandardDraw {
 	}
 	
 	public void setBlendQuotient(double in) {
-		if(in <= 1 && in >= 0)
+		if(in <= 1.0 && in >= 0.0)
 			blendQuotient = in;
 	}
 	

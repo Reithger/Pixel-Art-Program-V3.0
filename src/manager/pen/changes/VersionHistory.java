@@ -25,6 +25,8 @@ public class VersionHistory {
 //---  Operations   ---------------------------------------------------------------------------
 	
 	public void addChange(String ref, int layer, int duration, Change undo, Change redo) {
+		undo.setName(ref);
+		redo.setName(ref);
 		ensureChangeStep(ref, layer);
 		if((durationSurpassed() && ref.equals(active)) || changes.get(ref).getLayer() != layer) {
 			commitChangeStep(ref, layer);

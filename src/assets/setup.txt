@@ -1,0 +1,55 @@
+50;,;null;,;open file
+51;,;null;,;save thing
+52;,;null;,;save as
+53;,;null;,;duplicate thing
+54;,;null;,;rename
+55;,;null;,;exit
+56;,;null;,;new thing
+57;,;null;,;open meta
+58;,;./assets/icon_close.png;,;close thing
+59;,;./assets/grow_icon.png;,;increase zoom
+60;,;./assets/shrink_icon.png;,;decrease zoom
+61;,;null;,;resize
+62;,;null;,;header
+63;,;null;,;interact content
+64;,;./assets/add_layer_icon.png;,;add layer
+65;,;null;,;remove layer
+66;,;null;,;move layer
+67;,;null;,;mode move canvas
+68;,;null;,;pen size increment
+69;,;null;,;pen size decrement
+70;,;null;,;pen size set
+71;,;null;,;pen set blend quotient
+72;,;null;,;color add
+73;,;null;,;color remove
+74;,;null;,;color edit
+75;,;null;,;resize canvas
+76;,;null;,;increment canvas wid
+77;,;null;,;decrement canvas wid
+78;,;null;,;increment canvas hei
+79;,;null;,;decrement canvas hei
+80;,;null;,;update color
+81;,;null;,;update pen size
+82;,;null;,;update pen blend
+83;,;null;,;update pen type
+84;,;./assets/undo_icon.png;,;undo change
+85;,;./assets/redo_icon.png;,;redo change
+86;,;./assets/show_all_layers_icon.png;,;layer display all
+87;,;./assets/show_layer_beneath_icon.png;,;layer display beneath
+88;,;./assets/show_active_layer_icon.png;,;layer display active
+89;,;./assets/layer_up_icon.png;,;active layer up
+90;,;./assets/layer_down_icon.png;,;active layer down
+91;,;null;,;update color options
+92;,;null;,;pen increment blend quotient
+93;,;null;,;pen decrement blend quotient
+94;,;null;,;update selection mode
+95;,;./assets/layer_up_icon.png;,;move layer up
+96;,;./assets/layer_down_icon.png;,;move layer down
+97;,;null;,;pen toggle blend
+98;,;null;,;perform refresh
+99;,;null;,;mode fill
+100;,;null;,;mode color pick
+101;,;null;,;pen mode draw
+1500;,;null;,;range layer select
+2000;,;null;,;range select color
+2500;,;null;,;range select draw type

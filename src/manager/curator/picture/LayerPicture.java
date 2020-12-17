@@ -102,14 +102,12 @@ public class LayerPicture extends Component{
 	//-- Layer Manipulation  ----------------------------------
 	
 	public void moveLayers(int st, int en) {
+		if(st >= layers.size() || en >= layers.size() || st < 0 || en < 0) {
+			return;
+		}
 		ArtPicture a = layers.get(st);
 		layers.remove(st);
-		if(st < en) {
-			layers.add(en - 1, a);
-		}
-		else {
-			layers.add(en, a);
-		}
+		layers.add(en, a);
 		updateLayers();
 	}
 	
@@ -117,7 +115,9 @@ public class LayerPicture extends Component{
 	
 	public void optimizeStorage(HashSet<LayerSeries> layers) {
 		openLock();
-		for(LayerSeries lS : cache.keySet()) {
+		ArrayList<LayerSeries> grab = new ArrayList<LayerSeries>();
+		grab.addAll(cache.keySet());
+		for(LayerSeries lS : grab) {
 			if(!layers.contains(lS)) {
 				cache.remove(lS);
 				layers.remove(lS);

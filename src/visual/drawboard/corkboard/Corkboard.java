@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 
+import control.CodeInfo;
 import control.CodeReference;
 import control.InputHandler;
 import misc.Canvas;
 import visual.composite.HandlePanel;
-import visual.drawboard.corkboard.buttons.ButtonInformation;
 import input.CustomEventReceiver;
 
 public abstract class Corkboard {
@@ -41,7 +41,7 @@ public abstract class Corkboard {
 	private String name;
 	private String panelName;
 	private HandlePanel panel;
-	private ArrayList<ButtonInformation> buttons;
+	private ArrayList<CodeInfo> buttons;
 	private InputHandler reference;
 	private boolean mutex;
 	private boolean contentLocked;
@@ -52,7 +52,7 @@ public abstract class Corkboard {
 	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight) {
 		setName(inNom);
 		setPanelName(inPanel);
-		buttons = new ArrayList<ButtonInformation>();
+		buttons = new ArrayList<CodeInfo>();
 		mutex = false;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
@@ -114,12 +114,15 @@ public abstract class Corkboard {
 			
 			@Override
 			public void clickReleaseEvent(int code, int x, int y) {
-				drawCounter = 0;
+				drawCounter = -1;
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
 				}
 				draggingResize = false;
 				draggingHeader = false;
+				if(code == CodeReference.CODE_INTERACT_CONTENT) {
+					processDrawing(x, y);
+				}
 				onClickRelease(code, x, y);
 			}
 						
@@ -131,7 +134,6 @@ public abstract class Corkboard {
 						processDrawing(x, y);
 					}
 					else {
-						System.out.println(hand.getOffsetX() + " " + hand.getOffsetY());
 						hand.setOffsetX(hand.getOffsetX() + (x - lastX));
 						hand.setOffsetY(hand.getOffsetY() + (y - lastY));
 						lastX = x;
@@ -141,7 +143,7 @@ public abstract class Corkboard {
 				onDrag(code, x, y);
 			}
 			
-			public void keyBehaviour(char code) {
+			public void keyEvent(char code) {
 				reference.handleKeyInput(code);
 			}
 			
@@ -183,14 +185,14 @@ public abstract class Corkboard {
 
 		
 		for(int i = 0; i < buttons.size(); i++) {
-			ButtonInformation bI = buttons.get(i);
-			p.handleImageButton(bI.getName(), true, posX, posY, size, size, bI.getImagePath(), bI.getCode());
+			CodeInfo bI = buttons.get(i);
+			p.handleImageButton(bI.getLabel(), true, posX, posY, size, size, bI.getImagePath(), bI.getCode());
 			posY += 3 * size / 2;
 		}
 		
 		posY = hei - size;
 		
-		p.handleImageButton("imgB", true, posX, posY, size, size, CodeReference.IMAGE_PATH_RESIZE_CORKBOARD, CodeReference.CODE_RESIZE);
+		p.handleImageButton("imgB", true, posX, posY, size, size, CodeReference.getCodeImagePath(CodeReference.CODE_RESIZE), CodeReference.CODE_RESIZE);
 		
 		drawTitle();
 		
@@ -211,6 +213,7 @@ public abstract class Corkboard {
 		int butWid = getWidth() * 9/10;
 		int butHei = HEADER_HEIGHT * 9/10;
 		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
+		getPanel().handleImageButton("close", true, getWidth() * 19 / 20, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), CodeReference.CODE_CLOSE_THING);
 	}
 	
 	public void resizePanel(int wid, int hei) {
@@ -239,17 +242,17 @@ public abstract class Corkboard {
 
 	//-- Buttons  ---------------------------------------------
 	
-	public void assignButtonInformation(ArrayList<ButtonInformation> in) {
+	public void assignCodeInfo(ArrayList<CodeInfo> in) {
 		buttons = in;
 	}
 	
-	public void addButton(ButtonInformation bI) {
+	public void addButton(CodeInfo bI) {
 		buttons.add(bI);
 	}
 	
 	public void removeButton(String nom) {
 		for(int i = 0; i < buttons.size(); i++) {
-			if(buttons.get(i).getName().equals(nom)) {
+			if(buttons.get(i).getLabel().equals(nom)) {
 				buttons.remove(i);
 				return;
 			}
@@ -261,7 +264,7 @@ public abstract class Corkboard {
 	}
 	
 	public void moveButton(int i, int j) {
-		ButtonInformation b = buttons.get(i);
+		CodeInfo b = buttons.get(i);
 		buttons.remove(i);
 		buttons.add(j + (i < j ? -1 : 0), b);
 	}

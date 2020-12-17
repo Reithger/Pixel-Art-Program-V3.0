@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import control.CodeReference;
 import control.InputHandler;
 import input.CustomEventReceiver;
 import visual.composite.HandlePanel;
@@ -59,8 +60,10 @@ public abstract class Page extends HandlePanel implements InputHandler{
 				dragging = false;
 				if(tileDrag) {
 					pushChanges();
-					tileDrag = false;
 				}
+				tileDrag = false;
+				draggedCode = -57;
+				refresh();
 			}
 			
 			@Override
@@ -83,7 +86,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 					tileDrag = false;
 				}
 				reference.handleCodeInput(code, tileCodes.get(code));
-				refresh();
 				drawPage();
 			}
 		});
@@ -139,6 +141,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 				handleCodeInput(t.getPushChangeCode(), t.getReference());
 			}
 		}
+		handleCodeInput(CodeReference.CODE_PERFORM_REFRESH, null);
 	}
 	
 	//-- Input  -----------------------------------------------

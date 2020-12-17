@@ -46,15 +46,15 @@ public class Manager {
 		pen.redo(s.getReference(), curator.getLayerPicture(s.getReference()));
 	}
 	
-	public void drawToPicture(String name, int x, int y, int duration) {
+	public boolean drawToPicture(String name, int x, int y, int duration) {
 		Sketch spic = sketches.get(name);
 		int actX = x / spic.getZoom();
 		int actY = y / spic.getZoom();
 		if(actX < 0 || actY < 0) {
-			return;
+			return false;
 		}
 		LayerPicture pic = curator.getLayerPicture(spic.getReference());
-		pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
+		return pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
 	}
 
 	//-- Curator  ---------------------------------------------
@@ -137,6 +137,18 @@ public class Manager {
 	public void moveLayer(String name, int start, int end) {
 		Sketch k = getSketch(name);
 		curator.moveLayer(k.getReference(), start, end);
+		flagUpdate(k);
+	}
+	
+	public void moveLayerUp(String name) {
+		Sketch k = getSketch(name);
+		curator.moveLayer(k.getReference(), k.getActiveLayer(), k.getActiveLayer() + 1);
+		flagUpdate(k);
+	}
+	
+	public void moveLayerDown(String name) {
+		Sketch k = getSketch(name);
+		curator.moveLayer(k.getReference(), k.getActiveLayer(), k.getActiveLayer() - 1);
 		flagUpdate(k);
 	}
 	
@@ -239,7 +251,7 @@ public class Manager {
 	}
 	
 	private void flagUpdate(Sketch in) {
-		optimizeStorage();
+		//optimizeStorage();
 		in.flagUpdate();
 	}
 
