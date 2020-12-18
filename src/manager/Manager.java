@@ -54,7 +54,11 @@ public class Manager {
 			return false;
 		}
 		LayerPicture pic = curator.getLayerPicture(spic.getReference());
-		return pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration);
+		if(pen.draw(spic.getReference(), pic, spic.getActiveLayer(), actX, actY, duration)) {
+			flagUpdate(spic);
+			return true;
+		}
+		return false;
 	}
 
 	//-- Curator  ---------------------------------------------
@@ -283,7 +287,18 @@ public class Manager {
 	
 	public Canvas[] getSketchImages(String nom) {
 		Sketch ska = getSketch(nom);
-		return ska.getUpdateImages(curator);
+		Canvas over = pen.getOverlay(ska.getReference());
+		Canvas[] out = ska.getUpdateImages(curator);
+		if(over == null) {
+			return out;
+		}
+		over.setZoom(ska.getZoom());
+		Canvas[] use = new Canvas[out.length + 1];
+		for(int i = 0; i < out.length; i++) {
+			use[i] = out[i];
+		}
+		use[use.length-1] = over;
+		return use;
 	}
 
 	//-- Sketches  --------------------------------------------

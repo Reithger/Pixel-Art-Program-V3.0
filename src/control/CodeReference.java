@@ -58,6 +58,7 @@ public class CodeReference {
 		CodeInfo out = codeInfo.get(code);
 		if(out == null) {
 			System.out.println("Attempted to access CodeInfo object that had not been setup for code value: " + code);
+			return new CodeInfo(code, null, "empty");
 		}
 		return out;
 	}
@@ -87,13 +88,22 @@ public class CodeReference {
 		public final static int CODE_PEN_TOGGLE_BLEND =97;
 	
 	public final static int[] REF_PEN_MODE_CODES = new int[] {CodeReference.CODE_PEN_MODE_DRAW, CodeReference.CODE_PEN_MODE_MOVE_CANVAS,
-			CodeReference.CODE_PEN_MODE_COLOR_PICK, CodeReference.CODE_PEN_MODE_FILL};
+			CodeReference.CODE_PEN_MODE_COLOR_PICK, CodeReference.CODE_PEN_MODE_FILL, CodeReference.CODE_PEN_MODE_REGION_SELECT,
+			CodeReference.CODE_PEN_MODE_REGION_APPLY, CodeReference.CODE_PEN_REGION_MODE_FILL,
+			CodeReference.CODE_PEN_REGION_MODE_OUTLINE, CodeReference.CODE_PEN_REGION_MODE_COPY, CodeReference.CODE_PEN_REGION_MODE_PASTE};
 
 		public final static int CODE_PEN_MODE_MOVE_CANVAS =67;
 		public final static int CODE_PEN_MODE_FILL =99;
 		public final static int CODE_PEN_MODE_COLOR_PICK =100;
 		public final static int CODE_PEN_MODE_DRAW = 101;
+		public final static int CODE_PEN_MODE_REGION_SELECT = 106;
+		public final static int CODE_PEN_MODE_REGION_APPLY = 107;
 	
+		public final static int CODE_PEN_REGION_MODE_FILL = 102;
+		public final static int CODE_PEN_REGION_MODE_OUTLINE = 103;
+		public final static int CODE_PEN_REGION_MODE_COPY = 104;
+		public final static int CODE_PEN_REGION_MODE_PASTE = 105;
+		
 //---  Name References   ----------------------------------------------------------------------
 	
 	public final static String REF_SELECTION_MODE = "selection_mode";
@@ -176,24 +186,24 @@ public class CodeReference {
 	
 	public final static int CODE_PEN_SIZE_INCREMENT =68;
 	public final static int CODE_PEN_SIZE_DECREMENT =69;
-	public final static int CODE_PEN_SET_BLEND_QUOTIENT =71;
 	public final static int CODE_UPDATE_COLOR =80;
 	public final static int CODE_UPDATE_PEN_SIZE =81;
 	public final static int CODE_UPDATE_PEN_BLEND =82;
 	public final static int CODE_UPDATE_PEN_TYPE =83;
 	public final static int CODE_UPDATE_COLOR_OPTIONS =91;
+	public final static int CODE_PEN_INCREMENT_BLEND_QUOTIENT =92;
+	public final static int CODE_PEN_DECREMENT_BLEND_QUOTIENT =93;
+	public final static int CODE_UPDATE_SELECTION_MODE =94;
+	public final static int CODE_PERFORM_REFRESH =98;
 
 	//-- Partially Integrated  --------------------------------
 
 	public final static int CODE_PEN_SIZE_SET =70;
+	public final static int CODE_PEN_SET_BLEND_QUOTIENT =71;
 	
 	//-- Not Integrated  --------------------------------------
 													//TODO: Save color set palletes for re-access without bloating main color selection
 
-	public final static int CODE_UPDATE_SELECTION_MODE =94;
 	
-	public final static int CODE_PEN_INCREMENT_BLEND_QUOTIENT =92;
-	public final static int CODE_PEN_DECREMENT_BLEND_QUOTIENT =93;
-	public final static int CODE_PERFORM_REFRESH =98;
 	
 }

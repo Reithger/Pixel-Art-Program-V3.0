@@ -15,17 +15,13 @@ public class Change{
 	private int x;
 	private int y;
 	private Color[][] cols;
-	private int layer;
-	private String name;
 	private boolean overwrite;
 
 	private volatile boolean mutex;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public Change(String nom, int inLay) {
-		name = nom;
-		layer = inLay;
+	public Change() {
 		cols = null;
 		overwrite = true;
 	}
@@ -99,11 +95,19 @@ public class Change{
 		}
 	}
 	
-//---  Setter Methods   -----------------------------------------------------------------------
-	
-	public void setName(String in) {
-		name = in;
+	public void apply(Canvas in) {
+		if(cols == null) {
+			return;
+		}
+		for(int i = x; i < x + cols.length; i++) {
+			for(int j = y; j < y + cols[i - x].length; j++) {
+				if(cols[i - x][j -y] != null && !cols[i-x][j-y].equals(in.getCanvasColor(i, j)))
+					in.setCanvasColor(i, j, cols[i - x][j - y]);
+			}
+		}
 	}
+	
+//---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setOverwrite(boolean in) {
 		overwrite = in;
@@ -117,14 +121,6 @@ public class Change{
 	
 	public int getY() {
 		return y;
-	}
-	
-	public int getLayer() {
-		return layer;
-	}
-	
-	public String getName() {
-		return name;
 	}
 	
 	public Color[][] getColors(){

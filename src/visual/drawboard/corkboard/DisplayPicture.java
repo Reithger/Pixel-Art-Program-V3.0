@@ -8,6 +8,7 @@ public class DisplayPicture extends Corkboard{
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private Canvas disp;
+	private Canvas overlay;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -22,6 +23,8 @@ public class DisplayPicture extends Corkboard{
 	@Override
 	public void updateImages(Canvas[] imgs) {
 		disp = imgs[0];
+		if(imgs.length > 1)
+			overlay = imgs[1];
 		updatePanel();
 	}
 
@@ -34,10 +37,12 @@ public class DisplayPicture extends Corkboard{
 
 	@Override
 	protected void updatePanelLocal() {
-		getPanel().removeElement("img");
+		getPanel().removeElementPrefixed("display_picture_img");
 		int usX = CONTENT_X_BUFFER;
 		int usY = CONTENT_Y_BUFFER;
-		getPanel().addCanvas("img", 2, false, usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
+		getPanel().addCanvas("display_picture_img", 2, false, usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
+		if(overlay != null)
+			getPanel().addCanvas("display_picture_img2", 3, false, usX, usY, getContentWidth(), getContentHeight(), overlay, -1);
 	}
 
 	@Override

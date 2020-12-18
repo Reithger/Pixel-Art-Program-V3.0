@@ -3,7 +3,7 @@ package manager.pen.drawing;
 import java.awt.Color;
 import java.util.HashMap;
 
-import manager.curator.picture.LayerPicture;
+import manager.pen.changes.Change;
 import misc.Canvas;
 
 public class RegionDraw {
@@ -35,63 +35,73 @@ public class RegionDraw {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void applyPointEffect(LayerPicture lP, int layer, Color use) {
+	public Change[] applyPointEffect(Color[][] c, int inMode, Color use) {
+		Change[] out = new Change[] {new Change(), new Change()};
+		if(pointA == null || pointB == null) {
+			return out;
+		}
 		int x1 = pointA.getX();
 		int y1 = pointA.getY();
 		int x2 = pointB.getX();
 		int y2 = pointB.getY();
-		if(x1 > x2) {
-			int hold = x1;
-			x1 = x2;
-			x2 = hold;
-		}
-		if(y1 > y2) {
-			int hold = y1;
-			y1 = y2;
-			y2 = hold;
-		}
-		switch(regionMode) {
+
+		out[0].setOverwrite(false);
+		switch(inMode) {
 			case REGION_MODE_OUTLINE:
-				for(int i = x1; i <= x2; i++) {
-					for(int j = y1; j <= y2; j++) {
+				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
+					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
 						if(i == x1 || i == x2 || j == y1 || j == y2) {
-							lP.setPixel(i, j, use, layer);
+							out[0].addChange(i, j, c[i][j]);
+							out[1].addChange(i, j, use);
 						}
 					}
 				}
 				break;
 			case REGION_MODE_FILL:
-				for(int i = x1; i <= x2; i++) {
-					for(int j = y1; j <= y2; j++) {
-						lP.setPixel(i, j, use, layer);
+				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
+					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
+						out[0].addChange(i, j, c[i][j]);
+						out[1].addChange(i, j, use);
 					}
 				}
 				break;
 			case REGION_MODE_COPY:
-				copySelectedRegion(lP.getLayer(layer).getColorData(), x1, y1, x2, y2);
+				copySelectedRegion(c, x1, y1, x2, y2);
 				break;
 			default:
 				break;
 		}
+		return out;
 	}
 	
-	public void applySavedRegion(LayerPicture lP, int layer, Point loc) {
-		switch(regionMode) {
+	public Change[] applySavedRegion(Color[][] cIn, int inMode, Point loc) {
+		Change[] out = new Change[] {new Change(), new Change()};
+		out[0].setOverwrite(false);
+		int wid = cIn.length;
+		int hei = cIn[0].length;
+		switch(inMode) {
 			case REGION_MODE_PASTE:
 				Canvas c = saved.get(activeSelect);
+				if(c == null) {
+					return out;
+				}
 				int x = loc.getX();
 				int y = loc.getY();
 				for(int i = 0; i < c.getCanvasWidth(); i++) {
 					for(int j = 0; j < c.getCanvasHeight(); j++) {
 						Color curCol = c.getCanvasColor(i, j);
-						if(curCol != null && lP.contains(x  + i, j + y))
-							lP.setPixel(x + i, j + y, curCol, layer);
+						int usX = x + i;
+						int usY = y + j;
+						if(curCol != null && usX > 0 && usY > 0 && usX < wid && usY < hei)
+							out[0].addChange(x + i, j + y, cIn[usX][usY]);
+							out[1].addChange(x + i, y + j, curCol);
 					}
 				}
 				break;
 			default:
 				break;
 		}
+		return out;
 	}
 	
 	public void assignPoint(Point in) {
@@ -134,6 +144,14 @@ public class RegionDraw {
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	public Point getFirstPoint() {
+		return pointA;
+	}
+	
+	public boolean hasActivePoint() {
+		return pointA != null;
+	}
 	
 	public int getActiveSelect() {
 		return activeSelect;

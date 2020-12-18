@@ -109,18 +109,21 @@ public abstract class Corkboard {
 				else if(code == CodeReference.CODE_RESIZE) {
 					draggingResize = true;
 				}
+				else if(code == CodeReference.CODE_INTERACT_CONTENT) {
+					processDrawing(x, y);
+				}
 				onClickPress(code, x, y);
 			}
 			
 			@Override
 			public void clickReleaseEvent(int code, int x, int y) {
-				drawCounter = -1;
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
 				}
 				draggingResize = false;
 				draggingHeader = false;
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
+					drawCounter = -1;
 					processDrawing(x, y);
 				}
 				onClickRelease(code, x, y);

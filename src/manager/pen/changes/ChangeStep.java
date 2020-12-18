@@ -12,11 +12,16 @@ public class ChangeStep {
 	
 	private boolean hasChange;
 	
+	private String ref;
+	private int layer;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public ChangeStep(String ref, int layer) {
-		redo = new Change(ref, layer);
-		undo = new Change(ref, layer);
+	public ChangeStep(String inRef, int inLayer) {
+		ref = inRef;
+		layer = inLayer;
+		redo = new Change();
+		undo = new Change();
 		undo.setOverwrite(false);
 	}
 	
@@ -67,11 +72,11 @@ public class ChangeStep {
 	}
 	
 	public String getReference() {
-		return redo.getName();
+		return ref;
 	}
 	
 	public int getLayer() {
-		return redo.getLayer();
+		return layer;
 	}
 
 	public int getSize() {

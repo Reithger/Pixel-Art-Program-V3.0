@@ -2,6 +2,7 @@ package manager.pen;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -9,9 +10,11 @@ import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
 import manager.pen.changes.VersionHistory;
 import manager.pen.color.ColorManager;
+import manager.pen.drawing.DrawInstruction;
 import manager.pen.drawing.Point;
 import manager.pen.drawing.RegionDraw;
 import manager.pen.drawing.StandardDraw;
+import misc.Canvas;
 
 public class Pen {
 	
@@ -21,12 +24,6 @@ public class Pen {
 	 	 * Eraser?
 	 	 * 
 		 * 
-		 * Select mode - go into region select, after marking an area then pick contextual action vvv
-			 * Copy region - boolean to initiate a region-select mode, integers for start position, activeColor[][] storage (multiple copied?)
-			 * Outline region - ^^^, no activeColor[][] though just draw along edges
-			 * Fill region - ^^^ but fill
-		 *
-		 * 
 		 * Mirroring image - just do it, flip canvas x/y
 		 * Arbitrary color[][] to draw patterns - borrow from copy region activeColor[][] storage, need to gate the drawing for larger images
 		 * System clipboard access to print - Toolkit probably, make new Image/canvas out of it
@@ -35,7 +32,6 @@ public class Pen {
 	
 	/*
 	 * 
-	 * Select Region (multiple contextual actions after this)
 	 * Superlayer marking
 	 * Pattern drawing
 	 * Shape drawing (arbitrary polygon)
@@ -51,6 +47,11 @@ public class Pen {
 	public final static int PEN_MODE_REGION_SELECT = 4;
 	public final static int PEN_MODE_REGION_APPLY = 5;
 	
+	public final static int REGION_MODE_OUTLINE = 0;
+	public final static int REGION_MODE_FILL = 1;
+	public final static int REGION_MODE_COPY = 2;
+	public final static int REGION_MODE_PASTE = 3;
+	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private VersionHistory changes;
@@ -59,12 +60,20 @@ public class Pen {
 	private RegionDraw region;
 	private volatile boolean mutex;
 	
+	private HashMap<String, Overlay> overlay;
+	
 	private int setMode;
+	
+	private HashMap<Integer, DrawInstruction> instructions;
+	private int nextDuration;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Pen() {
 		mutex = false;
+		overlay = new HashMap<String, Overlay>();
+		nextDuration = 0;
+		instructions = new HashMap<Integer, DrawInstruction>();
 		setMode = PEN_MODE_DRAW;
 		changes = new VersionHistory();
 		color = new ColorManager();
@@ -92,62 +101,137 @@ public class Pen {
 		}
 		closeLock();
 	}
+	
+	private void initializeCanvas(Canvas in) {
+		for(int i = 0; i < in.getCanvasWidth(); i++) {
+			for(int j = 0; j < in.getCanvasHeight(); j++) {
+				in.setCanvasColor(i, j, new Color(255, 255, 255, 0));
+			}
+		}
+	}
 
 	//-- StandardDraw  ----------------------------------------
 	
 	public boolean draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
+		boolean force = false;
+		if(overlay.get(nom) == null) {
+			overlay.put(nom, new Overlay(lP.getWidth(), lP.getHeight()));
+			initializeCanvas(overlay.get(nom).getCanvas());
+			force = true;
+		}
+		
+		if(duration == 0 || duration == -1) {
+			instructions.clear();
+			nextDuration = duration;
+		}
+		
+		openLock();
+		instructions.put(duration, new DrawInstruction(nom, getPenMode(), getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
+		while(instructions.get(nextDuration) != null) {
+			DrawInstruction dI = instructions.get(nextDuration);
+			Change[] use = interpretInput(dI.getReference(), dI.getPenMode(), dI.getRegionMode(), dI.getColorArray(), dI.getColor(), dI.getX(), dI.getY(), nextDuration);
+			if(use == null) {
+				force = true;
+			}
+			commitChanges(lP, nom, layer, duration, use);
+			instructions.remove(nextDuration);
+			nextDuration++;
+		}
+		closeLock();
+		
+		return force;
+	}
+	
+	private Change[] interpretInput(String nom, int penMode, int regionMode, Color[][] can, Color use, int x, int y, int duration) {
 		boolean release = duration == -1;
-		switch(setMode) {
+		switch(penMode) {
 			case PEN_MODE_DRAW:
-				openLock();
-				Change[] change = pencil.draw(lP, x, y, layer, duration, color.getActiveColor());
-				changes.addChange(nom, layer, duration, change[0], change[1]);
-				closeLock();
-				return false;
+				return pencil.draw(can, x, y, duration, use);
 			case PEN_MODE_COLOR_PICK:
-				Color nCol = lP.getColor(x, y, layer);
-				color.editColor(color.getActiveColorIndex(), nCol);
+				Color nCol = can[x][y];
+				color.addColor(nCol);
+				color.setColor(30);
 				setMode = PEN_MODE_DRAW;
-				return true;
+				return null;
 			case PEN_MODE_FILL:
-				Color root = lP.getColor(x, y, layer);
-				fill(lP, layer, new Point(x, y), root, color.getActiveColor());
-				return false;
+				return fill(can, new Point(x, y), use);
 			case PEN_MODE_REGION_SELECT:
-				if(duration == 0) {
+				if(!region.hasActivePoint()) {
 					region.resetPoints();
 					region.assignPoint(new Point(x, y));
 				}
 				else if(release) {
 					region.assignPoint(new Point(x, y));
-					region.applyPointEffect(lP, layer, color.getActiveColor());
+					Change[] out = region.applyPointEffect(can, regionMode, use);
+					region.resetPoints();
+					overlay.get(nom).release(Overlay.REF_SELECT_BORDER);
+					return out;
 				}
-				return true;
+				else {
+					Change c = new Change();
+					Point a = region.getFirstPoint();
+					int x2 = a.getX();
+					int y2 = a.getY();
+					for(int i = x < x2 ? x : x2; i <= (x < x2 ? x2 : x) && i < can.length; i++) {
+						for(int j = y < y2 ? y : y2; j <= (y < y2 ? y2 : y) && j < can[i].length; j++) {
+							if((i == x || i == x2 || j == y || j == y2) && (Math.sqrt(Math.pow(x2 - i, 2) + Math.pow(y2 - j, 2)) < can.length / 20 || (Math.sqrt(Math.pow(x - i, 2) + Math.pow(y - j, 2)) < can[0].length / 20)))
+								c.addChange(i, j, inverse(can[i][j]));
+						}
+					}
+					overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, c);
+				}
+				break;
 			case PEN_MODE_REGION_APPLY:
-				region.applySavedRegion(lP, layer, new Point(x, y));
-				return true;
+				if(release || duration == 0) {
+					overlay.get(nom).release(Overlay.REF_PASTE);
+				}
+				Change[] useC = region.applySavedRegion(can, regionMode, new Point(x, y));
+				if(release) {
+					return useC;
+				}
+				else {
+					overlay.get(nom).instruct(Overlay.REF_PASTE, useC[1]);
+				}
+				break;
 			default:
-				return false;
+				break;
 		}
+		return new Change[] {new Change(), new Change()};
 	}
 	
-	private void fill(LayerPicture lP, int layer, Point start, Color oldCol, Color newCol) {
+	private Color inverse(Color in) {
+		return new Color(255 - in.getRed(), 255 - in.getGreen(), 255 - in.getBlue(), 255);
+	}
+	
+	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {
+		lP.setRegion(changesIn[1].getX(),changesIn[1].getY(), changesIn[1].getColors(), layer);
+		changes.addChange(ref, layer, duration, changesIn[0], changesIn[1]);
+	}
+	
+	private Change[] fill(Color[][] can, Point start, Color newCol) {
 		LinkedList<Point> queue = new LinkedList<Point>();
+		Change[] out = new Change[] {new Change(), new Change()};
+		out[0].setOverwrite(false);
 		queue.add(start);
 		HashSet<Point> visited = new HashSet<Point>();
+		Color oldCol = can[start.getX()][start.getY()];
+		int wid = can.length;
+		int hei = can[0].length;
 		while(!queue.isEmpty()) {
 			Point loc = queue.poll();
 			int x = loc.getX();
 			int y = loc.getY();
-			if(visited.contains(loc) || !lP.contains(x, y) || !lP.getColor(x, y, layer).equals(oldCol)) {
+			if(visited.contains(loc) || x < 0 || y < 0 || x >= wid || y >= hei || !can[x][y].equals(oldCol)) {
 				continue;
 			}
 			visited.add(loc);
-			lP.setPixel(x, y, newCol, layer);
+			out[0].addChange(x, y, oldCol);
+			out[1].addChange(x, y, newCol);
 			for(int i = 0; i < 4; i++) {
 				queue.add(new Point(loc.getX() + (1 * (i - 2 >= 0 ? i % 2 == 0 ? 1 : -1 : 0)), loc.getY() + (1 * (i < 2 ? i % 2 == 0 ? 1 : -1 : 0))));
 			}
 		}
+		return out;
 	}
 
 	public void toggleShading() {
@@ -159,14 +243,14 @@ public class Pen {
 	public void undo(String ref, LayerPicture lP) {
 		Change c = changes.getUndo(ref);
 		if(c != null) {
-			lP.setRegion(c.getX(), c.getY(), c.getColors(), c.getLayer());
+			lP.setRegion(c.getX(), c.getY(), c.getColors(), changes.getCurrentLayer(ref));
 		}
 	}
 	
 	public void redo(String ref, LayerPicture lP) {
 		Change c = changes.getRedo(ref);
 		if(c != null) {
-			lP.setRegion(c.getX(), c.getY(), c.getColors(), c.getLayer());
+			lP.setRegion(c.getX(), c.getY(), c.getColors(), changes.getCurrentLayer(ref));
 		}
 	}
 	
@@ -218,14 +302,6 @@ public class Pen {
 		pencil.setPenSize(in);
 	}
 	
-	public void incrementPenSize() {
-		pencil.setPenSize(pencil.getPenSize() + 1);
-	}
-	
-	public void decrementPenSize() {
-		pencil.setPenSize(pencil.getPenSize() - 1);
-	}
-	
 	public void setPenType(int index) {
 		pencil.setPenDrawType(index);
 	}
@@ -261,6 +337,13 @@ public class Pen {
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	//-- StandardDraw  ----------------------------------------
+	
+	public Canvas getOverlay(String ref) {
+		if(overlay.get(ref) == null) {
+			return null;
+		}
+		return overlay.get(ref).getCanvas();
+	}
 	
 	public int getPenSize() {
 		return pencil.getPenSize();

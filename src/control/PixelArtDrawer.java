@@ -76,6 +76,7 @@ public class PixelArtDrawer implements InputHandler{
 	public void handleDrawInput(int x, int y, int duration, String nom) {
 		if(manager.drawToPicture(nom, x, y, duration)) {
 			refreshSettingsBar();
+			updateCorkboard(false);
 		}
 	}
 
@@ -204,12 +205,19 @@ public class PixelArtDrawer implements InputHandler{
 	}
 	
 	private boolean checkDrawingCommands(int in, String active) {
+		Pen p = manager.getPen();
 		switch(in) {
 			case CodeReference.CODE_PEN_SIZE_INCREMENT:
-				manager.getPen().incrementPenSize();
+				p.setPenSize(p.getPenSize() + 1);
 				return true;
 			case CodeReference.CODE_PEN_SIZE_DECREMENT:
-				manager.getPen().decrementPenSize();
+				p.setPenSize(p.getPenSize() - 1);
+				return true;
+			case CodeReference.CODE_PEN_INCREMENT_BLEND_QUOTIENT:
+				p.setBlendQuotient(p.getBlendQuotient() + .01);
+				return true;
+			case CodeReference.CODE_PEN_DECREMENT_BLEND_QUOTIENT:
+				p.setBlendQuotient(p.getBlendQuotient() - .01);
 				return true;
 			case CodeReference.CODE_PEN_SIZE_SET:
 				try {
@@ -264,6 +272,24 @@ public class PixelArtDrawer implements InputHandler{
 				return true;
 			case CodeReference.CODE_PEN_MODE_DRAW:
 				manager.getPen().setPenMode(Pen.PEN_MODE_DRAW);
+				return true;
+			case CodeReference.CODE_PEN_MODE_REGION_SELECT:
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_SELECT);
+				return true;
+			case CodeReference.CODE_PEN_MODE_REGION_APPLY:
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_APPLY);
+				return true;
+			case CodeReference.CODE_PEN_REGION_MODE_OUTLINE:
+				manager.getPen().setRegionMode(Pen.REGION_MODE_OUTLINE);
+				return true;
+			case CodeReference.CODE_PEN_REGION_MODE_FILL:
+				manager.getPen().setRegionMode(Pen.REGION_MODE_FILL);
+				return true;
+			case CodeReference.CODE_PEN_REGION_MODE_COPY:
+				manager.getPen().setRegionMode(Pen.REGION_MODE_COPY);
+				return true;
+			case CodeReference.CODE_PEN_REGION_MODE_PASTE:
+				manager.getPen().setRegionMode(Pen.REGION_MODE_PASTE);
 				return true;
 			case CodeReference.CODE_UNDO_CHANGE:
 				if(use != null)

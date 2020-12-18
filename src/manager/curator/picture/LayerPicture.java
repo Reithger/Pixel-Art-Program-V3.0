@@ -11,6 +11,7 @@ import java.util.HashSet;
 import javax.imageio.ImageIO;
 
 import manager.curator.Component;
+import misc.Canvas;
 
 public class LayerPicture extends Component{
 
@@ -261,6 +262,10 @@ public class LayerPicture extends Component{
 	
 	public ZoomCanvas getCanvas(LayerSeries lS) {
 		return getCanvas(lS.getLayerStart(), lS.getLayerEnd());
+	}
+	
+	public Canvas getCanvas(int layer) {
+		return getCanvas(layer, layer).getRoot();
 	}
 	
 	public ZoomCanvas getCanvas(int lS, int lE) {

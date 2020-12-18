@@ -63,6 +63,10 @@ public class ZoomCanvas {
 		return root.getImage();
 	}
 
+	public Canvas getRoot() {
+		return root;
+	}
+	
 	public Canvas getCanvas(int zoom) {
 		if(derivatives.get(zoom) == null) {
 			derivatives.put(zoom, makeZoomedCanvas(zoom));
