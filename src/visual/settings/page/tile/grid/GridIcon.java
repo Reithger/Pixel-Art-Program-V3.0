@@ -14,6 +14,8 @@ public interface GridIcon {
 	
 	public abstract int getCode();
 	
+	public abstract String getTooltipText();
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public abstract void toggleSelected();

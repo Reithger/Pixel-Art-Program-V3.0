@@ -8,6 +8,6 @@ public interface InputHandler {
 	
 	public abstract void handleDrawInput(int x, int y, int duration, String ref);
 	
-	public abstract void handleKeyInput(char code);
+	public abstract void handleKeyInput(char code, int mode);
 	
 }

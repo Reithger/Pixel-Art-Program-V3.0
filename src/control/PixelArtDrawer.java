@@ -50,7 +50,7 @@ public class PixelArtDrawer implements InputHandler{
 		manager = new Manager();
 		view = new View(this);
 		keyBind = new KeyBindings();
-		generateEmptyImage("Default", 128, 128);
+		generateEmptyImage("Default", 32, 32);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -67,9 +67,14 @@ public class PixelArtDrawer implements InputHandler{
 	
 	public void handleCodeInput(int in, String active) {
 		System.out.println(in + " " + active);
-		boolean happ = checkRanges(in, active);
-		if(!happ) {
+		Boolean happ = checkRanges(in, active);
+		if(happ == null) {
 			happ = checkCommands(in, active);
+		}
+		if(happ != null && happ) {
+			System.out.println("~~~!!!REFRESH!!!~~~");
+			refreshSettingsBar();
+			updateCorkboard(false);
 		}
 	}
 	
@@ -80,64 +85,65 @@ public class PixelArtDrawer implements InputHandler{
 		}
 	}
 
-	public void handleKeyInput(char code) {
-		System.out.println(code);
-		handleCodeInput(keyBind.interpretKeyInput(code), null);
+	public void handleKeyInput(char code, int keyType) {
+		System.out.println(keyType + " " + code);
+		int val = keyBind.interpretKeyInput(code, keyType);
+		handleCodeInput(val, null);
+		if(val != -1) {
+			handleCodeInput(CodeReference.CODE_PERFORM_REFRESH, null);
+		}
 	}
 	
 	//-- Codes from Ranges  -----------------------------------
 	
-	private boolean checkRanges(int in, String active) {
-		boolean happ = checkRangeColors(in, active);
-		if(!happ) {
+	private Boolean checkRanges(int in, String active) {
+		Boolean happ = checkRangeColors(in, active);
+		if(happ == null) {
 			happ = checkRangePenType(in, active);
 		}
-		if(!happ) {
+		if(happ == null) {
 			happ = checkRangeLayers(in, active);
 		}
 		return happ;
 	}
 	
-	private boolean checkRangeColors(int in, String active) {
+	private Boolean checkRangeColors(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_SELECT_COLOR && in < CodeReference.CODE_RANGE_SELECT_DRAW_TYPE) {
 			int use = (in - CodeReference.CODE_RANGE_SELECT_COLOR - manager.getPen().getCurrentPalletCodeBase());
 			manager.getPen().setActiveColor(use);
 			return true;
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean checkRangePenType(int in, String active) {
+	private Boolean checkRangePenType(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_SELECT_DRAW_TYPE) {
 			int use = in - CodeReference.CODE_RANGE_SELECT_DRAW_TYPE;
 			manager.getPen().setPenType(use);
 			return true;
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean checkRangeLayers(int in, String active) {
+	private Boolean checkRangeLayers(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_LAYER_SELECT && in < CodeReference.CODE_RANGE_SELECT_COLOR) {
 			String use = view.getActiveElement();
 			return true;
 		}
-		return false;
+		return null;
 	}
 	
 	//-- Codes from Constants  --------------------------------
 	
-	private boolean checkCommands(int in, String active) {
-		boolean happ = checkFileCommand(in, active);
-		if(!happ) {
+	private Boolean checkCommands(int in, String active) {
+		Boolean happ = checkFileCommand(in, active);
+		if(happ == null) {
 			happ = checkMetaPropertyCommands(in, active);
-			if(happ) {
-				updateCorkboard(false);
-			}
 		}
-		if(!happ) {
+		if(happ == null) {
 			happ = checkSettingsBarAutomatic(in, active);
 		}
-		if(!happ) {
+		if(happ == null) {
 			happ = checkDrawingCommands(in, active);
 		}
 		return happ;
@@ -145,7 +151,7 @@ public class PixelArtDrawer implements InputHandler{
 	
 		//-- Settings Bar  ------------------------------------
 	
-	private boolean checkFileCommand(int in, String active) {
+	private Boolean checkFileCommand(int in, String active) {
 		switch(in) {
 			case CodeReference.CODE_NEW_THING:
 				makeNewThing();
@@ -153,7 +159,7 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_RENAME:
 				String old = view.getActiveElement();
 				if(old == null) {
-					return true;
+					return false;
 				}
 				String newName = view.requestStringInput("Please provide the new image name");
 				HashMap<String, String> mappings = manager.rename(old, newName);
@@ -162,14 +168,14 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_CLOSE_THING:
 				String thng = view.getActiveElement();
 				if(thng == null) {
-					return true;
+					return false;
 				}
 				removeThing(thng);
 				return true;
 			case CodeReference.CODE_DUPLICATE_THING:
 				String dup = view.getActiveElement();
 				if(dup == null) {
-					return true;
+					return false;
 				}
 				view.duplicateThing(dup, manager.duplicate(dup));
 				return true;
@@ -179,20 +185,20 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_SAVE_THING:
 				String sav = view.getActiveElement();
 				if(sav == null) {
-					return true;
+					return false;
 				}
 				saveThing(sav);
-				return true;
+				return false;
 			case CodeReference.CODE_SAVE_AS:
 				String savA = view.getActiveElement();
 				if(savA == null) {
-					return true;
+					return false;
 				}
 				saveThingAs(savA);
-				return true;
+				return false;
 			case CodeReference.CODE_OPEN_META:
 				//TODO: Plan out what the meta-settings menu should even do/keep track of
-				return true;
+				return false;
 			case CodeReference.CODE_EXIT:
 				if(view.requestConfirmation("Are you sure you want to exit?") && view.requestConfirmation("Would you like to save backups of your current work?")) {
 					saveEverything();
@@ -200,11 +206,11 @@ public class PixelArtDrawer implements InputHandler{
 				System.exit(0);
 				return true;
 			default:
-				return false;
+				return null;
 			}
 	}
 	
-	private boolean checkDrawingCommands(int in, String active) {
+	private Boolean checkDrawingCommands(int in, String active) {
 		Pen p = manager.getPen();
 		switch(in) {
 			case CodeReference.CODE_PEN_SIZE_INCREMENT:
@@ -225,18 +231,17 @@ public class PixelArtDrawer implements InputHandler{
 					manager.getPen().setPenSize(val);
 				}
 				catch(Exception e) {}
-				return true;
+				return false;
 			case CodeReference.CODE_PEN_TOGGLE_BLEND:
 				manager.getPen().toggleShading();
 				return true;
 			case CodeReference.CODE_PEN_SET_BLEND_QUOTIENT:
 				try {
 					int val = Integer.parseInt(view.getTileContents(active));
-					System.out.println(val);
 					manager.getPen().setBlendQuotient(((double)val) / 100.0);
 				}
 				catch(Exception e) {}
-				return true;
+				return false;
 			case CodeReference.CODE_COLOR_ADD:
 				Color nC = view.requestColorChoice(null);
 				manager.getPen().addColor(nC);
@@ -250,55 +255,83 @@ public class PixelArtDrawer implements InputHandler{
 				manager.getPen().removeColor(manager.getPen().getActiveColorIndex());
 				return true;
 			default:
-				return false;
+				return null;
 		}
 	}
 	
-	private boolean checkMetaPropertyCommands(int in, String active) {
-		if(checkLayerCommands(in, active) || checkResizeCommands(in, active)) {
-			return true;
+	private Boolean checkMetaPropertyCommands(int in, String active) {
+		Boolean happ = checkLayerCommands(in, active);
+		if(happ == null) {
+			happ = checkResizeCommands(in, active);
+		}
+		if(happ != null) {
+			return happ;
 		}
 		String use = view.getActiveElement();
 		switch(in) {
+			case CodeReference.CODE_TOGGLE_TOOLTIPS:
+				view.toggleTooltips();
+				return false;
 			case CodeReference.CODE_PEN_MODE_MOVE_CANVAS:
-				if(use != null)
-					view.toggleContentLock(use);
+				if(use != null) {
+					view.setContentLock(use, true);
+					manager.getPen().setPenMode(Pen.PEN_MODE_MOVE_CANVAS);
+				}
 				return true;
 			case CodeReference.CODE_PEN_MODE_COLOR_PICK:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
 				manager.getPen().setPenMode(Pen.PEN_MODE_COLOR_PICK);
 				return true;
 			case CodeReference.CODE_PEN_MODE_FILL:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
 				manager.getPen().setPenMode(Pen.PEN_MODE_FILL);
 				return true;
 			case CodeReference.CODE_PEN_MODE_DRAW:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
 				manager.getPen().setPenMode(Pen.PEN_MODE_DRAW);
 				return true;
-			case CodeReference.CODE_PEN_MODE_REGION_SELECT:
-				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_SELECT);
-				return true;
-			case CodeReference.CODE_PEN_MODE_REGION_APPLY:
-				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_APPLY);
-				return true;
 			case CodeReference.CODE_PEN_REGION_MODE_OUTLINE:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_SELECT);
 				manager.getPen().setRegionMode(Pen.REGION_MODE_OUTLINE);
 				return true;
 			case CodeReference.CODE_PEN_REGION_MODE_FILL:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_SELECT);
 				manager.getPen().setRegionMode(Pen.REGION_MODE_FILL);
 				return true;
 			case CodeReference.CODE_PEN_REGION_MODE_COPY:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_SELECT);
 				manager.getPen().setRegionMode(Pen.REGION_MODE_COPY);
 				return true;
 			case CodeReference.CODE_PEN_REGION_MODE_PASTE:
+				if(use != null) {
+					view.setContentLock(use, false);
+				}
+				manager.getPen().setPenMode(Pen.PEN_MODE_REGION_APPLY);
 				manager.getPen().setRegionMode(Pen.REGION_MODE_PASTE);
 				return true;
 			case CodeReference.CODE_UNDO_CHANGE:
 				if(use != null)
 					manager.undo(use);
-				return true;
+				return false;
 			case CodeReference.CODE_REDO_CHANGE:
 				if(use != null)
 					manager.redo(use);
-				return true;
+				return false;
 			case CodeReference.CODE_INCREASE_ZOOM:
 				if(use != null)
 					manager.increaseZoom(use);
@@ -308,11 +341,11 @@ public class PixelArtDrawer implements InputHandler{
 					manager.decreaseZoom(use);
 				return true;
 			default:
-				return false;
+				return null;
 		}
 	}
 	
-	private boolean checkResizeCommands(int in, String active) {
+	private Boolean checkResizeCommands(int in, String active) {
 		String use = view.getActiveElement();
 		switch(in) {
 			case CodeReference.CODE_RESIZE_CANVAS:
@@ -326,11 +359,11 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_DECREMENT_CANVAS_WID:
 				return true;
 			default:
-				return false;
+				return null;
 		}
 	}
 	
-	private boolean checkLayerCommands(int in, String active) {
+	private Boolean checkLayerCommands(int in, String active) {
 		String use = view.getActiveElement();
 		switch(in) {
 			case CodeReference.CODE_ACTIVE_LAYER_UP:
@@ -375,15 +408,13 @@ public class PixelArtDrawer implements InputHandler{
 					manager.moveLayerDown(use);
 				return true;
 			default:
-				return false;
+				return null;
 		}
 	}
 	
-	private boolean checkSettingsBarAutomatic(int in, String active) {
+	private Boolean checkSettingsBarAutomatic(int in, String active) {
 		switch(in) {
 			case CodeReference.CODE_PERFORM_REFRESH:
-				refreshSettingsBar();
-				updateCorkboard(false);
 				return true;
 			case CodeReference.CODE_UPDATE_COLOR:
 				updateColors(active);
@@ -404,7 +435,7 @@ public class PixelArtDrawer implements InputHandler{
 				updateSelectionMode(active);
 				return false;
 			default:
-				return false;
+				return null;
 		}
 	}
 

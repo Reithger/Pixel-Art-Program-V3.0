@@ -26,7 +26,7 @@ public class View implements InputHandler{
 	
 	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
 
-	private final static Color COLOR_BACKGROUND = new Color(212, 212, 212);
+	private final static Color COLOR_BACKGROUND = new Color(188, 188, 188);
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -63,8 +63,8 @@ public class View implements InputHandler{
 		reference.handleDrawInput(x, y, duration, nom);
 	}
 	
-	public void handleKeyInput(char code) {
-		reference.handleKeyInput(code);
+	public void handleKeyInput(char code, int keyType) {
+		reference.handleKeyInput(code, keyType);
 	}
 
 	public String getTileContents(String ref) {
@@ -140,6 +140,10 @@ public class View implements InputHandler{
 		options.updateTileGridImages(ref, paths, codes, index);
 	}
 	
+	public void toggleTooltips() {
+		options.toggleTooltips();
+	}
+	
 	//-- Drawing Board Management  ----------------------------
 	
 	public void rename(HashMap<String, String> mappings) {
@@ -166,8 +170,8 @@ public class View implements InputHandler{
 		body.duplicateThing(old, nom);
 	}
 	
-	public void toggleContentLock(String nom) {
-		body.toggleContentLock(nom);
+	public void setContentLock(String nom, boolean set) {
+		body.setContentLock(nom, set);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

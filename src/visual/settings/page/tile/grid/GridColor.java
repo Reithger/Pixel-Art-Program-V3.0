@@ -41,6 +41,14 @@ public class GridColor implements GridIcon{
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	@Override
+	public String getTooltipText() {
+		String r = Integer.toHexString(col.getRed());
+		String g = Integer.toHexString(col.getGreen());
+		String b = Integer.toHexString(col.getBlue());
+		return "#" + r + g + b;
+	}
+	
+	@Override
 	public int getCode() {
 		return code;
 	}

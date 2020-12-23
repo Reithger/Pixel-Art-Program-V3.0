@@ -10,7 +10,6 @@ public class TileGrid extends Tile{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
-	//TODO: Hover-text labels for each button
 	private GridImage DEFAULT_EMERGENCY = new GridImage("./assets/placeholder.png", -1);
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -47,7 +46,7 @@ public class TileGrid extends Tile{
 		}
 		int size = calculateTileWidth();
 		int posX = x + (showSelection ? size / 2 : 0);
-		int defaultY = y - size - getHeight() / 16;
+		int defaultY = y - (size / (height % 2 == 0 ? 2 : 1) )- getHeight() / 16;
 		int posY = defaultY;
 		
 		drawLabel(label, x, y, p);
@@ -119,10 +118,20 @@ public class TileGrid extends Tile{
 //---  Getter Methods   -----------------------------------------------------------------------
 
 	@Override
+	public String getTooltipText(int code) {
+		GridIcon gI = getGridIcon(code);
+		if(gI == null) {
+			return "?";
+		}
+		return gI.getTooltipText();
+	}
+	
+	@Override
 	public int getTileWidth() {
 		int useWid = icons.length;
-		useWid = useWid < 3 ? 3 : useWid;
-		return (int)(calculateTileWidth() * ((showSelection ? 2.5 : .5) + useWid / (height)));
+		useWid = useWid < height ? height : useWid;
+		useWid = useWid / height - (useWid % height == 0 ? 1 : 0);
+		return (int)(calculateTileWidth() * ((showSelection ? 2.5 : 0) + useWid));
 	}
 	
 	private int calculateTileWidth() {
@@ -133,6 +142,15 @@ public class TileGrid extends Tile{
 		return icons;
 	}
 
+	protected GridIcon getGridIcon(int code) {
+		for(GridIcon gI : icons) {
+			if(gI.getCode() == code) {
+				return gI;
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String getInfo() {
 		return ""+active;

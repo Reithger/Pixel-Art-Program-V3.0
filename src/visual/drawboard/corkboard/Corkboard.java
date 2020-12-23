@@ -10,6 +10,7 @@ import control.InputHandler;
 import misc.Canvas;
 import visual.composite.HandlePanel;
 import input.CustomEventReceiver;
+import input.manager.actionevent.KeyActionEvent;
 
 public abstract class Corkboard {
 
@@ -35,6 +36,7 @@ public abstract class Corkboard {
 	
 	public final static int CODE_CHECK_POSITION = 55;
 	private final static Font TITLE_FONT = new Font("Serif", Font.BOLD, 16);
+	protected final static int OVERLAY_INTERACT_CODE = -42;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -44,7 +46,7 @@ public abstract class Corkboard {
 	private ArrayList<CodeInfo> buttons;
 	private InputHandler reference;
 	private boolean mutex;
-	private boolean contentLocked;
+	private static boolean contentLocked;
 	private int zoom;
 
 //---  Constructors   -------------------------------------------------------------------------
@@ -85,7 +87,7 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickEvent(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y, int clickStart) {
 				switch(code) {
 					case CodeReference.CODE_INTERACT_CONTENT :
 						if(!contentLocked) {
@@ -100,7 +102,7 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickPressEvent(int code, int x, int y) {
+			public void clickPressEvent(int code, int x, int y, int clickStart) {
 				lastX = x;
 				lastY = y;
 				if(code == CodeReference.CODE_HEADER) {
@@ -116,21 +118,21 @@ public abstract class Corkboard {
 			}
 			
 			@Override
-			public void clickReleaseEvent(int code, int x, int y) {
+			public void clickReleaseEvent(int code, int x, int y, int clickStart) {
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
 				}
 				draggingResize = false;
 				draggingHeader = false;
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
-					drawCounter = -1;
 					processDrawing(x, y);
 				}
+				drawCounter = -1;
 				onClickRelease(code, x, y);
 			}
 						
 			@Override
-			public void dragEvent(int code, int x, int y) {
+			public void dragEvent(int code, int x, int y, int clickStart) {
 				processDragging(x, y);
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
 					if(!contentLocked) {
@@ -143,11 +145,26 @@ public abstract class Corkboard {
 						lastY = y;
 					}
 				}
+				else if(code != OVERLAY_INTERACT_CODE){
+					drawCounter = -1;
+				}
 				onDrag(code, x, y);
 			}
 			
+			@Override
+			public void keyReleaseEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_UP);
+				
+			}
+			
+			@Override
+			public void keyPressEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_DOWN);
+			}
+			
+			@Override
 			public void keyEvent(char code) {
-				reference.handleKeyInput(code);
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY);
 			}
 			
 			private void processDrawing(int x, int y) {
@@ -213,10 +230,10 @@ public abstract class Corkboard {
 
 	private void drawTitle() {
 		getPanel().removeElementPrefixed("texB");
-		int butWid = getWidth() * 9/10;
 		int butHei = HEADER_HEIGHT * 9/10;
+		int butWid = getWidth() - butHei - 5;
 		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
-		getPanel().handleImageButton("close", true, getWidth() * 19 / 20, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), CodeReference.CODE_CLOSE_THING);
+		getPanel().handleImageButton("close", true, getWidth() - butHei / 2 - 3, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), CodeReference.CODE_CLOSE_THING);
 	}
 	
 	public void resizePanel(int wid, int hei) {
@@ -317,8 +334,8 @@ public abstract class Corkboard {
 		panel = in;
 	}
 	
-	public void toggleContentLocked() {
-		contentLocked = !contentLocked;
+	public void setContentLocked(boolean set) {
+		contentLocked = set;
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------

@@ -35,11 +35,11 @@ public class StandardDraw {
 	public Change[] draw(Color[][] aP, int x, int y, int duration, Color col) {
 		x = x < 0 ? 0 : x;
 		y = y < 0 ? 0 : y;
-		x = x > aP.length ? aP.length : x;
-		y = y > aP[0].length ? aP[0].length : y;
+		x = x >= aP.length ? aP.length : x;
+		y = y >= aP[0].length ? aP[0].length : y;
 		if(duration == 0 || duration == -1) {
-			lastX = duration == 0 ? x : lastX;
-			lastY = duration == 0 ? y : lastY;
+			lastX = x;
+			lastY = y;
 		}
 
 		Change[] out = prepareChanges();

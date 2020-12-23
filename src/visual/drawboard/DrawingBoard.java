@@ -8,6 +8,7 @@ import java.util.HashMap;
 import control.CodeReference;
 import control.InputHandler;
 import input.CustomEventReceiver;
+import input.manager.actionevent.KeyActionEvent;
 import misc.Canvas;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
@@ -80,8 +81,8 @@ public class DrawingBoard implements InputHandler{
 		reference.handleCodeInput(code, in);
 	}
 	
-	public void handleKeyInput(char code) {
-		reference.handleKeyInput(code);
+	public void handleKeyInput(char code, int keyType) {
+		reference.handleKeyInput(code, keyType);
 	}
 
 	//-- Page Management  -------------------------------------
@@ -93,7 +94,7 @@ public class DrawingBoard implements InputHandler{
 			private int lastX;
 			
 			@Override
-			public void clickEvent(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y, int clickStart) {
 				if(code == CODE_NEW_PAGE) {
 					addNewPage();
 				}
@@ -110,13 +111,13 @@ public class DrawingBoard implements InputHandler{
 			}
 			
 			@Override
-			public void clickPressEvent(int code, int x, int y) {
+			public void clickPressEvent(int code, int x, int y, int clickStart) {
 				dragging = true;
 				lastX = x;
 			}
 			
 			@Override
-			public void dragEvent(int code, int x, int y) {
+			public void dragEvent(int code, int x, int y, int clickStart) {
 				if(dragging) {
 					int difX = x - lastX;
 					selectBar.setOffsetXBounded(selectBar.getOffsetX() + difX);
@@ -125,13 +126,24 @@ public class DrawingBoard implements InputHandler{
 			}
 			
 			@Override
-			public void clickReleaseEvent(int code, int x, int y) {
+			public void clickReleaseEvent(int code, int x, int y, int clickStart) {
 				dragging = false;
 			}
 			
 			@Override
+			public void keyReleaseEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_UP);
+				
+			}
+			
+			@Override
+			public void keyPressEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_DOWN);
+			}
+			
+			@Override
 			public void keyEvent(char code) {
-				reference.handleKeyInput(code);
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY);
 			}
 			
 		});
@@ -235,8 +247,8 @@ public class DrawingBoard implements InputHandler{
 		getCurrentPage().removeFromDisplay(nom);
 	}
 	
-	public void toggleContentLock(String nom) {
-		getCurrentPage().toggleContentLock(nom);
+	public void setContentLock(String nom, boolean set) {
+		getCurrentPage().setContentLock(nom, set);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

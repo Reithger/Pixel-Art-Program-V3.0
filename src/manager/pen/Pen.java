@@ -133,7 +133,9 @@ public class Pen {
 			if(use == null) {
 				force = true;
 			}
-			commitChanges(lP, nom, layer, duration, use);
+			else {
+				commitChanges(lP, nom, layer, duration, use);
+			}
 			instructions.remove(nextDuration);
 			nextDuration++;
 		}
@@ -204,6 +206,9 @@ public class Pen {
 	}
 	
 	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {
+		if(changesIn[1].getColors() == null) {
+			return;
+		}
 		lP.setRegion(changesIn[1].getX(),changesIn[1].getY(), changesIn[1].getColors(), layer);
 		changes.addChange(ref, layer, duration, changesIn[0], changesIn[1]);
 	}

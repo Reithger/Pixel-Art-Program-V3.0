@@ -75,8 +75,8 @@ public class DrawingPage implements InputHandler{
 		}
 	}
 	
-	public void handleKeyInput(char code) {
-		reference.handleKeyInput(code);
+	public void handleKeyInput(char code, int keyType) {
+		reference.handleKeyInput(code, keyType);
 	}
 
 	//-- Generate Things  -------------------------------------
@@ -148,8 +148,8 @@ public class DrawingPage implements InputHandler{
 		displays.remove(nom);
 	}
 	
-	public void toggleContentLock(String nom) {
-		getCorkboard(nom).toggleContentLocked();
+	public void setContentLock(String nom, boolean set) {
+		getCorkboard(nom).setContentLocked(set);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

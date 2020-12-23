@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import control.InputHandler;
 import input.CustomEventReceiver;
+import input.manager.actionevent.KeyActionEvent;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 import visual.settings.page.Page;
@@ -80,8 +81,8 @@ public class SettingsBar implements InputHandler{
 		reference.handleDrawInput(x, y, duration, ref);
 	}
 	
-	public void handleKeyInput(char code) {
-		reference.handleKeyInput(code);
+	public void handleKeyInput(char code, int keyType) {
+		reference.handleKeyInput(code, keyType);
 	}
 
 	private void formatPages(int x, int y, int wid, int hei) {
@@ -101,15 +102,26 @@ public class SettingsBar implements InputHandler{
 		p.setEventReceiver(new CustomEventReceiver(){
 			
 			@Override
-			public void clickEvent(int code, int x, int y) {
+			public void clickEvent(int code, int x, int y, int clickStart) {
 				if(!changePage(code)) {
 					reference.handleCodeInput(code, null);
 				}
 			}
 			
 			@Override
-			public void keyEvent(char code) {
+			public void keyReleaseEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_UP);
 				
+			}
+			
+			@Override
+			public void keyPressEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY_DOWN);
+			}
+			
+			@Override
+			public void keyEvent(char code) {
+				reference.handleKeyInput(code, KeyActionEvent.EVENT_KEY);
 			}
 			
 			@Override
@@ -155,6 +167,10 @@ public class SettingsBar implements InputHandler{
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------
+	
+	public void toggleTooltips() {
+		getActivePage().toggleTooltips();
+	}
 	
 	public void setMenuIndex(int in) {
 		if(in >= 0 && in < pages.size()) {

@@ -2,6 +2,7 @@ package visual.settings.page.tile.grid;
 
 import java.awt.Color;
 
+import control.CodeReference;
 import visual.composite.HandlePanel;
 
 public class GridImage implements GridIcon{
@@ -39,6 +40,11 @@ public class GridImage implements GridIcon{
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
+	
+	@Override
+	public String getTooltipText() {
+		return CodeReference.getCodeLabel(code);
+	}
 	
 	@Override
 	public boolean isSelected() {

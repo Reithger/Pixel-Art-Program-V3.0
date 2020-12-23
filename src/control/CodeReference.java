@@ -58,7 +58,7 @@ public class CodeReference {
 		CodeInfo out = codeInfo.get(code);
 		if(out == null) {
 			System.out.println("Attempted to access CodeInfo object that had not been setup for code value: " + code);
-			return new CodeInfo(code, null, "empty");
+			return new CodeInfo(code, null, "?");
 		}
 		return out;
 	}
@@ -68,7 +68,15 @@ public class CodeReference {
 		if(use != null) {
 			return use.getImagePath();
 		}
-		return null;
+		return "./assets/placeholder.png";
+	}
+	
+	public static String getCodeLabel(int code) {
+		CodeInfo use = getCodeInfo(code);
+		if(use != null) {
+			return use.getLabel();
+		}
+		return "";
 	}
 	
 //---  TileGrid Mappings   --------------------------------------------------------------------
@@ -88,16 +96,13 @@ public class CodeReference {
 		public final static int CODE_PEN_TOGGLE_BLEND =97;
 	
 	public final static int[] REF_PEN_MODE_CODES = new int[] {CodeReference.CODE_PEN_MODE_DRAW, CodeReference.CODE_PEN_MODE_MOVE_CANVAS,
-			CodeReference.CODE_PEN_MODE_COLOR_PICK, CodeReference.CODE_PEN_MODE_FILL, CodeReference.CODE_PEN_MODE_REGION_SELECT,
-			CodeReference.CODE_PEN_MODE_REGION_APPLY, CodeReference.CODE_PEN_REGION_MODE_FILL,
+			CodeReference.CODE_PEN_MODE_COLOR_PICK, CodeReference.CODE_PEN_MODE_FILL, CodeReference.CODE_PEN_REGION_MODE_FILL,
 			CodeReference.CODE_PEN_REGION_MODE_OUTLINE, CodeReference.CODE_PEN_REGION_MODE_COPY, CodeReference.CODE_PEN_REGION_MODE_PASTE};
 
 		public final static int CODE_PEN_MODE_MOVE_CANVAS =67;
 		public final static int CODE_PEN_MODE_FILL =99;
 		public final static int CODE_PEN_MODE_COLOR_PICK =100;
 		public final static int CODE_PEN_MODE_DRAW = 101;
-		public final static int CODE_PEN_MODE_REGION_SELECT = 106;
-		public final static int CODE_PEN_MODE_REGION_APPLY = 107;
 	
 		public final static int CODE_PEN_REGION_MODE_FILL = 102;
 		public final static int CODE_PEN_REGION_MODE_OUTLINE = 103;
@@ -136,6 +141,8 @@ public class CodeReference {
 //---  SettingsBar Stuff   --------------------------------------------------------------------
 	
 	//-- Integrated  ------------------------------------------
+	
+	public final static int CODE_TOGGLE_TOOLTIPS = 106;
 	
 	//-- Partially Integrated  --------------------------------
 

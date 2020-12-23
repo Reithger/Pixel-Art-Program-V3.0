@@ -1,10 +1,10 @@
-50;,;null;,;open file
+50;,;./assets/open_icon.png;,;open file
 51;,;null;,;save thing
 52;,;null;,;save as
-53;,;null;,;duplicate thing
+53;,;./assets/duplicate_icon.png;,;duplicate thing
 54;,;null;,;rename
 55;,;null;,;exit
-56;,;null;,;new thing
+56;,;./assets/new_thing_icon.png;,;new thing
 57;,;null;,;open meta
 58;,;./assets/icon_close.png;,;close thing
 59;,;./assets/grow_icon.png;,;increase zoom
@@ -15,7 +15,7 @@
 64;,;./assets/add_layer_icon.png;,;add layer
 65;,;null;,;remove layer
 66;,;null;,;move layer
-67;,;null;,;mode move canvas
+67;,;./assets/move_canvas_icon.png;,;mode move canvas
 68;,;null;,;pen size increment
 69;,;null;,;pen size decrement
 70;,;null;,;pen size set
@@ -49,7 +49,7 @@
 98;,;null;,;perform refresh
 99;,;null;,;mode fill
 100;,;null;,;mode color pick
-101;,;null;,;pen mode draw
+101;,;./assets/draw_mode_icon.png;,;pen mode draw
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;null;,;range select draw type
