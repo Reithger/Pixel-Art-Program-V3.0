@@ -1,8 +1,10 @@
 package control;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Scanner;
+
+import filemeta.config.Config;
 
 public class CodeReference {
 
@@ -26,9 +28,9 @@ public class CodeReference {
 	
 	public static void setup() {
 		codeInfo = new HashMap<Integer, CodeInfo>();
-		File f = new File("src/assets/setup.txt");
+		BufferedReader br = Config.retrieveFileReader("src/assets/setup.txt");
 		try {
-			Scanner sc = new Scanner(f);
+			Scanner sc = new Scanner(br);
 			while(sc.hasNextLine()) {
 				String line = sc.nextLine();
 				String[] pieces = line.split(SEPARATOR);
