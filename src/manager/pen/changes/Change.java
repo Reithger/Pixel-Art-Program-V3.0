@@ -14,7 +14,7 @@ public class Change{
 	
 	private int x;
 	private int y;
-	private Color[][] cols;
+	private Integer[][] cols;
 	private boolean overwrite;
 
 	private volatile boolean mutex;
@@ -32,7 +32,7 @@ public class Change{
 		addChange(in.getX(), in.getY(), in.getColors());
 	}
 	
-	public void addChange(int xIn, int yIn, Color[][] colsIn) {
+	public void addChange(int xIn, int yIn, Integer[][] colsIn) {
 		if(colsIn == null) {
 			return;
 		}
@@ -51,7 +51,7 @@ public class Change{
 		int wid = maxX - minX;
 		int hei = maxY - minY;
 		if(wid != cols.length || hei != cols[0].length) {
-			Color[][] newCol = new Color[wid][hei];
+			Integer[][] newCol = new Integer[wid][hei];
 			for(int i = 0; i < cols.length; i++) {
 				for(int j =  0; j < cols[i].length; j++) {
 					int usX = x - minX + i;
@@ -76,8 +76,8 @@ public class Change{
 		closeLock();
 	}
 	
-	public void addChange(int xIn, int yIn, Color col) {
-		addChange(xIn, yIn, new Color[][] {{col}});
+	public void addChange(int xIn, int yIn, int rgb) {
+		addChange(xIn, yIn, new Integer[][] {{rgb}});
 	}
 	
 	public void save(String path) {
@@ -101,7 +101,7 @@ public class Change{
 		}
 		for(int i = x; i < x + cols.length; i++) {
 			for(int j = y; j < y + cols[i - x].length; j++) {
-				if(cols[i - x][j -y] != null && !cols[i-x][j-y].equals(in.getCanvasColor(i, j)))
+				if(cols[i - x][j -y] != null && !cols[i-x][j-y].equals(in.getCanvasIntValue(i, j)))
 					in.setCanvasColor(i, j, cols[i - x][j - y]);
 			}
 		}
@@ -123,7 +123,7 @@ public class Change{
 		return y;
 	}
 	
-	public Color[][] getColors(){
+	public Integer[][] getColors(){
 		return cols;
 	}
 

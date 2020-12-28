@@ -1,6 +1,8 @@
 package visual;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,9 +22,6 @@ public class View implements InputHandler{
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
-	private final static int SCREEN_WIDTH = 1200;
-	
-	private final static int SCREEN_HEIGHT = 800;
 	
 	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
 
@@ -37,21 +36,58 @@ public class View implements InputHandler{
 	private SettingsBar options;
 	
 	private DrawingBoard body;
+
+	private int screenWidth;
+	
+	private int screenHeight;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public View(InputHandler in) {
-		//Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-		//TODO: Make this dynamic to your screen size
+		fullScreenSize();
+		setupFrame();
 		reference = in;
-		frame = new WindowFrame(SCREEN_WIDTH, SCREEN_HEIGHT);
-		frame.getFrame().getContentPane().setBackground(COLOR_BACKGROUND);
-		frame.setName("Test");
-		options = new SettingsBar(0, 0, SCREEN_WIDTH, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), frame, this);
-		body = new DrawingBoard(0, (int)(SCREEN_HEIGHT * SETTINGS_VERT_RATIO), SCREEN_WIDTH, (int)(SCREEN_HEIGHT * (1 - SETTINGS_VERT_RATIO)), frame, this);
+		options = new SettingsBar(0, 0, screenWidth, (int)(screenHeight * SETTINGS_VERT_RATIO), frame, this);
+		body = new DrawingBoard(0, (int)(screenHeight * SETTINGS_VERT_RATIO), screenWidth, (int)(screenHeight * (1 - SETTINGS_VERT_RATIO)), frame, this);
 	}
 
+	private void setupFrame() {
+		frame = new WindowFrame(screenWidth, screenHeight) {
+			
+			@Override
+			public void reactToResize() {
+				updateScreenSize();
+				resizeComponents();
+			}
+			
+		};
+		frame.setResizable(true);;
+		frame.getFrame().getContentPane().setBackground(COLOR_BACKGROUND);
+		frame.setName("Pixel Art Program v3.0");
+	}
+	
+	private void fullScreenSize() {
+		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		screenWidth = (int)(size.getWidth());
+		screenHeight = (int)(size.getHeight());
+	}
+	
+	private void updateScreenSize() {
+		if(frame != null) {
+			screenWidth = frame.getWidth();
+			screenHeight = frame.getHeight();
+		}
+	}
+	
 //---  Operations   ---------------------------------------------------------------------------
+	
+	private void resizeComponents() {
+		if(options != null && body != null) {
+			options.resizeComponent(screenWidth, (int)(screenHeight * SETTINGS_VERT_RATIO));
+			body.reposition(0, (int)(screenHeight * SETTINGS_VERT_RATIO));
+			body.resizeComponent(screenWidth, (int)(screenHeight * (1 - SETTINGS_VERT_RATIO)));
+		}
+	}
 	
 	//-- Input Handling  --------------------------------------
 	

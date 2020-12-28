@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import control.CodeReference;
 import control.InputHandler;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
@@ -18,7 +17,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
-	private final static int DEFAULT_NEGATIVE_CODE = -57;
 	private final static Font HOVER_TEXT_FONT = new Font("Serif", Font.BOLD, 16);
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -30,10 +28,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 	private volatile boolean mutexHere;
 	
-	private boolean tileDrag;
-	private int draggedCode;
-	private boolean dragging;
-	private int lastX;
 	private static boolean displayTooltip;
 	
 //---  Constructors   -------------------------------------------------------------------------
@@ -50,6 +44,10 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		Page p = this;
 		setEventReceiver(new CustomEventReceiver() {
 			private Page use = p;
+			
+			private int lastX;
+
+			private Integer draggedCode;
 			
 			@Override
 			public void keyReleaseEvent(char code) {
@@ -70,32 +68,25 @@ public abstract class Page extends HandlePanel implements InputHandler{
 			@Override
 			public void clickPressEvent(int code, int x, int y, int clickStart) {
 				lastX = x;
-				dragging = false;
 				resolveTileDrag();
-				if(code == -1) {
-					dragging = true;
-				}
-				else if(tileCodes.get(tileDrag ? draggedCode : code) != null){
-					tileDrag = true;
-					draggedCode = code;
-				}
 			}
 			
 			@Override
 			public void clickReleaseEvent(int code, int x, int y, int clickStart) {
-				dragging = false;
 				resolveTileDrag();
-				refresh();
 			}
 			
 			@Override
 			public void dragEvent(int code, int x, int y, int clickStart) {
-				if(dragging) {
+				if(draggedCode == null) {
+					draggedCode = code;
+				}
+				if(draggedCode == -1) {
 					setOffsetXBounded(getOffsetX() + x - lastX);
 					lastX = x;
 				}
-				else if(tileDrag && getTile(tileCodes.get(draggedCode)).dragTileProcess(tileDrag ? draggedCode : code, x - getOffsetX(), y - getOffsetY())) {
-					getTile(tileCodes.get(tileDrag ? draggedCode : code)).drawTileMemory(use);
+				else if(getTile(tileCodes.get(draggedCode)) != null && getTile(tileCodes.get(draggedCode)).dragTileProcess(draggedCode, x - getOffsetX(), y - getOffsetY())) {
+					getTile(tileCodes.get(draggedCode)).drawTileMemory(use);
 				}
 			}
 			
@@ -136,11 +127,11 @@ public abstract class Page extends HandlePanel implements InputHandler{
 			}
 
 			private void resolveTileDrag() {
-				if(tileDrag) {
-					pushChanges();
+				Tile t = getTile(tileCodes.get(draggedCode));
+				if(t != null && t.getPushChangeCode() != null) {
+					handleCodeInput(t.getPushChangeCode(), t.getReference());
 				}
-				tileDrag = false;
-				draggedCode = DEFAULT_NEGATIVE_CODE;
+				draggedCode = null;
 			}
 			
 		});
@@ -150,12 +141,20 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
+	@Override
+	public void resize(int wid, int hei) {
+		super.resize(wid, hei);
+		this.removeAllElements();
+		for(Tile t : tiles.values()) {
+			t.assignMaximumVerticalSpace(hei);
+		}
+	}
+	
 	public static void assignReference(InputHandler ref) {
 		reference = ref;
 	}
 
 	public void drawPage() {
-		openLockHere();
 		int buffer = getWidth() / 50;
 		int posX = buffer / 2;
 		int posY = getHeight() / 2;
@@ -172,7 +171,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		handleLine("line_" + disp.size(), false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 		
 		handleThickRectangle("outline", true, 0, 0, getWidth(), getHeight(), Color.black, 2);
-		closeLockHere();
 	}
 	
 	private void openLockHere() {
@@ -193,12 +191,15 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	}
 	
 	public void pushChanges() {
+		//TODO: Increase efficiency by marking them as needing an update, otherwise it gets out of hand
 		for(Tile t : tiles.values()) {
 			if(t.getPushChangeCode() != null) {
 				handleCodeInput(t.getPushChangeCode(), t.getReference());
+				if(t.getRefreshCode() != null) {
+					handleCodeInput(t.getRefreshCode(), t.getReference());
+				}
 			}
 		}
-		handleCodeInput(CodeReference.CODE_PERFORM_REFRESH, null);
 	}
 	
 	//-- Input  -----------------------------------------------

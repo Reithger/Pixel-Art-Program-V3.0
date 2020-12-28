@@ -51,6 +51,19 @@ public class DrawingPage implements InputHandler{
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
+	public void resizeComponent(int newWid, int newHei) {
+		width = newWid;
+		height = newHei;
+	}
+	
+	public void reposition(int newX, int newY) {
+		x = newX;
+		y = newY;
+		for(Corkboard c : displays.values()) {
+			handleCodeInput(Corkboard.CODE_CHECK_POSITION, c.getName());
+		}
+	}
+	
 	public void handleDrawInput(int x, int y, int duration, String nom) {
 		active = nom;
 		reference.handleDrawInput(x, y, duration, nom);

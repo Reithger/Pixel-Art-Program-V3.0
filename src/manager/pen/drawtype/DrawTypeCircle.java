@@ -1,18 +1,16 @@
 package manager.pen.drawtype;
 
-import java.awt.Color;
-
 public class DrawTypeCircle implements DrawType{
 
 //---  Operations   ---------------------------------------------------------------------------
 	
 	@Override
-	public Color[][] draw(Color col, int penSize) {
+	public Integer[][] draw(Integer col, int penSize) {
 		int size = penSize;
 		if(penSize % 2 == 0) {
 			size++;
 		}
-		Color[][] out = new Color[size][size];
+		Integer[][] out = new Integer[size][size];
 		double originX = size / 2.0;
 		double originY = size / 2.0;
 		for(int i = 0; i < out.length; i++) {

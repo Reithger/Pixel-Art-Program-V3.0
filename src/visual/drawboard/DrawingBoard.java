@@ -71,6 +71,24 @@ public class DrawingBoard implements InputHandler{
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
+	public void resizeComponent(int newWid, int newHei) {
+		width = newWid;
+		height = newHei;
+		selectBar.resize(newWid, newHei / PROPORTION_TOP_SELECT);
+		for(DrawingPage p : pages.values()) {
+			p.resizeComponent(width, height);
+		}
+	}
+	
+	public void reposition(int newX, int newY) {
+		x = newX;
+		y = newY;
+		selectBar.setLocation(newX, newY);
+		for(DrawingPage p : pages.values()) {
+			p.reposition(newX, newY);
+		}
+	}
+	
 	//-- Input  -----------------------------------------------
 	
 	public void handleDrawInput(int x, int y, int duration, String nom) {

@@ -25,7 +25,7 @@ public class ColorManager {
 //---  Operations   ---------------------------------------------------------------------------
 	
 	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
-		Color grab = getColor(index);
+		Color grab = new Color(getColor(index), true);
 		if(grab == null) {
 			return;
 		}
@@ -34,25 +34,25 @@ public class ColorManager {
 			cols[i] %= 255;
 			cols[i] = cols[i] < 0 ? 255 - cols[i] : cols[i];
 		}
-		getCurrentPallet().setColor(index, new Color(cols[0], cols[1], cols[2], cols[3]));
+		getCurrentPallet().setColor(index, grab.getRGB());
 	}
 	
-	public void editColor(int index, Color col) {
+	public void editColor(int index, Integer col) {
 		getCurrentPallet().setColor(index, col);
 	}
 
-	public void addColor(Color in) {
+	public void addColor(Integer in) {
 		getCurrentPallet().addColor(in);
 	}
 	
 	public void removeColor(int in) {
 		getCurrentPallet().removeColor(in);
 		if(getCurrentPallet().getColors().size() == 0) {
-			getCurrentPallet().addColor(Color.black);
+			getCurrentPallet().addColor(Color.black.getRGB());
 		}
 	}
 	
-	public void addPallet(ArrayList<Color> cols) {
+	public void addPallet(ArrayList<Integer> cols) {
 		savedColors.add(new Pallet(cols));
 	}
 	
@@ -77,18 +77,18 @@ public class ColorManager {
 		getCurrentPallet().setColor(fixIndex(index));
 	}
 	
-	public void setColor(Color in) {
+	public void setColor(Integer in) {
 		addColor(in);
 		getCurrentPallet().setColor(getCurrentPallet().getColors().size() - 1);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 
-	public ArrayList<Color> getColors(){
+	public ArrayList<Integer> getColors(){
 		return getCurrentPallet().getColors();
 	}
 	
-	public Color getColor(int index) {
+	public Integer getColor(int index) {
 		return getCurrentPallet().getColor(fixIndex(index));
 	}
 	
@@ -96,7 +96,7 @@ public class ColorManager {
 		return getCurrentPallet().getActiveColor();
 	}
 
-	public Color getActiveColor() {
+	public Integer getActiveColor() {
 		return getColor(getCurrentPallet().getActiveColor());
 	}
 	

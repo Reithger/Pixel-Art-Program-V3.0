@@ -11,37 +11,37 @@ public class Pallet {
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private ArrayList<Color> colors;
+	private ArrayList<Integer> colors;
 	private int active;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Pallet() {
-		colors = new ArrayList<Color>();
-		colors.add(Color.black);
-		colors.add(Color.white);
-		colors.add(new Color(255, 255, 255, 0));
-		colors.add(Color.blue);
-		colors.add(Color.yellow);
-		colors.add(Color.green);
-		colors.add(Color.red);
-		colors.add(Color.pink);
-		colors.add(Color.orange);
-		colors.add(Color.magenta);
+		colors = new ArrayList<Integer>();
+		colors.add(Color.black.getRGB());
+		colors.add(Color.white.getRGB());
+		colors.add(new Color(255, 255, 255, 0).getRGB());
+		colors.add(Color.blue.getRGB());
+		colors.add(Color.yellow.getRGB());
+		colors.add(Color.green.getRGB());
+		colors.add(Color.red.getRGB());
+		colors.add(Color.pink.getRGB());
+		colors.add(Color.orange.getRGB());
+		colors.add(Color.magenta.getRGB());
 		active = 0;
 	}
 	
-	public Pallet(ArrayList<Color> cols) {
+	public Pallet(ArrayList<Integer> cols) {
 		colors = cols;
 		active = 0;
 		if(colors.size() == 0) {
-			addColor(Color.black);
+			addColor(Color.black.getRGB());
 		}
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public void addColor(Color in) {
+	public void addColor(Integer in) {
 		if(colors.size() < MAXIMUM_SIZE)
 			colors.add(in);
 	}
@@ -57,7 +57,7 @@ public class Pallet {
 		active = fixIndex(index);
 	}
 	
-	public void setColor(int index, Color col) {
+	public void setColor(int index, Integer col) {
 		colors.set(fixIndex(index), col);
 	}
 	
@@ -67,11 +67,11 @@ public class Pallet {
 		return MAXIMUM_SIZE;
 	}
 	
-	public Color getColor(int index) {
+	public Integer getColor(int index) {
 		return colors.get(fixIndex(index));
 	}
 	
-	public ArrayList<Color> getColors(){
+	public ArrayList<Integer> getColors(){
 		return colors;
 	}
 	

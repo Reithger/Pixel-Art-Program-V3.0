@@ -69,12 +69,12 @@ public class ArtPicture implements Comparable<ArtPicture>{
 		update = true;
 	}
 	
-	public void setPixel(int x, int y, Color col) {
+	public void setPixel(int x, int y, Integer col) {
 		canvas.setPixelColor(x, y, col);
 		update = true;
 	}
 	
-	public void setRegion(int x, int y, Color[][] cols) {
+	public void setRegion(int x, int y, Integer[][] cols) {
 		for(int i = x; i < x + cols.length; i++) {
 			for(int j = y; j < y + cols[i].length; j++) {
 				if(cols[i - x][j - y] != null)
@@ -84,7 +84,7 @@ public class ArtPicture implements Comparable<ArtPicture>{
 		update = true;
 	}
 	
-	public void setColorData(Color[][] data) {
+	public void setColorData(Integer[][] data) {
 		canvas.updateCanvas(data);
 		update = true;
 	}
@@ -115,8 +115,8 @@ public class ArtPicture implements Comparable<ArtPicture>{
 		return canvas.getPixelColor(x, y);
 	}
 
-	public Color[][] getColorData(){
-		return canvas.getColorData();
+	public Integer[][] getColorData(){
+		return canvas.getColorIntData();
 	}
 
 	public int getLayer() {

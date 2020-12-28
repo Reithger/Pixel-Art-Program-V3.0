@@ -94,9 +94,10 @@ public class Pen {
 	
 	public void initializeCanvas(LayerPicture lP, int layer) {
 		openLock();
+		int root = new Color(255, 255, 255, 0).getRGB();
 		for(int i = 0; i < lP.getWidth(); i++) {
 			for(int j = 0; j < lP.getHeight(); j++) {
-				lP.setPixel(i, j, new Color(255, 255, 255, 0), layer);
+				lP.setPixel(i, j, root, layer);
 			}
 		}
 		closeLock();
@@ -129,7 +130,7 @@ public class Pen {
 		instructions.put(duration, new DrawInstruction(nom, getPenMode(), getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
 		while(instructions.get(nextDuration) != null) {
 			DrawInstruction dI = instructions.get(nextDuration);
-			Change[] use = interpretInput(dI.getReference(), dI.getPenMode(), dI.getRegionMode(), dI.getColorArray(), dI.getColor(), dI.getX(), dI.getY(), nextDuration);
+			Change[] use = interpretInput(dI.getReference(), dI.getPenMode(), dI.getRegionMode(), dI.getColorArray(), dI.getColor().getRGB(), dI.getX(), dI.getY(), nextDuration);
 			if(use == null) {
 				force = true;
 			}
@@ -144,13 +145,13 @@ public class Pen {
 		return force;
 	}
 	
-	private Change[] interpretInput(String nom, int penMode, int regionMode, Color[][] can, Color use, int x, int y, int duration) {
+	private Change[] interpretInput(String nom, int penMode, int regionMode, Integer[][] can, Integer use, int x, int y, int duration) {
 		boolean release = duration == -1;
 		switch(penMode) {
 			case PEN_MODE_DRAW:
 				return pencil.draw(can, x, y, duration, use);
 			case PEN_MODE_COLOR_PICK:
-				Color nCol = can[x][y];
+				Integer nCol = can[x][y];
 				color.addColor(nCol);
 				color.setColor(30);
 				setMode = PEN_MODE_DRAW;
@@ -201,8 +202,19 @@ public class Pen {
 		return new Change[] {new Change(), new Change()};
 	}
 	
-	private Color inverse(Color in) {
-		return new Color(255 - in.getRed(), 255 - in.getGreen(), 255 - in.getBlue(), 255);
+	private int inverse(Integer in) {
+		long copy = in.longValue();
+		if(copy < 0) {
+			copy += 2 * Integer.MAX_VALUE;
+		}
+		long max = 2 * (long)(Integer.MAX_VALUE);
+		copy = max - copy;
+		copy -= copy >= Integer.MAX_VALUE ? 2 * Integer.MAX_VALUE : 0;
+		copy -= copy % (int)(Math.pow(2, 8));
+		copy += (int)(Math.pow(2, 8));
+		int out = (int)copy;
+		System.out.println(new Color(in, true) + " " + new Color(out, true));
+		return (int)(copy);
 	}
 	
 	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {
@@ -213,13 +225,13 @@ public class Pen {
 		changes.addChange(ref, layer, duration, changesIn[0], changesIn[1]);
 	}
 	
-	private Change[] fill(Color[][] can, Point start, Color newCol) {
+	private Change[] fill(Integer[][] can, Point start, int newCol) {
 		LinkedList<Point> queue = new LinkedList<Point>();
 		Change[] out = new Change[] {new Change(), new Change()};
 		out[0].setOverwrite(false);
 		queue.add(start);
 		HashSet<Point> visited = new HashSet<Point>();
-		Color oldCol = can[start.getX()][start.getY()];
+		int oldCol = can[start.getX()][start.getY()];
 		int wid = can.length;
 		int hei = can[0].length;
 		while(!queue.isEmpty()) {
@@ -266,7 +278,7 @@ public class Pen {
 	//-- ColorManager  ----------------------------------------
 	
 	public void addColor(Color in) {
-		color.addColor(in);
+		color.addColor(in.getRGB());
 	}
 	
 	public void removeColor(int index) {
@@ -274,7 +286,7 @@ public class Pen {
 	}
 	
 	public void editColor(int index, Color col) {
-		color.editColor(index, col);
+		color.editColor(index, col.getRGB());
 	}
 	
 	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
@@ -286,7 +298,11 @@ public class Pen {
 	}
 	
 	public void addPallet(ArrayList<Color> cols) {
-		color.addPallet(cols);
+		ArrayList<Integer> co = new ArrayList<Integer>();
+		for(Color c : cols) {
+			co.add(c.getRGB());
+		}
+		color.addPallet(co);
 	}
 	
 	public void removePallet(int index) {
@@ -322,7 +338,7 @@ public class Pen {
 	}
 	
 	public void setActiveColor(Color in) {
-		color.setColor(in);
+		color.setColor(in.getRGB());
 	}
 
 	public void setPallet(int in) {
@@ -373,7 +389,7 @@ public class Pen {
 	//-- ColorManager  ----------------------------------------
 	
 	public Color getActiveColor() {
-		return color.getActiveColor();
+		return new Color(color.getActiveColor(), true);
 	}
 	
 	public int getActiveColorIndex() {
@@ -381,7 +397,11 @@ public class Pen {
 	}
 	
 	public ArrayList<Color> getColors(){
-		return color.getColors();
+		ArrayList<Color> out = new ArrayList<Color>();
+		for(Integer i : color.getColors()) {
+			out.add(new Color(i, true));
+		}
+		return out;
 	}
 
 	public int getCurrentPallet() {

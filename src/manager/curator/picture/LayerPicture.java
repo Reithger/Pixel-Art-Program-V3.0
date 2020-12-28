@@ -223,7 +223,7 @@ public class LayerPicture extends Component{
 
 //---  Setter Methods   -----------------------------------------------------------------------
 
-	public void setPixel(int x, int y, Color col, int layer) {
+	public void setPixel(int x, int y, Integer col, int layer) {
 		if(layers.get(layer) == null || col.equals(getLayer(layer).getColor(x, y))) {
 			return;
 		}
@@ -236,7 +236,7 @@ public class LayerPicture extends Component{
 		}
 	}
 	
-	public void setRegion(int x, int y, Color[][] cols, int layer) {
+	public void setRegion(int x, int y, Integer[][] cols, int layer) {
 		if(cols == null || layers.get(layer) == null) {
 			return;
 		}
@@ -252,7 +252,7 @@ public class LayerPicture extends Component{
 	
 	//-- Layer  -----------------------------------------------
 	
-	public Color[][] getColorData(int layer){
+	public Integer[][] getColorData(int layer){
 		return getLayer(layer).getColorData();
 	}
 

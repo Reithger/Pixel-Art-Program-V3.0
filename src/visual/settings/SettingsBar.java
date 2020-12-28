@@ -34,16 +34,19 @@ public class SettingsBar implements InputHandler{
 	public SettingsBar(int x, int y, int wid, int hei, WindowFrame par, InputHandler ref) {
 		parent = par;
 		reference = ref;
-		formatPages(x, y, wid, hei);
-		menu = generateMenuBar(x, y, wid, hei);
-		menu.getPanel().setBackground(null);
+		formatPages(x, y + (int)(hei * (RATIO_MENU_SELECTION)), wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
+		menu = generateMenuBar(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
 		drawMenuBar();
-		par.addPanelToWindow(getMenuBarWindowName(), "menu_bar", menu);
-		par.showActiveWindow(getMenuBarWindowName());
-		par.showActiveWindow(pages.get(activePage).getName());
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
+	
+	public void resizeComponent(int newWid, int newHei) {
+		menu.resize(newWid, (int)(newHei * RATIO_MENU_SELECTION));
+		for(Page p : pages) {
+			resizePage(p, p.getPanelXLocation(), (int)(newHei * RATIO_MENU_SELECTION), newWid, (int)(newHei * (1 - RATIO_MENU_SELECTION)));
+		}
+	}
 	
 	public void updateTileGridColors(String ref, ArrayList<Color> cols, int[] codes, int active) {
 		getActivePage().assignTileGridColors(ref, cols, codes);
@@ -90,15 +93,23 @@ public class SettingsBar implements InputHandler{
 		pages = PageFactory.generateStartingPages();
 		activePage = 0;
 		for(Page p : pages) {
-			p.resize(wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
-			p.setLocation(x, y + (int)(hei * RATIO_MENU_SELECTION));
+			resizePage(p, x, y, wid, hei);
 			parent.addPanelToWindow(p.getName(), p.getName(), p);
-			p.drawPage();
 		}
+		parent.showActiveWindow(pages.get(activePage).getName());
+	}
+	
+	private void resizePage(Page p, int x, int y, int wid, int hei) {
+		p.resize(wid, hei);
+		p.setLocation(x, y);
+		if(menu != null)
+			drawMenuBar();
+		p.drawPage();
 	}
 	
 	private HandlePanel generateMenuBar(int x, int y, int wid, int hei) {
-		HandlePanel p =  new HandlePanel(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
+		HandlePanel p =  new HandlePanel(x, y, wid, hei);
+		p.setScrollBarHorizontal(false);
 		p.setEventReceiver(new CustomEventReceiver(){
 			
 			@Override
@@ -130,6 +141,9 @@ public class SettingsBar implements InputHandler{
 			}
 			
 		});
+		p.getPanel().setBackground(null);
+		parent.addPanelToWindow(getMenuBarWindowName(), "menu_bar", p);
+		parent.showActiveWindow(getMenuBarWindowName());
 		return p;
 	}
 

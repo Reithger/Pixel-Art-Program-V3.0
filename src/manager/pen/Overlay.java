@@ -25,7 +25,7 @@ public class Overlay {
 		if(instruct.get(ref) != null) {
 			instruct.get(ref).apply(can);
 		}
-		Color[][] cols = apply.getColors();
+		Integer[][] cols = apply.getColors();
 		if(cols == null) {
 			return;
 		}
@@ -36,7 +36,7 @@ public class Overlay {
 		for(int i = x; i < x + cols.length; i++) {
 			for(int j = y; j < y + cols[i - x].length; j++) {
 				if(i >= 0 && j >= 0 && i < can.getCanvasWidth() && j < can.getCanvasHeight() && cols[i - x][j - y] != null) {
-					undo.addChange(i, j, can.getCanvasColor(i,  j));
+					undo.addChange(i, j, can.getCanvasIntValue(i,  j));
 				}
 			}
 		}

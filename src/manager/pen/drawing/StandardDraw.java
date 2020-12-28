@@ -32,7 +32,7 @@ public class StandardDraw {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public Change[] draw(Color[][] aP, int x, int y, int duration, Color col) {
+	public Change[] draw(Integer[][] aP, int x, int y, int duration, Integer col) {
 		x = x < 0 ? 0 : x;
 		y = y < 0 ? 0 : y;
 		x = x >= aP.length ? aP.length : x;
@@ -43,13 +43,13 @@ public class StandardDraw {
 		}
 
 		Change[] out = prepareChanges();
-			drawSequence(x, y, col, out, aP);
+		drawSequence(x, y, col, out, aP);
 		
 		return out;
 	}
 
-	private void drawSequence(int x, int y, Color col, Change[] out, Color[][] ref) {
-		Color[][] apply = currMode.draw(col, penSize);
+	private void drawSequence(int x, int y, Integer col, Change[] out, Integer[][] ref) {
+		Integer[][] apply = currMode.draw(col, penSize);
 		
 		HashSet<Point> points = new HashSet<Point>();
 		Point a = new Point(x, y);
@@ -67,7 +67,7 @@ public class StandardDraw {
 		lastY = y;
 	}
 	
-	private void drawToPoint(Color[][] aP, int x, int y, Color col, Change[] out, Color[][] apply, HashSet<Point> visited) {
+	private void drawToPoint(Integer[][] aP, int x, int y, Integer col, Change[] out, Integer[][] apply, HashSet<Point> visited) {
 		int wid = aP.length;
 		int hei = aP[0].length;
 		for(int i = 0; i < apply.length; i++) {
@@ -75,10 +75,10 @@ public class StandardDraw {
 				int actX = (x - apply.length / 2) + i;
 				int actY = (y - apply[i].length / 2) + j;
 				Point here = new Point(actX, actY);
-				Color newCol = apply[i][j];
+				Integer newCol = apply[i][j];
 				if(!visited.contains(here) && actX >= 0 && actY >= 0 && actX < wid && actY < hei && newCol != null){
 					visited.add(here);
-					Color old = aP[actX][actY];
+					int old = aP[actX][actY];
 					newCol = shade ? blend(old, newCol) : newCol;
 					out[0].addChange(actX, actY, old);
 					out[1].addChange(actX, actY, newCol);
@@ -87,14 +87,10 @@ public class StandardDraw {
 		}
 	}
 	
-	private Color blend(Color curr, Color newCol) {
+	private int blend(Integer curr, Integer newCol) {
 		double keep = (1.0 - blendQuotient);
 		double bq = blendQuotient;
-		int r = (int)(curr.getRed() * keep) + (int)(newCol.getRed() * bq);
-		int g = (int)(curr.getGreen() * keep) + (int)(newCol.getGreen() * bq);
-		int b = (int)(curr.getBlue() * keep) + (int)(newCol.getBlue() * bq);
-		int a = (int)(curr.getAlpha() * keep) + (int)(newCol.getAlpha() * bq);
-		return new Color(r, g, b, a);
+		return (int)((curr * keep) + (bq * newCol));
 	}
 
 	private Change[] prepareChanges() {

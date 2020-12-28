@@ -35,7 +35,7 @@ public class RegionDraw {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public Change[] applyPointEffect(Color[][] c, int inMode, Color use) {
+	public Change[] applyPointEffect(Integer[][] c, int inMode, Integer use) {
 		Change[] out = new Change[] {new Change(), new Change()};
 		if(pointA == null || pointB == null) {
 			return out;
@@ -74,7 +74,7 @@ public class RegionDraw {
 		return out;
 	}
 	
-	public Change[] applySavedRegion(Color[][] cIn, int inMode, Point loc) {
+	public Change[] applySavedRegion(Integer[][] cIn, int inMode, Point loc) {
 		Change[] out = new Change[] {new Change(), new Change()};
 		out[0].setOverwrite(false);
 		int wid = cIn.length;
@@ -89,7 +89,7 @@ public class RegionDraw {
 				int y = loc.getY();
 				for(int i = 0; i < c.getCanvasWidth(); i++) {
 					for(int j = 0; j < c.getCanvasHeight(); j++) {
-						Color curCol = c.getCanvasColor(i, j);
+						Integer curCol = c.getCanvasIntValue(i, j);
 						int usX = x + i;
 						int usY = y + j;
 						if(curCol != null && usX > 0 && usY > 0 && usX < wid && usY < hei)
@@ -118,7 +118,7 @@ public class RegionDraw {
 		pointB = null;
 	}
 	
-	public void copySelectedRegion(Color[][] in, int x1, int y1, int x2, int y2) {
+	public void copySelectedRegion(Integer[][] in, int x1, int y1, int x2, int y2) {
 		int wid = Math.abs(x2 - x1);
 		int hei = Math.abs(y2 - y1);
 		Canvas can = new Canvas(wid, hei);

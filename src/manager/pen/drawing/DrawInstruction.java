@@ -12,12 +12,12 @@ public class DrawInstruction {
 	private Color col;
 	private int penMode;
 	private int regionMode;
-	private Color[][] cols;
+	private Integer[][] cols;
 	private int layer;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public DrawInstruction(String inRef, int penM, int regionM, Color[][] use, int inX, int inY, Color inCol, int inLayer) {
+	public DrawInstruction(String inRef, int penM, int regionM, Integer[][] use, int inX, int inY, Color inCol, int inLayer) {
 		x = inX;
 		y = inY;
 		col = inCol;
@@ -46,7 +46,7 @@ public class DrawInstruction {
 		return regionMode;
 	}
 	
-	public Color[][] getColorArray(){
+	public Integer[][] getColorArray(){
 		return cols;
 	}
 	
