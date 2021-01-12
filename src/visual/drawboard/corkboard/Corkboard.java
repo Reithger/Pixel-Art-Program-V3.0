@@ -28,6 +28,7 @@ public abstract class Corkboard {
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
+	private final static int[] NAME_BAR_CODES = new int[] {CodeReference.CODE_CLOSE_THING, CodeReference.CODE_MAXIMIZE_CANVAS};
 	protected static final int HEADER_HEIGHT = 30;
 	protected static final int SIDEBAR_WIDTH = 46;
 	protected final static int MINIMUM_SIZE = 150;
@@ -74,6 +75,8 @@ public abstract class Corkboard {
 			private boolean draggingHeader;
 			private boolean draggingResize;
 			
+			private boolean canvasDrag;
+			
 			private volatile int drawCounter;
 			private volatile boolean mutexHere;
 			
@@ -103,6 +106,7 @@ public abstract class Corkboard {
 			
 			@Override
 			public void clickPressEvent(int code, int x, int y, int clickStart) {
+				drawCounter = 0;
 				lastX = x;
 				lastY = y;
 				if(code == CodeReference.CODE_HEADER) {
@@ -122,6 +126,7 @@ public abstract class Corkboard {
 				if(draggingResize) {
 					resizePanel(getPanel().getWidth() + (x - lastX), getPanel().getHeight() + (y - lastY));
 				}
+				canvasDrag = false;
 				draggingResize = false;
 				draggingHeader = false;
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
@@ -134,11 +139,12 @@ public abstract class Corkboard {
 			@Override
 			public void dragEvent(int code, int x, int y, int clickStart) {
 				processDragging(x, y);
-				if(code == CodeReference.CODE_INTERACT_CONTENT) {
+				if(code == CodeReference.CODE_INTERACT_CONTENT || canvasDrag) {
 					if(!contentLocked) {
 						processDrawing(x, y);
 					}
 					else {
+						canvasDrag = true;
 						hand.setOffsetX(hand.getOffsetX() + (x - lastX));
 						hand.setOffsetY(hand.getOffsetY() + (y - lastY));
 						lastX = x;
@@ -229,11 +235,18 @@ public abstract class Corkboard {
 	}
 
 	private void drawTitle() {
-		getPanel().removeElementPrefixed("texB");
+		getPanel().removeElementPrefixed("name_bar_title");
 		int butHei = HEADER_HEIGHT * 9/10;
-		int butWid = getWidth() - butHei - 5;
-		getPanel().handleTextButton("texB", true, butWid / 2, butHei / 2, butWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
-		getPanel().handleImageButton("close", true, getWidth() - butHei / 2 - 3, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), CodeReference.CODE_CLOSE_THING);
+		int texWid = getPanel().getTextWidth(getName(), TITLE_FONT) * 2;
+		if(texWid < 0) {
+			texWid = getWidth() - butHei * (NAME_BAR_CODES.length + 1);
+			texWid = texWid < 20 ? 20 : texWid;
+		}
+		getPanel().handleTextButton("name_bar_title", true, texWid / 2, butHei / 2, texWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
+		
+		for(int i = 0 ; i < NAME_BAR_CODES.length; i++) {
+			getPanel().handleImageButton("name_bar_button_" + i, true, getWidth() - (int)((i + .5) * butHei) - 3, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(NAME_BAR_CODES[i]), NAME_BAR_CODES[i]);
+		}
 	}
 	
 	public void resizePanel(int wid, int hei) {

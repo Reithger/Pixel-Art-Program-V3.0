@@ -47,9 +47,14 @@
 96;,;./assets/layer_down_icon.png;,;move layer down
 97;,;null;,;pen toggle blend
 98;,;null;,;perform refresh
-99;,;null;,;mode fill
-100;,;null;,;mode color pick
-101;,;./assets/draw_mode_icon.png;,;pen mode draw
+99;,;./assets/fill_icon.png;,;mode fill
+100;,;./assets/color_pick_icon.png;,;color pick
+101;,;./assets/draw_mode_icon.png;,;draw
+102;,;./assets/region_fill_icon.png;,;fill region
+103;,;./assets/region_outline_icon.png;,;outline region
+104;,;null;,;copy region
+105;,;null;,;paste region
+106;,;null;,;toggle tooltips
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;null;,;range select draw type

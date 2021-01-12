@@ -50,7 +50,7 @@ public class RegionDraw {
 			case REGION_MODE_OUTLINE:
 				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
 					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
-						if(i == x1 || i == x2 || j == y1 || j == y2) {
+						if((i == x1 || i == x2 || j == y1 || j == y2) && i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
 							out[0].addChange(i, j, c[i][j]);
 							out[1].addChange(i, j, use);
 						}
@@ -60,8 +60,10 @@ public class RegionDraw {
 			case REGION_MODE_FILL:
 				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
 					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
-						out[0].addChange(i, j, c[i][j]);
-						out[1].addChange(i, j, use);
+						if(i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
+							out[0].addChange(i, j, c[i][j]);
+							out[1].addChange(i, j, use);
+						}
 					}
 				}
 				break;

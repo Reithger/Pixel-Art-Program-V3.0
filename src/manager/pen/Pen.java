@@ -120,8 +120,10 @@ public class Pen {
 			initializeCanvas(overlay.get(nom).getCanvas());
 			force = true;
 		}
-		
 		if(duration == 0 || duration == -1) {
+			if(duration == 0) {
+				region.resetPoints();
+			}
 			instructions.clear();
 			nextDuration = duration;
 		}

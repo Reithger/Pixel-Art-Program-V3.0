@@ -36,6 +36,7 @@ public class SettingsBar implements InputHandler{
 		reference = ref;
 		formatPages(x, y + (int)(hei * (RATIO_MENU_SELECTION)), wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
 		menu = generateMenuBar(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
+		menu.setScrollBarVertical(false);
 		drawMenuBar();
 	}
 	

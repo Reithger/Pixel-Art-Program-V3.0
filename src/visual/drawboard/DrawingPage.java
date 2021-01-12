@@ -3,6 +3,7 @@ package visual.drawboard;
 import java.awt.Font;
 import java.util.HashMap;
 
+import control.CodeReference;
 import control.InputHandler;
 import misc.Canvas;
 import visual.drawboard.corkboard.Corkboard;
@@ -81,6 +82,11 @@ public class DrawingPage implements InputHandler{
 				cX = cX + c.getSidebarWidth() > x + width ? x + width - c.getSidebarWidth() : cX;
 				cY = cY + c.getHeaderHeight() > y + height ? y + height - c.getHeaderHeight() : cY;
 				c.setLocation(cX, cY);
+				break;
+			case CodeReference.CODE_MAXIMIZE_CANVAS:
+				Corkboard max = getCorkboard(nom);
+				max.setLocation(x, y);
+				max.resizePanel(width, height);
 				break;
 			default:
 				reference.handleCodeInput(code, nom);

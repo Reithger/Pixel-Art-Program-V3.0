@@ -145,6 +145,7 @@ public class CodeReference {
 	//-- Integrated  ------------------------------------------
 	
 	public final static int CODE_TOGGLE_TOOLTIPS = 106;
+	public final static int CODE_MAXIMIZE_CANVAS = 107;
 	
 	//-- Partially Integrated  --------------------------------
 
