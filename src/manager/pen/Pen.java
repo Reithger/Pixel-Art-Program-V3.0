@@ -115,11 +115,28 @@ public class Pen {
 	
 	public boolean draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
 		boolean force = false;
+		int penMode = getPenMode();
 		if(overlay.get(nom) == null) {
 			overlay.put(nom, new Overlay(lP.getWidth(), lP.getHeight()));
 			initializeCanvas(overlay.get(nom).getCanvas());
 			force = true;
 		}
+		
+		if(duration == 0 && !instructions.isEmpty() && (penMode == PEN_MODE_REGION_SELECT || penMode == PEN_MODE_REGION_APPLY)) {
+			DrawInstruction dI = instructions.get(new ArrayList<Integer>(instructions.keySet()).get(0));
+			Change[] use = interpretInput(dI, -1);
+			if(use == null) {
+				force = true;
+			}
+			else {
+				commitChanges(lP, nom, layer, duration, use);
+			}
+			nextDuration = 1;
+			region.resetPoints();
+			instructions.clear();
+			return force;
+		}
+		
 		if(duration == 0 || duration == -1) {
 			if(duration == 0) {
 				region.resetPoints();
@@ -127,24 +144,27 @@ public class Pen {
 			instructions.clear();
 			nextDuration = duration;
 		}
-		
+
 		openLock();
-		instructions.put(duration, new DrawInstruction(nom, getPenMode(), getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
+		instructions.put(duration, new DrawInstruction(nom, penMode, getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
 		while(instructions.get(nextDuration) != null) {
 			DrawInstruction dI = instructions.get(nextDuration);
-			Change[] use = interpretInput(dI.getReference(), dI.getPenMode(), dI.getRegionMode(), dI.getColorArray(), dI.getColor().getRGB(), dI.getX(), dI.getY(), nextDuration);
+			Change[] use = interpretInput(dI, nextDuration);
 			if(use == null) {
 				force = true;
 			}
 			else {
 				commitChanges(lP, nom, layer, duration, use);
 			}
-			instructions.remove(nextDuration);
+			instructions.remove(nextDuration - 1);
 			nextDuration++;
 		}
 		closeLock();
-		
 		return force;
+	}
+	
+	private Change[] interpretInput(DrawInstruction dI, int duration) {
+		return interpretInput(dI.getReference(), dI.getPenMode(), dI.getRegionMode(), dI.getColorArray(), dI.getColor().getRGB(), dI.getX(), dI.getY(), duration);
 	}
 	
 	private Change[] interpretInput(String nom, int penMode, int regionMode, Integer[][] can, Integer use, int x, int y, int duration) {
@@ -177,10 +197,16 @@ public class Pen {
 					Point a = region.getFirstPoint();
 					int x2 = a.getX();
 					int y2 = a.getY();
-					for(int i = x < x2 ? x : x2; i <= (x < x2 ? x2 : x) && i < can.length; i++) {
-						for(int j = y < y2 ? y : y2; j <= (y < y2 ? y2 : y) && j < can[i].length; j++) {
-							if((i == x || i == x2 || j == y || j == y2) && (Math.sqrt(Math.pow(x2 - i, 2) + Math.pow(y2 - j, 2)) < can.length / 20 || (Math.sqrt(Math.pow(x - i, 2) + Math.pow(y - j, 2)) < can[0].length / 20)))
+					for(int i = x; (x < x2 ? i < x + can.length/20 : i > x - can.length/20) && i < can.length && i >= 0; i += (x < x2 ? 1 : -1)) {
+						for(int j = y; (y < y2 ? j < y + can[0].length/20 : j > y - can[0].length/20) && j < can[0].length && j >= 0; j += (y < y2 ? 1 : -1)) {
+							if((i == x || j == y )) {
 								c.addChange(i, j, inverse(can[i][j]));
+								int otX = x2 + (i - x) * -1;
+								int otY = y2 + (j - y) * -1;
+								otX = otX < 0 ? 0 : otX >= can.length ? can.length - 1 : otX;
+								otY = otY < 0 ? 0 : otY >= can[0].length ? can[0].length - 1 : otY;
+								c.addChange(otX, otY, inverse(can[otX][otY]));
+							}
 						}
 					}
 					overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, c);
@@ -205,18 +231,8 @@ public class Pen {
 	}
 	
 	private int inverse(Integer in) {
-		long copy = in.longValue();
-		if(copy < 0) {
-			copy += 2 * Integer.MAX_VALUE;
-		}
-		long max = 2 * (long)(Integer.MAX_VALUE);
-		copy = max - copy;
-		copy -= copy >= Integer.MAX_VALUE ? 2 * Integer.MAX_VALUE : 0;
-		copy -= copy % (int)(Math.pow(2, 8));
-		copy += (int)(Math.pow(2, 8));
-		int out = (int)copy;
-		System.out.println(new Color(in, true) + " " + new Color(out, true));
-		return (int)(copy);
+		int out = (in.intValue() ^ (-1)) | (-16777216);
+		return out;
 	}
 	
 	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {
@@ -389,6 +405,10 @@ public class Pen {
 	}
 	
 	//-- ColorManager  ----------------------------------------
+	
+	public int getActiveColorValue() {
+		return color.getActiveColor();
+	}
 	
 	public Color getActiveColor() {
 		return new Color(color.getActiveColor(), true);

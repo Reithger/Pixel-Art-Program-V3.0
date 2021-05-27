@@ -212,7 +212,7 @@ public class CodeReference {
 	public final static int CODE_PEN_SET_BLEND_QUOTIENT =71;
 	
 	//-- Not Integrated  --------------------------------------
-													//TODO: Save color set palletes for re-access without bloating main color selection
+		//TODO: Save color set palletes for re-access without bloating main color selection
 
 	
 	

@@ -50,7 +50,7 @@ public class PixelArtDrawer implements InputHandler{
 		manager = new Manager();
 		view = new View(this);
 		keyBind = new KeyBindings();
-		generateEmptyImage("Default", 32, 32);
+		generateEmptyImage("Default", 320, 320);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------

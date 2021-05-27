@@ -85,7 +85,7 @@ public class DrawingBoard implements InputHandler{
 		y = newY;
 		selectBar.setLocation(newX, newY);
 		for(DrawingPage p : pages.values()) {
-			p.reposition(newX, newY);
+			p.reposition(newX, newY + height / PROPORTION_TOP_SELECT);
 		}
 	}
 	

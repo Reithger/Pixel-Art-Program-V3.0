@@ -1,6 +1,5 @@
 package manager.pen.drawing;
 
-import java.awt.Color;
 import java.util.HashSet;
 
 import manager.pen.changes.Change;
@@ -90,7 +89,15 @@ public class StandardDraw {
 	private int blend(Integer curr, Integer newCol) {
 		double keep = (1.0 - blendQuotient);
 		double bq = blendQuotient;
-		return (int)((curr * keep) + (bq * newCol));
+		int a = (int)(curr);
+		int b = (int)(newCol);
+		int broke = 255;
+		int res = 0;
+		for(int i = 0; i < 4; i++) {
+			res += (int)(((a & broke) >> (8 * i)) * keep + ((b & broke) >> (8 * i)) * bq) << (8 * i);
+			broke = broke << 8;
+		} 
+		return res;
 	}
 
 	private Change[] prepareChanges() {

@@ -1,6 +1,5 @@
 package manager.pen;
 
-import java.awt.Color;
 import java.util.HashMap;
 
 import manager.pen.changes.Change;
@@ -8,18 +7,26 @@ import misc.Canvas;
 
 public class Overlay {
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	public final static String REF_PASTE = "ref_paste";
 	public final static String REF_SELECT_ORIGIN = "ref_select_origin";
 	public final static String REF_SELECT_BORDER = "ref_select_border";
 	
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private HashMap<String, Change> instruct;
 	private Canvas can;
+	
+//---  Constructors   -------------------------------------------------------------------------
 	
 	public Overlay(int wid, int hei) {
 		can = new Canvas(wid, hei);
 		can.setSubGridSizeMaximum(32);
 		instruct = new HashMap<String, Change>();
 	}
+	
+//---  Operations   ---------------------------------------------------------------------------
 	
 	public void instruct(String ref, Change apply) {
 		if(instruct.get(ref) != null) {
@@ -50,6 +57,8 @@ public class Overlay {
 			instruct.remove(ref);
 		}
 	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
 	
 	public Canvas getCanvas() {
 		return can;

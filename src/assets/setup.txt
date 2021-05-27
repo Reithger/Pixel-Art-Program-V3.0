@@ -55,6 +55,7 @@
 104;,;null;,;copy region
 105;,;null;,;paste region
 106;,;null;,;toggle tooltips
+107;,;null;,;maximize canvas
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;null;,;range select draw type

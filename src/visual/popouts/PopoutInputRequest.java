@@ -46,7 +46,6 @@ public class PopoutInputRequest extends PopoutWindow{
 	
 	public String getSubmitted() {
 		while(!ready) {
-			Thread.onSpinWait();
 		};
 		return out;
 	}
