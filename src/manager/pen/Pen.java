@@ -149,12 +149,15 @@ public class Pen {
 		instructions.put(duration, new DrawInstruction(nom, penMode, getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
 		while(instructions.get(nextDuration) != null) {
 			DrawInstruction dI = instructions.get(nextDuration);
+			long a = System.currentTimeMillis();
+			System.out.println("Start input interpretation: " + duration + " at time: " + a);
 			Change[] use = interpretInput(dI, nextDuration);
 			if(use == null) {
 				force = true;
 			}
 			else {
 				commitChanges(lP, nom, layer, duration, use);
+				System.out.println("End change commit: \t" + (System.currentTimeMillis() - a));
 			}
 			instructions.remove(nextDuration - 1);
 			nextDuration++;
@@ -179,7 +182,7 @@ public class Pen {
 				setMode = PEN_MODE_DRAW;
 				return null;
 			case PEN_MODE_FILL:
-				return fill(can, new Point(x, y), use);
+				return duration == 0 ? fill(can, new Point(x, y), use) : new Change[] {new Change(), new Change()};
 			case PEN_MODE_REGION_SELECT:
 				if(!region.hasActivePoint()) {
 					region.resetPoints();
@@ -244,29 +247,43 @@ public class Pen {
 	}
 	
 	private Change[] fill(Integer[][] can, Point start, int newCol) {
-		LinkedList<Point> queue = new LinkedList<Point>();
+		LinkedList<Integer> queueX = new LinkedList<Integer>();
+		LinkedList<Integer> queueY = new LinkedList<Integer>();
 		Change[] out = new Change[] {new Change(), new Change()};
 		out[0].setOverwrite(false);
-		queue.add(start);
-		HashSet<Point> visited = new HashSet<Point>();
+		queueX.add(start.getX());
+		queueY.add(start.getY());
 		int oldCol = can[start.getX()][start.getY()];
 		int wid = can.length;
 		int hei = can[0].length;
-		while(!queue.isEmpty()) {
-			Point loc = queue.poll();
-			int x = loc.getX();
-			int y = loc.getY();
-			if(visited.contains(loc) || x < 0 || y < 0 || x >= wid || y >= hei || !can[x][y].equals(oldCol)) {
+		boolean[][] visited = new boolean[wid][hei];
+		while(!queueX.isEmpty()) {
+			int x = queueX.poll();
+			int y = queueY.poll();
+			if(visited[x][y] || !can[x][y].equals(oldCol)) {
 				continue;
 			}
-			visited.add(loc);
+			visited[x][y] = true;
 			out[0].addChange(x, y, oldCol);
 			out[1].addChange(x, y, newCol);
 			for(int i = 0; i < 4; i++) {
-				queue.add(new Point(loc.getX() + (1 * (i - 2 >= 0 ? i % 2 == 0 ? 1 : -1 : 0)), loc.getY() + (1 * (i < 2 ? i % 2 == 0 ? 1 : -1 : 0))));
+				int a = x + (1 * (i - 2 >= 0 ? i % 2 == 0 ? 1 : -1 : 0));
+				if(a < 0 || a >= wid) {
+					continue;
+				}
+				int b = y + (1 * (i < 2 ? i % 2 == 0 ? 1 : -1 : 0));
+				if(b < 0 || b >= hei){
+					continue;
+				}
+				queueX.add(a);
+				queueY.add(b);
 			}
 		}
 		return out;
+	}
+	
+	private String compileCoord(int x, int y) {
+		return x + "," + y;
 	}
 
 	public void toggleShading() {

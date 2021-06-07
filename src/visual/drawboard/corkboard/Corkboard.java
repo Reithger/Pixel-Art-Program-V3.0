@@ -209,10 +209,13 @@ public abstract class Corkboard {
 		int posX = wid - size;
 		int posY = HEADER_HEIGHT + size;
 
-		
+		p.removeElementPrefixed("button");
 		for(int i = 0; i < buttons.size(); i++) {
+			if(posY >= hei - size * 2) {
+				break;
+			}
 			CodeInfo bI = buttons.get(i);
-			p.handleImageButton(bI.getLabel(), true, posX, posY, size, size, bI.getImagePath(), bI.getCode());
+			p.handleImageButton("button_" + bI.getLabel(), true, posX, posY, size, size, bI.getImagePath(), bI.getCode());
 			posY += 3 * size / 2;
 		}
 		
