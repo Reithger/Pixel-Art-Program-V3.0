@@ -28,18 +28,18 @@ public class PopoutInputRequest extends PopoutWindow{
 		
 		int labelWidth = POPUP_WIDTH * 3 / 4;
 		int labelHeight = POPUP_HEIGHT / 3;
-		this.handleText("tex", false, posX, posY, labelWidth, labelHeight, null, text);
+		this.handleText("tex", "move", 15, posX, posY, labelWidth, labelHeight, null, text);
 		
 		posY += POPUP_HEIGHT / 3;
 		int entryWidth = POPUP_WIDTH / 2;
 		int entryHeight = POPUP_HEIGHT / 5;
-		this.handleTextEntry(ELEMENT_NAME_ENTRY, false, posX, posY, entryWidth, entryHeight, -55, null, "");
-		this.handleRectangle("rect", false, 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
+		this.handleTextEntry(ELEMENT_NAME_ENTRY, "move", 15, posX, posY, entryWidth, entryHeight, -55, null, "");
+		this.handleRectangle("rect", "move", 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
 		
 		posY += POPUP_HEIGHT / 3;
 		int submitWidth = POPUP_WIDTH / 2;
 		int submitHeight = POPUP_HEIGHT / 4;
-		this.handleTextButton("subm", false, posX, posY, submitWidth, submitHeight, null, "Submit", CODE_SUBMIT, Color.white, Color.black);
+		this.handleTextButton("subm", "move", 15, posX, posY, submitWidth, submitHeight, null, "Submit", CODE_SUBMIT, Color.white, Color.black);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------

@@ -64,24 +64,24 @@ public class TileNumericSelector extends Tile {
 		int size = getHeight() / 3;
 		int iconSize = size / 2;
 		drawLabel(label, x, y, p);
-		p.handleImageButton("gr_" + label + "_dec", false, posX, posY, iconSize, iconSize, "./assets/placeholder.png", decCode);
+		p.handleImageButton("gr_" + label + "_dec", "move", 15, posX, posY, iconSize, iconSize, "./assets/placeholder.png", decCode);
 		posX += size;
-		p.handleRectangle("gr_" + label + "_rect", false, 5, posX, posY, size, size, Color.white, Color.black);
+		p.handleRectangle("gr_" + label + "_rect", "move", 5, posX, posY, size, size, Color.white, Color.black);
 		referenceEntry = "gr_" + label + "_txent";
-		p.handleTextEntry(referenceEntry, false, posX, posY, size, size, entryCode, null, ""+storedValue);
+		p.handleTextEntry(referenceEntry, "move", 15, posX, posY, size, size, entryCode, null, ""+storedValue);
 		posX += size;
-		p.handleImageButton("gr_" + label + "inc", false, posX, posY, iconSize, iconSize, "./assets/placeholder.png", incCode);
+		p.handleImageButton("gr_" + label + "inc", "move", 15, posX, posY, iconSize, iconSize, "./assets/placeholder.png", incCode);
 		
 		posX = x;
 		posY += size;
 		
 		lineStart = posX;
-		p.handleLine("gr_" + label + "_line", false, 5, posX, posY, posX + 2 * size, posY, 2, Color.black);
-		p.handleButton("gr_" + label + "_slider_detect", false, posX + size, posY, 2 * size, posY, sliderCode);
+		p.handleLine("gr_" + label + "_line", "move", 5, posX, posY, posX + 2 * size, posY, 2, Color.black);
+		p.handleButton("gr_" + label + "_slider_detect", "move", 15, posX + size, posY, 2 * size, posY, sliderCode);
 		double prop = (double)(storedValue - minVal) / (double)(maxVal - minVal);
 
 		posX += (int)(prop * 2 * size);
-		p.handleImage("gr_" + label + "_slider", false, posX, posY, iconSize, size, "./assets/placeholder.png");
+		p.handleImage("gr_" + label + "_slider", "move", 15, posX, posY, iconSize, size, "./assets/placeholder.png");
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

@@ -36,7 +36,6 @@ public class SettingsBar implements InputHandler{
 		reference = ref;
 		formatPages(x, y + (int)(hei * (RATIO_MENU_SELECTION)), wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
 		menu = generateMenuBar(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
-		menu.setScrollBarVertical(false);
 		drawMenuBar();
 	}
 	
@@ -110,7 +109,6 @@ public class SettingsBar implements InputHandler{
 	
 	private HandlePanel generateMenuBar(int x, int y, int wid, int hei) {
 		HandlePanel p =  new HandlePanel(x, y, wid, hei);
-		p.setScrollBarHorizontal(false);
 		p.setEventReceiver(new CustomEventReceiver(){
 			
 			@Override
@@ -170,9 +168,9 @@ public class SettingsBar implements InputHandler{
 		int hei = menu.getHeight();
 		menu.removeElementPrefixed("rect_title_");
 		for(int i = 0; i < pages.size(); i++) {
-			menu.handleText("text_title_" + i, false, posX, posY, distX, hei, MENU_FONT, pages.get(i).getName());
-			menu.handleRectangle("rect_title_" + i, false, 10, posX, posY, distX, hei, i == activePage ? Color.green : Color.gray, Color.black);
-			menu.handleButton("butt_title_" + i, false, posX, posY, distX, hei, i);
+			menu.handleText("text_title_" + i, "move", 15, posX, posY, distX, hei, MENU_FONT, pages.get(i).getName());
+			menu.handleRectangle("rect_title_" + i, "move", 10, posX, posY, distX, hei, i == activePage ? Color.green : Color.gray, Color.black);
+			menu.handleButton("butt_title_" + i, "move", 15, posX, posY, distX, hei, i);
 			posX += distX;
 		}
 	}

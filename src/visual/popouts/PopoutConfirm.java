@@ -30,12 +30,12 @@ public class PopoutConfirm extends PopoutWindow{
 		int posY = getHeight() / 3;
 		int hei = getHeight() / 2;
 		int wid = getWidth() * 4 / 5;
-		this.handleText("tex", false, posX, posY, wid, hei, null, given);
-		this.handleRectangle("tex_bak", false, 5, posX, posY, wid, hei, Color.white, Color.black);
+		this.handleText("tex", "move", 15, posX, posY, wid, hei, null, given);
+		this.handleRectangle("tex_bak", "move", 5, posX, posY, wid, hei, Color.white, Color.black);
 		posY += getHeight() * 4 / 9;
 		hei = getHeight() / 5;
-		this.handleTextButton("yes", false, posX - getWidth() / 6, posY, getWidth() / 4, hei, null, "Yes", CODE_YES, Color.white, Color.black);
-		this.handleTextButton("no", false, posX + getWidth() / 6, posY, getWidth() / 4, hei, null, "No", CODE_NO, Color.white, Color.black);
+		this.handleTextButton("yes", "move", 15, posX - getWidth() / 6, posY, getWidth() / 4, hei, null, "Yes", CODE_YES, Color.white, Color.black);
+		this.handleTextButton("no", "move", 15, posX + getWidth() / 6, posY, getWidth() / 4, hei, null, "No", CODE_NO, Color.white, Color.black);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------

@@ -138,7 +138,10 @@ public class DrawingBoard implements InputHandler{
 			public void dragEvent(int code, int x, int y, int clickStart) {
 				if(dragging) {
 					int difX = x - lastX;
-					selectBar.setOffsetXBounded(selectBar.getOffsetX() + difX);
+					int offsetNew = selectBar.getOffsetX("move") + difX;
+					//TODO: Need to bound it yourself now; what should -1 be?
+					offsetNew = offsetNew < 0 ? 0 : offsetNew > -1 ? -1 : offsetNew;
+					selectBar.setOffsetX("move", offsetNew);
 					lastX = x;
 				}
 			}
@@ -166,8 +169,6 @@ public class DrawingBoard implements InputHandler{
 			
 		});
 		selectBar.setPriority(5);
-		selectBar.setScrollBarVertical(false);
-		selectBar.setScrollBarHorizontal(false);
 		selectBar.getPanel().setBackground(null);
 
 		drawSelectBar();
@@ -229,12 +230,12 @@ public class DrawingBoard implements InputHandler{
 		int butSize = hei / 2;
 		selectBar.removeElementPrefixed("page_");
 		for(int i = 0; i < pages.keySet().size(); i++) {
-			selectBar.handleTextButton("page_" + i, false, posX, butSize, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
-			selectBar.addImage("page_close_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), true);
-			selectBar.addButton("page_close_butt_" + i, 20, false, posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, i + pages.keySet().size(), true);
+			selectBar.handleTextButton("page_" + i, "move", 15, posX, butSize, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
+			selectBar.addImage("page_close_" + i, 20, "move", posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), true);
+			selectBar.addButton("page_close_butt_" + i, 20, "move", posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, i + pages.keySet().size(), true);
 			posX += wid;
 		}
-		selectBar.handleTextButton("add_page", false, posX, hei / 2, wid, hei, MENU_FONT, "+New Page", CODE_NEW_PAGE, Color.gray, Color.black);
+		selectBar.handleTextButton("add_page", "move", 15, posX, hei / 2, wid, hei, MENU_FONT, "+New Page", CODE_NEW_PAGE, Color.gray, Color.black);
 	}
 	
 	//-- Generate Things  -------------------------------------

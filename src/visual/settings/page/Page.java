@@ -38,8 +38,6 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		displayTooltip = true;
 		tiles = new HashMap<String, Tile>();
 		tileCodes = new HashMap<Integer, String>();
-		setScrollBarVertical(false);
-		setScrollBarHorizontal(false);
 		getPanel().setBackground(null);
 		Page p = this;
 		setEventReceiver(new CustomEventReceiver() {
@@ -82,10 +80,13 @@ public abstract class Page extends HandlePanel implements InputHandler{
 					draggedCode = code;
 				}
 				if(draggedCode == -1) {
-					setOffsetXBounded(getOffsetX() + x - lastX);
+					int offsetNew = getOffsetX("move") + x - lastX;
+					//TODO: Bound offsetNew
+					offsetNew = offsetNew < 0 ? 0 : offsetNew > -1 ? -1 : offsetNew;
+					setOffsetX("move", offsetNew);
 					lastX = x;
 				}
-				else if(getTile(tileCodes.get(draggedCode)) != null && getTile(tileCodes.get(draggedCode)).dragTileProcess(draggedCode, x - getOffsetX(), y - getOffsetY())) {
+				else if(getTile(tileCodes.get(draggedCode)) != null && getTile(tileCodes.get(draggedCode)).dragTileProcess(draggedCode, x - getOffsetX("move"), y - getOffsetY("move"))) {
 					getTile(tileCodes.get(draggedCode)).drawTileMemory(use);
 				}
 			}
@@ -115,8 +116,8 @@ public abstract class Page extends HandlePanel implements InputHandler{
 							posX = ((posX - wid) < 0 ? posX : (posX - wid));
 							posY = ((posY - hei) < 0 ? posY : (posY - hei));
 							posX += (posX == x) ? 15 : 0;
-							use.addText("tooltip_overlay_txt", 100, false, posX, posY, wid, hei, disp, HOVER_TEXT_FONT, true, true, false);
-							use.addRectangle("tooltip_overlay_rect", 99, false, posX + wid / 2, posY + hei / 2, wid + 4, hei, true, Color.white, Color.black);
+							use.addText("tooltip_overlay_txt", 100, "move", posX, posY, wid, hei, disp, HOVER_TEXT_FONT, true, true, false);
+							use.addRectangle("tooltip_overlay_rect", 99, "move", posX + wid / 2, posY + hei / 2, wid + 4, hei, true, Color.white, Color.black);
 						}
 					}
 				}
@@ -162,15 +163,15 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		ArrayList<Tile> disp = new ArrayList<Tile>(tiles.values());
 		Collections.sort(disp);
 		for(int i = 0; i < disp.size(); i++) {
-			handleLine("line_" + i, false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
+			handleLine("line_" + i, "move", 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 			posX += buffer;
 			Tile t = disp.get(i);
 			t.drawTile(posX, posY, this);
 			posX += t.getTileWidth() + buffer;
 		}
-		handleLine("line_" + disp.size(), false, 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
+		handleLine("line_" + disp.size(), "move", 10, posX, getHeight() / 8, posX, getHeight() * 7 / 8, 1, Color.black);
 		
-		handleThickRectangle("outline", true, 0, 0, getWidth(), getHeight(), Color.black, 2);
+		handleThickRectangle("outline", "no_move", 5, 0, 0, getWidth(), getHeight(), Color.black, 2);
 	}
 	
 	private void openLockHere() {

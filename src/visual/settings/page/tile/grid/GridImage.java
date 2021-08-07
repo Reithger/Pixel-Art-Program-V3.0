@@ -24,8 +24,8 @@ public class GridImage implements GridIcon{
 	
 	@Override
 	public void draw(HandlePanel hP, String prefix, int posX, int posY, int size) {
-		hP.handleRectangle(prefix + "_r_" + code, false, 5, posX, posY, size, size, Color.white, Color.black);
-		hP.handleImageButton(prefix + "_b_" + code, false, posX, posY, size, size, path, code);
+		hP.handleRectangle(prefix + "_r_" + code, "move", 5, posX, posY, size, size, Color.white, Color.black);
+		hP.handleImageButton(prefix + "_b_" + code, "move", 15, posX, posY, size, size, path, code);
 	}
 	
 	@Override

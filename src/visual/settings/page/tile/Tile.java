@@ -42,7 +42,7 @@ public abstract class Tile implements Comparable<Tile>{
 	}
 	
 	protected void drawLabel(String label, int x, int y, HandlePanel p) {
-		p.handleText("gr_" + label, false, x + getTileWidth() / 2, y + getHeight() * 15 / 32, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
+		p.handleText("gr_" + label, "move", 15, x + getTileWidth() / 2, y + getHeight() * 15 / 32, getTileWidth() * 2, getHeight() * 3 / 8, SMALL_LABEL_FONT, label);
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

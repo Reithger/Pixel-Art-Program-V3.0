@@ -37,22 +37,22 @@ public class PopoutColorDesigner extends PopoutWindow{
 		int posX = getWidth() / 2;
 		int posY = getHeight() / (rows + 1);
 		
-		handleRectangle("col", false, 1, getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), currColor, currColor);
+		handleRectangle("col", "move", 1, getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), currColor, currColor);
 		
 		int[] vals = getColorValues();
 		int hei = getHeight() / (rows + 2);
 		
 		for(int i = 0; i < SUBMIT_NAMES.length; i++) {
 			int wid = getWidth() / 4;
-			handleText(SUBMIT_NAMES[i] + "_tex", false, posX - getWidth() / 6, posY, wid, hei, null, SUBMIT_NAMES[i]);
-			handleRectangle(SUBMIT_NAMES[i] + "_rect", false, 5, posX + getWidth() / 6, posY, wid, hei, Color.white, Color.black);
-			handleTextEntry(SUBMIT_NAMES[i], false, posX + getWidth() / 6, posY, wid, hei, i, null, ""+vals[i]);
+			handleText(SUBMIT_NAMES[i] + "_tex", "move", 15, posX - getWidth() / 6, posY, wid, hei, null, SUBMIT_NAMES[i]);
+			handleRectangle(SUBMIT_NAMES[i] + "_rect", "move", 5, posX + getWidth() / 6, posY, wid, hei, Color.white, Color.black);
+			handleTextEntry(SUBMIT_NAMES[i], "move", 15, posX + getWidth() / 6, posY, wid, hei, i, null, ""+vals[i]);
 			posY += getHeight() / (rows + 1);
 		}
 		posX = getWidth() / 2;
 		int size = getWidth() / 3;
-		this.handleTextButton("txButCol", false, posX - getWidth() / 4, posY, size, hei, null, "Generate", CODE_COLOR_MAKE, Color.white, Color.black);
-		this.handleTextButton("txButSub", false, posX + getWidth() / 4, posY, size, hei, null, "Submit", CODE_COLOR_SUBMIT, Color.white, Color.black);
+		this.handleTextButton("txButCol", "move", 15, posX - getWidth() / 4, posY, size, hei, null, "Generate", CODE_COLOR_MAKE, Color.white, Color.black);
+		this.handleTextButton("txButSub", "move", 15, posX + getWidth() / 4, posY, size, hei, null, "Submit", CODE_COLOR_SUBMIT, Color.white, Color.black);
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
