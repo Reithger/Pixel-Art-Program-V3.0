@@ -81,7 +81,7 @@ public class TileNumericSelector extends Tile {
 		double prop = (double)(storedValue - minVal) / (double)(maxVal - minVal);
 
 		posX += (int)(prop * 2 * size);
-		p.handleImage("gr_" + label + "_slider", "move", 15, posX, posY, iconSize, size, "./assets/placeholder.png");
+		p.handleImage("gr_" + label + "_slider", "move", 15, posX, posY, iconSize, size, true, "./assets/placeholder.png");
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

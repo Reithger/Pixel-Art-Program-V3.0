@@ -28,7 +28,7 @@ public class TileBig extends Tile{
 		x += getTileWidth() / 2;
 		int wid = getTileWidth();
 		int posY =  y - getHeight() / 5;
-		p.handleImage("tile_big_img_" + label + "_" + code, "move", 12, x, posY, wid * 3 / 4, wid * 3 / 4, img);
+		p.handleImage("tile_big_img_" + label + "_" + code, "move", 12, x, posY, wid * 3 / 4, wid * 3 / 4, true, img);
 		p.handleButton("tile_big_butt_" + label + "_" + code, "move", 15, x, y, wid, getHeight() , code);
 		p.handleText("tile_big_txt_" + label + "_" + code, "move", 15, x, y + getHeight() / 4, wid, getHeight(), SMALL_LABEL_FONT, label);
 		p.handleRectangle("rect_test_" + label + "_" + code, "move", 10,  x, y, wid, getHeight(), Color.white, Color.black);
