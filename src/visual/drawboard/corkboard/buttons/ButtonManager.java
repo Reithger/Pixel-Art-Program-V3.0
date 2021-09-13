@@ -2,8 +2,8 @@ package visual.drawboard.corkboard.buttons;
 
 import java.util.ArrayList;
 
-import control.CodeInfo;
-import control.CodeReference;
+import control.code.CodeInfo;
+import control.code.CodeReference;
 import visual.drawboard.corkboard.Corkboard;
 
 public class ButtonManager {

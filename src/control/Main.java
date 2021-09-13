@@ -17,8 +17,9 @@ package control;
  * TODO: View all layers at once (popup menu for shuffling them or removing them that way)
  * TODO: Change the amount of space given to a Tile in the Drawing menu
  * TODO: Canvas draws outside of its Corkboard
- * TODO: Allow user to change background color, or jusy have the entire background be a default canvas that reloads
+ * TODO: Allow user to change background color, or just have the entire background be a default canvas that reloads
  * TODO: Moving Corkboard while able to move canvas causes issues
+ * TODO: Make color picker popout window better
  * 
  * ---  Backend   -----------------------------------------------------------------------------
  * 
@@ -30,6 +31,7 @@ package control;
  * TODO: Incorporate pen sensitivity into how brushes draw
  * TODO: Custom pen shapes; user gets a little canvas to draw their shape on, allow to save/load them
  * TODO: Blend local region of colors
+ * TODO: Copy/paste seems broken
  * 
  * ---  Control   -----------------------------------------------------------------------------
  * 

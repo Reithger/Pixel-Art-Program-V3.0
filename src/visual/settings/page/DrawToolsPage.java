@@ -1,6 +1,6 @@
 package visual.settings.page;
 
-import control.CodeReference;
+import control.code.CodeReference;
 
 public class DrawToolsPage extends Page {
 

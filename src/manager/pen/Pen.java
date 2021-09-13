@@ -3,7 +3,6 @@ package manager.pen;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import manager.curator.picture.LayerPicture;
@@ -332,10 +331,10 @@ public class Pen {
 		color.addPallet();
 	}
 	
-	public void addPallet(ArrayList<Color> cols) {
+	public void addPallet(ArrayList<String> cols) {
 		ArrayList<Integer> co = new ArrayList<Integer>();
-		for(Color c : cols) {
-			co.add(c.getRGB());
+		for(String s : cols) {
+			co.add(Integer.parseInt(s));
 		}
 		color.addPallet(co);
 	}
@@ -442,6 +441,16 @@ public class Pen {
 		}
 		return out;
 	}
+	
+	public ArrayList<ArrayList<Integer>> getAllPallettes(){
+		ArrayList<ArrayList<Integer>> out = new ArrayList<ArrayList<Integer>>();
+		
+		for(int i = 0; i < color.getNumPallettes(); i++) {
+			out.add(color.getPallette(i));
+		}
+		
+		return out;
+	}
 
 	public int getCurrentPallet() {
 		return color.getCurrentPalletIndex();
@@ -449,6 +458,10 @@ public class Pen {
 	
 	public int getCurrentPalletCodeBase() {
 		return color.getCurrentPalletCodeBase();
+	}
+	
+	public int getNumberPallettes() {
+		return color.getNumPallettes();
 	}
 	
 	//-- RegionDraw  ------------------------------------------

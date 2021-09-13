@@ -1,4 +1,4 @@
-package control;
+package control.code;
 
 import java.io.BufferedReader;
 import java.util.HashMap;
@@ -89,8 +89,10 @@ public class CodeReference {
 		private final static String IMAGE_PATH_CIRCLE_ICON = "./assets/circle_icon.png";
 		private final static String IMAGE_PATH_SQUARE_ICON = "./assets/square_icon.png";
 		
-	public final static int[] REF_COLOR_OPTION_CODES = new int[] {CodeReference.CODE_COLOR_ADD, CodeReference.CODE_COLOR_EDIT,
-			CodeReference.CODE_COLOR_REMOVE, CodeReference.CODE_PEN_TOGGLE_BLEND};
+	public final static int[] REF_COLOR_OPTION_CODES = new int[] {CodeReference.CODE_PEN_PALLETTE_PREV, CodeReference.CODE_PEN_PALLETTE_REMOVE,
+																  CodeReference.CODE_PEN_PALLETTE_NEXT, CodeReference.CODE_PEN_PALLETTE_NEW,
+																  CodeReference.CODE_COLOR_ADD, CodeReference.CODE_COLOR_EDIT,
+																  CodeReference.CODE_COLOR_REMOVE, CodeReference.CODE_PEN_TOGGLE_BLEND};
 
 		public final static int CODE_COLOR_ADD =72;
 		public final static int CODE_COLOR_REMOVE =73;
@@ -214,6 +216,10 @@ public class CodeReference {
 	//-- Not Integrated  --------------------------------------
 		//TODO: Save color set palletes for re-access without bloating main color selection
 
+	public final static int CODE_PEN_PALLETTE_NEXT = 108;
+	public final static int CODE_PEN_PALLETTE_PREV = 109;
+	public final static int CODE_PEN_PALLETTE_NEW = 110;
+	public final static int CODE_PEN_PALLETTE_REMOVE = 111;
 	
 	
 }

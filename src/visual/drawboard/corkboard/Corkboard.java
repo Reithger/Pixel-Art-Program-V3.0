@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 
-import control.CodeInfo;
-import control.CodeReference;
 import control.InputHandler;
+import control.code.CodeInfo;
+import control.code.CodeReference;
 import misc.Canvas;
 import visual.composite.HandlePanel;
 import input.CustomEventReceiver;

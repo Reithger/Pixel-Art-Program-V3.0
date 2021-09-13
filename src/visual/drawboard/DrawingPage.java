@@ -3,8 +3,8 @@ package visual.drawboard;
 import java.awt.Font;
 import java.util.HashMap;
 
-import control.CodeReference;
 import control.InputHandler;
+import control.code.CodeReference;
 import misc.Canvas;
 import visual.drawboard.corkboard.Corkboard;
 import visual.drawboard.corkboard.CorkboardGenerator;

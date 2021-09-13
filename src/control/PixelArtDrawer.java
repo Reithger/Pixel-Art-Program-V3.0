@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import control.code.CodeReference;
+import control.code.KeyBindings;
+import control.config.DataAccess;
 import manager.Manager;
 import manager.pen.Pen;
 import misc.Canvas;
@@ -43,6 +46,8 @@ public class PixelArtDrawer implements InputHandler{
 	
 	private KeyBindings keyBind;
 	
+	private DataAccess dataAccess;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public PixelArtDrawer() {
@@ -50,6 +55,8 @@ public class PixelArtDrawer implements InputHandler{
 		manager = new Manager();
 		view = new View(this);
 		keyBind = new KeyBindings();
+		dataAccess = new DataAccess();
+		manager.setupPallettes(dataAccess.getColorPallettes());
 		generateEmptyImage("Default", 320, 320);
 	}
 	
@@ -66,7 +73,6 @@ public class PixelArtDrawer implements InputHandler{
 	 */
 	
 	public void handleCodeInput(int in, String active) {
-		System.out.println(in + " " + active);
 		Boolean happ = checkRanges(in, active);
 		if(happ == null) {
 			happ = checkCommands(in, active);
@@ -245,14 +251,37 @@ public class PixelArtDrawer implements InputHandler{
 			case CodeReference.CODE_COLOR_ADD:
 				Color nC = view.requestColorChoice(null);
 				manager.getPen().addColor(nC);
+				storeCurrentPallettes();
 				return true;
 			case CodeReference.CODE_COLOR_EDIT:
 				Color base = manager.getPen().getActiveColor();
 				Color out = view.requestColorChoice(base);
 				manager.getPen().editColor(manager.getPen().getActiveColorIndex(), out);
+				storeCurrentPallettes();
 				return true;
 			case CodeReference.CODE_COLOR_REMOVE:
 				manager.getPen().removeColor(manager.getPen().getActiveColorIndex());
+				storeCurrentPallettes();
+				return true;
+			case CodeReference.CODE_PEN_PALLETTE_NEXT:
+				manager.getPen().setPallet(manager.getPen().getCurrentPallet()+1);
+				return true;
+			case CodeReference.CODE_PEN_PALLETTE_PREV:
+				manager.getPen().setPallet(manager.getPen().getCurrentPallet()-1);
+				return true;
+			case CodeReference.CODE_PEN_PALLETTE_NEW:
+				manager.getPen().addPallet();
+				manager.getPen().setPallet(manager.getPen().getNumberPallettes()-1);
+				storeCurrentPallettes();
+				return true;
+			case CodeReference.CODE_PEN_PALLETTE_REMOVE:
+				if(view.requestConfirmation("Are you sure you want to remove this Pallette?")) {
+					manager.getPen().removePallet(manager.getPen().getCurrentPallet());
+					if(manager.getPen().getNumberPallettes() == 0) {
+						manager.getPen().addPallet();
+					}
+					storeCurrentPallettes();
+				}
 				return true;
 			default:
 				return null;
@@ -502,6 +531,10 @@ public class PixelArtDrawer implements InputHandler{
 		manager.saveThing(nom, savNom, path, 1, true);
 	}
 
+	private void storeCurrentPallettes() {
+		dataAccess.saveColorPallettes(manager.getPen().getAllPallettes());
+	}
+	
 	//-- Updating View  ---------------------------------------
 	
 		//-- Settings Bar  ------------------------------------

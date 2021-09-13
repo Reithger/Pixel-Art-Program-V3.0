@@ -20,9 +20,9 @@
 69;,;null;,;pen size decrement
 70;,;null;,;pen size set
 71;,;null;,;pen set blend quotient
-72;,;null;,;color add
-73;,;null;,;color remove
-74;,;null;,;color edit
+72;,;./assets/new_color.png;,;color add
+73;,;./assets/remove_color.png;,;color remove
+74;,;./assets/edit_color.png;,;color edit
 75;,;null;,;resize canvas
 76;,;null;,;increment canvas wid
 77;,;null;,;decrement canvas wid
@@ -45,7 +45,7 @@
 94;,;null;,;update selection mode
 95;,;./assets/layer_up_icon.png;,;move layer up
 96;,;./assets/layer_down_icon.png;,;move layer down
-97;,;null;,;pen toggle blend
+97;,;./assets/toggle_blend.png;,;pen toggle blend
 98;,;null;,;perform refresh
 99;,;./assets/fill_icon.png;,;mode fill
 100;,;./assets/color_pick_icon.png;,;color pick
@@ -56,6 +56,10 @@
 105;,;null;,;paste region
 106;,;null;,;toggle tooltips
 107;,;null;,;maximize canvas
+108;,;./assets/next_pallette.png;,;next pallette
+109;,;./assets/prev_pallette.png;,;previous pallette
+110;,;./assets/add_pallette.png;,;new pallette
+111;,;./assets/remove_pallette.png;,;remove pallette
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;null;,;range select draw type

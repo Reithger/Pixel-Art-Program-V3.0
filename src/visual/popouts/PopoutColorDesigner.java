@@ -54,6 +54,19 @@ public class PopoutColorDesigner extends PopoutWindow{
 		this.handleTextButton("txButCol", "move", 15, posX - getWidth() / 4, posY, size, hei, null, "Generate", CODE_COLOR_MAKE, Color.white, Color.black);
 		this.handleTextButton("txButSub", "move", 15, posX + getWidth() / 4, posY, size, hei, null, "Submit", CODE_COLOR_SUBMIT, Color.white, Color.black);
 	}
+	
+	private void updateCurrColor() {
+		Color test = currColor;
+		int r = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[0]));
+		int g = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[1]));
+		int b = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[2]));
+		int a = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[3]));
+		currColor = new Color(r % 256, g % 256, b % 256, a % 256);
+		if(!test.equals(currColor)) {
+			removeElementPrefixed("col");
+			drawPage();
+		}
+	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
 	
@@ -73,13 +86,7 @@ public class PopoutColorDesigner extends PopoutWindow{
 		switch(arg0) {
 			case CODE_COLOR_MAKE:
 				try {
-					int r = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[0]));
-					int g = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[1]));
-					int b = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[2]));
-					int a = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[3]));
-					currColor = new Color(r % 256, g % 256, b % 256, a % 256);
-					this.removeElementPrefixed("col");
-					drawPage();
+					updateCurrColor();
 				}
 				catch(Exception e) {
 					int vals[] = getColorValues();

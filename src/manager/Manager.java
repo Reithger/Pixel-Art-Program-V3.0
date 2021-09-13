@@ -61,6 +61,16 @@ public class Manager {
 		return false;
 	}
 
+	public void setupPallettes(ArrayList<ArrayList<String>> in) {
+		if(in == null) {
+			return;
+		}
+		pen.removePallet(0);
+		for(ArrayList<String> a : in) {
+			pen.addPallet(a);
+		}
+	}
+	
 	//-- Curator  ---------------------------------------------
 	
 		//-- Generic  -----------------------------------------

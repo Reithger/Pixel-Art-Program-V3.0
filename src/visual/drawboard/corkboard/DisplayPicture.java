@@ -1,6 +1,6 @@
 package visual.drawboard.corkboard;
 
-import control.CodeReference;
+import control.code.CodeReference;
 import misc.Canvas;
 
 public class DisplayPicture extends Corkboard{

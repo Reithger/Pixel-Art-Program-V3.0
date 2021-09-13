@@ -23,7 +23,7 @@ public class View implements InputHandler{
 //---  Constants   ----------------------------------------------------------------------------
 	
 	
-	private final static double SETTINGS_VERT_RATIO = 1.0 / 7;
+	private final static double SETTINGS_VERT_RATIO = 11.0 / 60;
 
 	private final static Color COLOR_BACKGROUND = new Color(188, 188, 188);
 	

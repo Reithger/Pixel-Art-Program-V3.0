@@ -2,7 +2,7 @@ package visual.settings.page.tile.grid;
 
 import java.awt.Color;
 
-import control.CodeReference;
+import control.code.CodeReference;
 import visual.composite.HandlePanel;
 
 public class GridImage implements GridIcon{
@@ -24,7 +24,8 @@ public class GridImage implements GridIcon{
 	
 	@Override
 	public void draw(HandlePanel hP, String prefix, int posX, int posY, int size) {
-		hP.handleRectangle(prefix + "_r_" + code, "move", 5, posX, posY, size, size, Color.white, Color.black);
+		hP.handleRectangle(prefix + "_r_" + code, "move", 20, posX, posY, size, size, new Color(255, 255, 255, 0), Color.black);
+		hP.handleRectangle(prefix + "_r2x	_" + code, "move", 10, posX, posY, size, size, Color.white, Color.white);
 		hP.handleImageButton(prefix + "_b_" + code, "move", 15, posX, posY, size, size, path, code);
 	}
 	

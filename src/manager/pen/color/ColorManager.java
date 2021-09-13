@@ -62,7 +62,7 @@ public class ColorManager {
 	
 	public void removePallet(int ind) {
 		savedColors.remove(ind);
-		if(currPallet >= ind) {
+		if(currPallet >= ind && currPallet != 0) {
 			currPallet--;
 		}
 	}
@@ -70,11 +70,11 @@ public class ColorManager {
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setPallet(int index) {
-		currPallet = fixIndex(index);
+		currPallet = fixIndex(index, savedColors.size());
 	}
 	
 	public void setColor(int index) {
-		getCurrentPallet().setColor(fixIndex(index));
+		getCurrentPallet().setColor(fixIndex(index, getCurrentPallet().getColors().size()));
 	}
 	
 	public void setColor(Integer in) {
@@ -87,9 +87,13 @@ public class ColorManager {
 	public ArrayList<Integer> getColors(){
 		return getCurrentPallet().getColors();
 	}
+
+	public ArrayList<Integer> getPallette(int index){
+		return savedColors.get(index).getColors();
+	}
 	
 	public Integer getColor(int index) {
-		return getCurrentPallet().getColor(fixIndex(index));
+		return getCurrentPallet().getColor(fixIndex(index, getCurrentPallet().getColors().size()));
 	}
 	
 	public int getActiveColorIndex() {
@@ -108,11 +112,15 @@ public class ColorManager {
 		return currPallet * (PALLET_CODE_BUFFER + getCurrentPallet().getMaximumPalletSize());
 	}
 	
+	public int getNumPallettes() {
+		return savedColors.size();
+	}
+	
 //---  Mechanics   ----------------------------------------------------------------------------
 	
-	private int fixIndex(int index) {
+	private int fixIndex(int index, int max) {
 		index = index < 0 ? 0 : index;
-		index = index >= getCurrentPallet().getColors().size() ? getCurrentPallet().getColors().size() - 1 : index;
+		index = index >= max ? max - 1 : index;
 		return index;
 	}
 
