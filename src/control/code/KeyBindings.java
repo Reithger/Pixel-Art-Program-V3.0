@@ -13,7 +13,19 @@ public class KeyBindings {
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public KeyBindings(HashMap<Character, Integer> startMapping) {
-		mappings = startMapping;
+		if(startMapping != null) {
+			mappings = startMapping;
+		}
+		else {
+			mappings = new HashMap<Character, Integer>();
+			setKeyBinding('k', CodeReference.CODE_PEN_SIZE_DECREMENT);
+			setKeyBinding('l', CodeReference.CODE_PEN_SIZE_INCREMENT);
+			for(int i = 1; i <= 10; i++) {
+				setKeyBinding((""+(i%10)).charAt(0), CodeReference.CODE_RANGE_SELECT_COLOR + (i - 1));
+			}
+			setKeyBinding((char)25, CodeReference.CODE_REDO_CHANGE);
+			setKeyBinding((char)26, CodeReference.CODE_UNDO_CHANGE);
+		}
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------

@@ -207,10 +207,12 @@ public class PixelArtDrawer implements InputHandler{
 				//TODO: Plan out what the meta-settings menu should even do/keep track of
 				return false;
 			case CodeReference.CODE_EXIT:
-				if(view.requestConfirmation("Are you sure you want to exit?") && view.requestConfirmation("Would you like to save backups of your current work?")) {
-					saveEverything();
+				if(view.requestConfirmation("Are you sure you want to exit?")) {
+					System.exit(0);
+					if(view.requestConfirmation("Would you like to save backups of your current work?")) {
+						saveEverything();
+					}
 				}
-				System.exit(0);
 				return true;
 			default:
 				return null;
