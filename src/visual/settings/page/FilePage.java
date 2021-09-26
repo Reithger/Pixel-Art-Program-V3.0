@@ -12,14 +12,15 @@ public class FilePage extends Page{
 	
 	public FilePage() {
 		super(PAGE_NAME);
-		addTileBig("A", null, null, "New", CodeReference.getCodeImagePath(CodeReference.CODE_NEW_THING), CodeReference.CODE_NEW_THING);
-		addTileBig("B", null, null, "Duplicate", CodeReference.getCodeImagePath(CodeReference.CODE_DUPLICATE_THING), CodeReference.CODE_DUPLICATE_THING);
-		addTileBig("C", null, null, "Open", CodeReference.getCodeImagePath(CodeReference.CODE_OPEN_FILE), CodeReference.CODE_OPEN_FILE);
-		addTileBig("D", null, null, "Rename", CodeReference.getCodeImagePath(CodeReference.CODE_RENAME), CodeReference.CODE_RENAME);
-		addTileBig("E", null, null, "Save", CodeReference.getCodeImagePath(CodeReference.CODE_SAVE_THING), CodeReference.CODE_SAVE_THING);
-		addTileBig("F", null, null, "Save as", CodeReference.getCodeImagePath(CodeReference.CODE_SAVE_AS), CodeReference.CODE_SAVE_AS);
-		addTileBig("G", null, null, "Meta", CodeReference.getCodeImagePath(CodeReference.CODE_OPEN_META), CodeReference.CODE_OPEN_META);
-		addTileBig("H", null, null, "Exit", CodeReference.getCodeImagePath(CodeReference.CODE_EXIT), CodeReference.CODE_EXIT);
+		addTileBig("A", null, null, "New", CodeReference.CODE_NEW_THING);
+		addTileBig("B", null, null, "Duplicate", CodeReference.CODE_DUPLICATE_THING);
+		addTileBig("C", null, null, "Open", CodeReference.CODE_OPEN_FILE);
+		addTileBig("D", null, null, "Rename", CodeReference.CODE_RENAME);
+		addTileBig("E", null, null, "Save", CodeReference.CODE_SAVE_THING);
+		addTileBig("F", null, null, "Save as", CodeReference.CODE_SAVE_AS);
+		addTileBig("G", null, null, "Meta", CodeReference.CODE_OPEN_META);
+		addTileBig("H", null, null, "Exit", CodeReference.CODE_EXIT);
+		addTileBig("I", null, null, "Keybindings", CodeReference.CODE_EDIT_KEYBINDINGS);
 	}
 	
 }

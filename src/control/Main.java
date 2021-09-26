@@ -19,7 +19,7 @@ package control;
  * TODO: Canvas draws outside of its Corkboard
  * TODO: Allow user to change background color, or just have the entire background be a default canvas that reloads
  * TODO: Moving Corkboard while able to move canvas causes issues
- * TODO: Make color picker popout window better
+ * TODO: Inform user that Color Picker popup window has some keybinds to make it easier
  * 
  * ---  Backend   -----------------------------------------------------------------------------
  * 
@@ -35,16 +35,17 @@ package control;
  * 
  * ---  Control   -----------------------------------------------------------------------------
  * 
- * TODO: Pallette saving/automatic loading for reuse via Pallette color selector
  * TODO: In-place color changing via rgb value manipulation
  * TODO: Right click options for more convenient means of changing properties of a thing
- * TODO: More default keybindings and the ability to edit them
+ * TODO: More default keybindings
  * TODO: Canvas sidebar buttons don't have informative overlay text
  * TODO: Ability to move colors around on their pallette 
  * TODO: Drop down menu on Menu items for more options that aren't nice to generally show; click/drag tiles to move them into more direct position
  * TODO: Settings menu for adjusting meta settings (font size/size of buttons/other stuff)
- * TODO: Saving a config file with info for stuff
  * TODO: Set default save location globally
+ * TODO: Right click for alt-color drawing
+ * TODO: Mechanism for alt-color selection/usage
+ * TODO: Set a color as unable to be edited (default black for bordering but can be changed)
  * 
  * ---  Stuff I Gotta Do   --------------------------------------------------------------------
  * 

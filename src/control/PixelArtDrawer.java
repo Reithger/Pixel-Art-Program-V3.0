@@ -11,6 +11,7 @@ import manager.Manager;
 import manager.pen.Pen;
 import misc.Canvas;
 import visual.View;
+import visual.popouts.PopoutKeybindSelect;
 
 /**
  * 
@@ -54,8 +55,8 @@ public class PixelArtDrawer implements InputHandler{
 		CodeReference.setup();
 		manager = new Manager();
 		view = new View(this);
-		keyBind = new KeyBindings();
 		dataAccess = new DataAccess();
+		keyBind = new KeyBindings(dataAccess.getKeyMappings());
 		manager.setupPallettes(dataAccess.getColorPallettes());
 		generateEmptyImage("Default", 320, 320);
 	}
@@ -369,6 +370,13 @@ public class PixelArtDrawer implements InputHandler{
 				if(use != null)
 					manager.decreaseZoom(use);
 				return true;
+			case CodeReference.CODE_EDIT_KEYBINDINGS:
+				HashMap<Character, Integer> result = view.requestKeybindUpdate(CodeReference.getCodeTooltips(), keyBind.getMappings());
+				if(result != null) {
+					keyBind.setKeyBindings(result);
+					dataAccess.saveKeyMappings(result);
+				}
+				return false;
 			default:
 				return null;
 		}

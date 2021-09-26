@@ -11,6 +11,7 @@ public class PopoutColorDesigner extends PopoutWindow{
 	private final static String[] SUBMIT_NAMES = new String[] {"Red", "Green", "Blue", "Alpha"};
 	private final static int CODE_COLOR_MAKE = 55;
 	private final static int CODE_COLOR_SUBMIT = 56;
+	private final static char KEY_ENTER = (char)10;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -63,9 +64,26 @@ public class PopoutColorDesigner extends PopoutWindow{
 		int a = Integer.parseInt(this.getStoredText(SUBMIT_NAMES[3]));
 		currColor = new Color(r % 256, g % 256, b % 256, a % 256);
 		if(!test.equals(currColor)) {
-			removeElementPrefixed("col");
-			drawPage();
+			redraw();
 		}
+	}
+	
+	private void redraw() {
+		removeElementPrefixed("col");
+		drawPage();
+	}
+	
+	private void colorAdjust(int r, int g, int b, int a) {
+		int newR = fixColor(currColor.getRed() + r);
+		int newG = fixColor(currColor.getGreen() + g);
+		int newB = fixColor(currColor.getBlue() + b);
+		int newA = fixColor(currColor.getAlpha() + a);
+		currColor = new Color(newR, newG, newB, newA);
+		redraw();
+	}
+	
+	private int fixColor(int in) {
+		return in < 0 ? 0 : in > 255 ? 255 : in;
 	}
 
 //---  Getter Methods   -----------------------------------------------------------------------
@@ -82,8 +100,8 @@ public class PopoutColorDesigner extends PopoutWindow{
 //---  Input Handling   -----------------------------------------------------------------------
 	
 	@Override
-	public void clickAction(int arg0, int arg1, int arg2) {
-		switch(arg0) {
+	public void clickAction(int code, int x, int y) {
+		switch(code) {
 			case CODE_COLOR_MAKE:
 				try {
 					updateCurrColor();
@@ -100,35 +118,34 @@ public class PopoutColorDesigner extends PopoutWindow{
 				break;
 			}
 	}
-	
-	@Override
-	public void clickPressAction(int arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
-	public void clickReleaseAction(int arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void dragAction(int arg0, int arg1, int arg2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyAction(char arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void scrollAction(int arg0) {
-		// TODO Auto-generated method stub
-		
+	public void keyAction(char key) {
+		switch(key) {
+			case 'q':
+				colorAdjust(-3, 0, 0, 0);
+				break;
+			case 'w':
+				colorAdjust(3, 0, 0, 0);
+				break;
+			case 'a':
+				colorAdjust(0, -3, 0, 0);
+				break;
+			case 's':
+				colorAdjust(0, 3, 0, 0);
+				break;
+			case 'z':
+				colorAdjust(0, 0, -3, 0);
+				break;
+			case 'x':
+				colorAdjust(0, 0, 3, 0);
+				break;
+			case KEY_ENTER:
+				ready = true;
+				break;
+			default:
+				System.out.println((int)key + " " + key);
+		}
 	}
 	
 }

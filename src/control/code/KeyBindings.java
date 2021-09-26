@@ -12,15 +12,8 @@ public class KeyBindings {
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public KeyBindings() {
-		mappings = new HashMap<Character, Integer>();
-		setKeyBinding('k', CodeReference.CODE_PEN_SIZE_DECREMENT);
-		setKeyBinding('l', CodeReference.CODE_PEN_SIZE_INCREMENT);
-		for(int i = 1; i <= 10; i++) {
-			setKeyBinding((""+(i%10)).charAt(0), CodeReference.CODE_RANGE_SELECT_COLOR + (i - 1));
-		}
-		setKeyBinding((char)25, CodeReference.CODE_REDO_CHANGE);
-		setKeyBinding((char)26, CodeReference.CODE_UNDO_CHANGE);
+	public KeyBindings(HashMap<Character, Integer> startMapping) {
+		mappings = startMapping;
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
@@ -37,8 +30,18 @@ public class KeyBindings {
 		mappings.put(key, code);
 	}
 	
+	public void setKeyBindings(HashMap<Character, Integer> newMap) {
+		mappings = newMap;
+	}
+	
 	public void releaseKeyBinding(char key) {
 		mappings.remove(key);
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	public HashMap<Character, Integer> getMappings(){
+		return mappings;
 	}
 	
 }

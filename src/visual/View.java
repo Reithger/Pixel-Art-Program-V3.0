@@ -16,12 +16,12 @@ import visual.frame.WindowFrame;
 import visual.popouts.PopoutColorDesigner;
 import visual.popouts.PopoutConfirm;
 import visual.popouts.PopoutInputRequest;
+import visual.popouts.PopoutKeybindSelect;
 import visual.settings.SettingsBar;
 
 public class View implements InputHandler{
 	
 //---  Constants   ----------------------------------------------------------------------------
-	
 	
 	private final static double SETTINGS_VERT_RATIO = 11.0 / 60;
 
@@ -151,6 +151,13 @@ public class View implements InputHandler{
 		return FileChooser.promptSelectFile(defDir, true, true).toString();
 	}
 
+	public HashMap<Character, Integer> requestKeybindUpdate(HashMap<Integer, String> descript, HashMap<Character, Integer> curr){
+		PopoutKeybindSelect pks = new PopoutKeybindSelect(900, 600, descript, curr);
+		HashMap<Character, Integer> result = pks.getResult();
+		pks.dispose();
+		return result;
+	}
+	
 	public boolean requestConfirmation(String display) {
 		PopoutConfirm pC = new PopoutConfirm(200, 150, display);
 		boolean out = pC.getChoice();

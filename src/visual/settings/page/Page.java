@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import control.InputHandler;
+import control.code.CodeReference;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
 import visual.composite.HandlePanel;
@@ -218,6 +219,10 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	}
 
 	//-- Tiles  -----------------------------------------------
+	
+	public void addTileBig(String ref, Integer refresh, Integer push, String label, int code) {
+		addTile(ref, refresh, push, TileFactory.generateTileBig(CodeReference.getCodeImagePath(code), label, code));
+	}
 	
 	public void addTileBig(String ref, Integer refresh, Integer push, String label, String path, int code) {
 		addTile(ref, refresh, push, TileFactory.generateTileBig(path, label, code));

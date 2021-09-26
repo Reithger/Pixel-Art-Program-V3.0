@@ -22,9 +22,15 @@ public class CodeReference {
 	 * 
 	 */
 
+//---  Constants   ----------------------------------------------------------------------------
+	
 	private final static String SEPARATOR = ";,;";
 	
+//---  Instance Variables   -------------------------------------------------------------------
+	
 	private static HashMap<Integer, CodeInfo> codeInfo;
+	
+//---  Operations   ---------------------------------------------------------------------------
 	
 	public static void setup() {
 		codeInfo = new HashMap<Integer, CodeInfo>();
@@ -56,6 +62,8 @@ public class CodeReference {
 		}
 	}
 	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
 	public static CodeInfo getCodeInfo(int code) {
 		CodeInfo out = codeInfo.get(code);
 		if(out == null) {
@@ -79,6 +87,14 @@ public class CodeReference {
 			return use.getLabel();
 		}
 		return "";
+	}
+	
+	public static HashMap<Integer, String> getCodeTooltips(){
+		HashMap<Integer, String> out = new HashMap<Integer, String>();
+		for(int i : codeInfo.keySet()) {
+			out.put(i, codeInfo.get(i).getLabel());
+		}
+		return out;
 	}
 	
 //---  TileGrid Mappings   --------------------------------------------------------------------
@@ -178,6 +194,7 @@ public class CodeReference {
 
 	public final static int CODE_REMOVE_LAYER =65;
 	public final static int CODE_MOVE_LAYER =66;
+	public final static int CODE_EDIT_KEYBINDINGS = 112;
 	
 	//-- Not Integrated  --------------------------------------
 	
