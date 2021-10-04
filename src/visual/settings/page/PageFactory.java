@@ -11,7 +11,7 @@ public class PageFactory {
 		ArrayList<Page> out = new ArrayList<Page>();
 		out.add(generateFilePage());
 		out.add(generateDrawingPage());
-		out.add(generateSettingsPage());
+		//out.add(generateSettingsPage());
 		return out;
 	}
 	

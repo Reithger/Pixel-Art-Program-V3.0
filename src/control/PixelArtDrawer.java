@@ -487,6 +487,9 @@ public class PixelArtDrawer implements InputHandler{
 	//-- Instructing Manager  ---------------------------------
 	
 	private void makeNewThing() {
+		generateEmptyImage(manager.getNextName(), view.requestIntInput(TEXT_WIDTH_REQUEST), view.requestIntInput(TEXT_HEIGHT_REQUEST));
+
+		/*
 		String choice = view.requestListChoice(new String[] {TEXT_CHOICE_PICTURE, TEXT_CHOICE_ANIMATION});
 		switch(choice) {
 			case TEXT_CHOICE_PICTURE:
@@ -495,6 +498,7 @@ public class PixelArtDrawer implements InputHandler{
 			case TEXT_CHOICE_ANIMATION:
 				break;
 		}
+		*/
 	}
 	
 	private void generateEmptyImage(String nom, int wid, int hei) {

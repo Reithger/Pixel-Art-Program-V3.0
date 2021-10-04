@@ -18,9 +18,9 @@ public class FilePage extends Page{
 		addTileBig("D", null, null, "Rename", CodeReference.CODE_RENAME);
 		addTileBig("E", null, null, "Save", CodeReference.CODE_SAVE_THING);
 		addTileBig("F", null, null, "Save as", CodeReference.CODE_SAVE_AS);
-		addTileBig("G", null, null, "Meta", CodeReference.CODE_OPEN_META);
-		addTileBig("H", null, null, "Exit", CodeReference.CODE_EXIT);
+		//addTileBig("G", null, null, "Meta", CodeReference.CODE_OPEN_META);
 		addTileBig("I", null, null, "Keybindings", CodeReference.CODE_EDIT_KEYBINDINGS);
+		addTileBig("H", null, null, "Exit", CodeReference.CODE_EXIT);
 	}
 	
 }

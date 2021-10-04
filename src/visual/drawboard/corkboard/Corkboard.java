@@ -3,6 +3,7 @@ package visual.drawboard.corkboard;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import control.InputHandler;
 import control.code.CodeInfo;
@@ -34,6 +35,8 @@ public abstract class Corkboard {
 	protected final static int MINIMUM_SIZE = 150;
 	protected final static int CONTENT_X_BUFFER = 1;
 	protected final static int CONTENT_Y_BUFFER = HEADER_HEIGHT + 1;
+	private final static Font HOVER_TEXT_FONT = new Font("Serif", Font.BOLD, 16);
+
 	
 	public final static int CODE_CHECK_POSITION = 55;
 	private final static Font TITLE_FONT = new Font("Serif", Font.BOLD, 16);
@@ -45,10 +48,12 @@ public abstract class Corkboard {
 	private String panelName;
 	private HandlePanel panel;
 	private ArrayList<CodeInfo> buttons;
+	private HashSet<Integer> buttonCodes;
 	private InputHandler reference;
 	private boolean mutex;
 	private static boolean contentLocked;
 	private int zoom;
+	private static boolean displayTooltip;
 
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -56,6 +61,8 @@ public abstract class Corkboard {
 		setName(inNom);
 		setPanelName(inPanel);
 		buttons = new ArrayList<CodeInfo>();
+		buttonCodes = new HashSet<Integer>();
+		displayTooltip = true;
 		mutex = false;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
 		int hei = inHeight < MINIMUM_SIZE ? MINIMUM_SIZE : inHeight;
@@ -79,6 +86,8 @@ public abstract class Corkboard {
 			
 			private volatile int drawCounter;
 			private volatile boolean mutexHere;
+			
+			private long tooltipWaitTime;
 			
 			private void openLockHere() {
 				while(mutexHere) {}
@@ -155,6 +164,32 @@ public abstract class Corkboard {
 					drawCounter = -1;
 				}
 				onDrag(code, x, y);
+			}
+			
+			@Override
+			public void mouseMoveEvent(int code, int x, int y) {
+				if(displayTooltip && (buttonCodes.contains(code) || code == CodeReference.CODE_RESIZE)) {
+					if(tooltipWaitTime == -1) {
+						tooltipWaitTime = System.currentTimeMillis();
+					}
+					else if(System.currentTimeMillis() - tooltipWaitTime > 100) {
+						String disp = CodeReference.getCodeLabel(code);
+						int posX = x;
+						int posY = y;
+						int wid = hand.getTextWidth(disp, HOVER_TEXT_FONT) + 3;
+						int hei = hand.getTextHeight(HOVER_TEXT_FONT);
+						posX = ((posX - wid) < 0 ? posX : (posX - wid));
+						posY = ((posY - hei) < 0 ? posY : (posY - hei));
+						posX += (posX == x) ? 15 : 0;
+						hand.addText("tooltip_overlay_txt", 100, "move", posX, posY, wid, hei, disp, HOVER_TEXT_FONT, true, true, false);
+						hand.addRectangle("tooltip_overlay_rect", 99, "move", posX + wid / 2, posY + hei / 2, wid + 4, hei, true, Color.white, Color.black);
+					
+					}
+				}
+				else {
+					tooltipWaitTime = -1;
+					hand.removeElementPrefixed("tooltip");
+				}
 			}
 			
 			@Override
@@ -278,15 +313,21 @@ public abstract class Corkboard {
 	
 	public void assignCodeInfo(ArrayList<CodeInfo> in) {
 		buttons = in;
+		buttonCodes = new HashSet<Integer>();
+		for(CodeInfo ci : in) {
+			buttonCodes.add(ci.getCode());
+		}
 	}
 	
 	public void addButton(CodeInfo bI) {
 		buttons.add(bI);
+		buttonCodes.add(bI.getCode());
 	}
 	
 	public void removeButton(String nom) {
 		for(int i = 0; i < buttons.size(); i++) {
 			if(buttons.get(i).getLabel().equals(nom)) {
+				buttonCodes.remove(buttons.get(i).getCode());
 				buttons.remove(i);
 				return;
 			}
@@ -295,6 +336,7 @@ public abstract class Corkboard {
 	
 	public void removeAllButtons() {
 		buttons.clear();
+		buttonCodes.clear();
 	}
 	
 	public void moveButton(int i, int j) {
