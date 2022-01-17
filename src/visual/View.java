@@ -223,4 +223,8 @@ public class View implements InputHandler{
 		return body.getActiveElement();
 	}
 	
+	public boolean getContentLock(String nom) {
+		return body.getContentLock(nom);
+	}
+	
 }

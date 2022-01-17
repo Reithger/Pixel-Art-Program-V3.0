@@ -16,7 +16,7 @@ public class PopoutKeybindSelect extends PopoutWindow{
 
 	private final static Font DEFAULT_FONT = new Font("Serif", Font.BOLD, 16);
 	private final static String GROUP_SCROLL = "scroll";
-	private final static int SCROLL_MULTIPLIER = 5;
+	private final static int SCROLL_MULTIPLIER = -5;
 	private final static Color BACKGROUND_COLOR = new Color(190, 190, 190);
 	private final static int TOP_BUFFER_RATIO = 15;
 	private final static int CODE_SUBMIT = 9999;

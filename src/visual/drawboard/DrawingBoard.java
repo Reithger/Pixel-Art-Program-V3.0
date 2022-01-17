@@ -279,6 +279,10 @@ public class DrawingBoard implements InputHandler{
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
+	public boolean getContentLock(String nom) {
+		return getCurrentPage().getContentLock(nom);
+	}
+	
 	public String getActiveElement() {
 		return getCurrentPage().getActiveElement();
 	}

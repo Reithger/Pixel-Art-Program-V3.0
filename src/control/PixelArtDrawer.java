@@ -306,8 +306,14 @@ public class PixelArtDrawer implements InputHandler{
 				return false;
 			case CodeReference.CODE_PEN_MODE_MOVE_CANVAS:
 				if(use != null) {
-					view.setContentLock(use, true);
-					manager.getPen().setPenMode(Pen.PEN_MODE_MOVE_CANVAS);
+					boolean mode = view.getContentLock(use);
+					view.setContentLock(use, !mode);
+					if(!mode) {
+						manager.getPen().disable();
+					}
+					else {
+						manager.getPen().enable();
+					}
 				}
 				return true;
 			case CodeReference.CODE_PEN_MODE_COLOR_PICK:

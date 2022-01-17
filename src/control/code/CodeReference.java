@@ -206,6 +206,8 @@ public class CodeReference {
 	public final static int CODE_INCREMENT_CANVAS_HEI =78;
 	public final static int CODE_DECREMENT_CANVAS_HEI =79;
 	
+	public final static int CODE_TOGGLE_CORKBOARD_BUTTONS = 113;
+	
 //---  Drawing Stuff   ------------------------------------------------------------------------
 	
 	//-- Integrated  ------------------------------------------

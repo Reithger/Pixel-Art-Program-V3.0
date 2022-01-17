@@ -2,7 +2,16 @@ package visual.popouts;
 
 import java.awt.Color;
 
+import input.CustomEventReceiver;
 import visual.composite.popout.PopoutWindow;
+
+/**
+ * 
+ * TODO: Make a way to cancel out inputs being eaten at a lower level so that I can interpret an Enter key press here
+ * 
+ * @author Ada Clevinger
+ *
+ */
 
 public class PopoutInputRequest extends PopoutWindow{
 
@@ -12,6 +21,7 @@ public class PopoutInputRequest extends PopoutWindow{
 	private final static int POPUP_HEIGHT = 200;
 	private final static int CODE_SUBMIT = 5;
 	private final static String ELEMENT_NAME_ENTRY = "entry";
+	private final static char KEY_ENTER = (char)10;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -22,6 +32,7 @@ public class PopoutInputRequest extends PopoutWindow{
 	
 	public PopoutInputRequest(String text) {
 		super(POPUP_WIDTH, POPUP_HEIGHT);
+		
 		ready = false;
 		int posX = POPUP_WIDTH / 2;
 		int posY = POPUP_HEIGHT / 6;
@@ -35,6 +46,8 @@ public class PopoutInputRequest extends PopoutWindow{
 		int entryHeight = POPUP_HEIGHT / 5;
 		this.handleTextEntry(ELEMENT_NAME_ENTRY, "move", 15, posX, posY, entryWidth, entryHeight, -55, null, "");
 		this.handleRectangle("rect", "move", 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
+		
+		getHandlePanel().setFocusElement(ELEMENT_NAME_ENTRY);
 		
 		posY += POPUP_HEIGHT / 3;
 		int submitWidth = POPUP_WIDTH / 2;
@@ -52,11 +65,15 @@ public class PopoutInputRequest extends PopoutWindow{
 
 //---  Input Handling   -----------------------------------------------------------------------
 	
+	private void enableEnd() {
+		out = this.getStoredText(ELEMENT_NAME_ENTRY);
+		ready = true;
+	}
+	
 	@Override
 	public void clickAction(int arg0, int arg1, int arg2) {
 		if(arg0 == CODE_SUBMIT) {
-			out = this.getStoredText(ELEMENT_NAME_ENTRY);
-			ready = true;
+			enableEnd();
 		}
 	}
 
@@ -80,10 +97,11 @@ public class PopoutInputRequest extends PopoutWindow{
 
 	@Override
 	public void keyAction(char arg0) {
-		// TODO Auto-generated method stub
-		
+		if(arg0 == KEY_ENTER) {
+			enableEnd();
+		}
 	}
-
+	
 	@Override
 	public void scrollAction(int arg0) {
 		// TODO Auto-generated method stub

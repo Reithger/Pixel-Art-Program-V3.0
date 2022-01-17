@@ -61,6 +61,7 @@
 110;,;./assets/add_pallette.png;,;new pallette
 111;,;./assets/remove_pallette.png;,;remove pallette
 112;,;null;,;update keybindings
+113;,;./assets/toggle_buttons.png;,;toggle buttons
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;null;,;range select draw type

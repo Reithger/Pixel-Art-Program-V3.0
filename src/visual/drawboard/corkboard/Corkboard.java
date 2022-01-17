@@ -54,10 +54,12 @@ public abstract class Corkboard {
 	private static boolean contentLocked;
 	private int zoom;
 	private static boolean displayTooltip;
+	private boolean toggleButtons;
 
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight) {
+		toggleButtons = true;
 		setName(inNom);
 		setPanelName(inPanel);
 		buttons = new ArrayList<CodeInfo>();
@@ -106,6 +108,10 @@ public abstract class Corkboard {
 							processDrawing(x, y);
 						}
 						break;
+					case CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS:
+						toggleButtons = !toggleButtons;
+						updatePanel();
+						break;
 					default:
 						onClick(code, x, y);
 						getReference().handleCodeInput(code, getName());
@@ -138,17 +144,17 @@ public abstract class Corkboard {
 				canvasDrag = false;
 				draggingResize = false;
 				draggingHeader = false;
+				drawCounter = -1;
 				if(code == CodeReference.CODE_INTERACT_CONTENT) {
 					processDrawing(x, y);
 				}
-				drawCounter = -1;
 				onClickRelease(code, x, y);
 			}
 						
 			@Override
 			public void dragEvent(int code, int x, int y, int clickStart) {
 				processDragging(x, y);
-				if(code == CodeReference.CODE_INTERACT_CONTENT || canvasDrag) {
+				if((code == CodeReference.CODE_INTERACT_CONTENT || canvasDrag) && !draggingResize) {
 					if(!contentLocked) {
 						processDrawing(x, y);
 					}
@@ -242,15 +248,7 @@ public abstract class Corkboard {
 		int posX = wid - size;
 		int posY = HEADER_HEIGHT + size;
 
-		p.removeElementPrefixed("button");
-		for(int i = 0; i < buttons.size(); i++) {
-			if(posY >= hei - size * 2) {
-				break;
-			}
-			CodeInfo bI = buttons.get(i);
-			p.handleImageButton("button_" + bI.getLabel(), "no_move", 15, posX, posY, size, size, bI.getImagePath(), bI.getCode());
-			posY += 3 * size / 2;
-		}
+		drawButtons(posX, posY, hei, size);
 		
 		posY = hei - size;
 		
@@ -282,6 +280,35 @@ public abstract class Corkboard {
 		
 		for(int i = 0 ; i < NAME_BAR_CODES.length; i++) {
 			getPanel().handleImageButton("name_bar_button_" + i, "no_move", 15, getWidth() - (int)((i + .5) * butHei) - 3, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(NAME_BAR_CODES[i]), NAME_BAR_CODES[i]);
+		}
+	}
+	
+	private void drawButtons(int posX, int posY, int hei, int size) {
+		HandlePanel p = getPanel();
+		p.removeElementPrefixed("button");
+		
+		ArrayList<CodeInfo> butt = toggleButtons ? buttons : new ArrayList<CodeInfo>();
+		
+		int displaceY = size * 3 / 2;
+		int displaceX = size * 5 / 4;
+		int vert = hei / displaceY - 2;
+		int colum = butt.size() / vert + (butt.size() % vert == 0 ? 0 : 1);
+		int useY = posY;
+		posX -= displaceX * (colum);
+		
+		CodeInfo bI = CodeReference.getCodeInfo(CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS);
+		p.handleImageButton("button_" + bI.getLabel(), "no_move", 15, posX, useY, size, size, bI.getImagePath(), bI.getCode());
+		
+		for(int i = colum - 1; i >= 0; i--) {
+			useY = posY;
+			for(int j = 0; j < vert; j++) {
+				if(i * vert + j >= butt.size()) {
+					break;
+				}
+				bI = butt.get(i * vert + j);
+				p.handleImageButton("button_" + bI.getLabel(), "no_move", 15, posX + displaceX * (colum - i), useY, size, size, bI.getImagePath(), bI.getCode());
+				useY += displaceY;
+			}
 		}
 	}
 	

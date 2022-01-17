@@ -6,6 +6,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Reithger/Documents/GitHub/SoftwareVisualInterface/svi_18.jar"/>
+	<classpathentry kind="lib" path="C:/Users/SirBo/Documents/GitHub/Pixel-Art-Program-V3.0/src/assets/svi_18.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

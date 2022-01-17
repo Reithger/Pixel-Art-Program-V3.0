@@ -35,12 +35,13 @@ public class Pen {
 	 * Pattern drawing
 	 * Shape drawing (arbitrary polygon)
 	 * 
+	 * Split this up a bit for the different modes, messy at the moment
+	 * 
 	 */
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
 	public final static int PEN_MODE_DRAW = 0;
-	public final static int PEN_MODE_MOVE_CANVAS = 1;
 	public final static int PEN_MODE_COLOR_PICK = 2;
 	public final static int PEN_MODE_FILL = 3;
 	public final static int PEN_MODE_REGION_SELECT = 4;
@@ -66,9 +67,12 @@ public class Pen {
 	private HashMap<Integer, DrawInstruction> instructions;
 	private int nextDuration;
 	
+	private boolean enabled;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Pen() {
+		enabled = true;
 		mutex = false;
 		overlay = new HashMap<String, Overlay>();
 		nextDuration = 0;
@@ -115,6 +119,9 @@ public class Pen {
 	public boolean draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {
 		boolean force = false;
 		int penMode = getPenMode();
+		if(!enabled) {
+			return false;
+		}
 		if(overlay.get(nom) == null) {
 			overlay.put(nom, new Overlay(lP.getWidth(), lP.getHeight()));
 			initializeCanvas(overlay.get(nom).getCanvas());
@@ -148,15 +155,12 @@ public class Pen {
 		instructions.put(duration, new DrawInstruction(nom, penMode, getRegionMode(), lP.getColorData(layer), x, y, getActiveColor(), layer));
 		while(instructions.get(nextDuration) != null) {
 			DrawInstruction dI = instructions.get(nextDuration);
-			long a = System.currentTimeMillis();
-			System.out.println("Start input interpretation: " + duration + " at time: " + a);
 			Change[] use = interpretInput(dI, nextDuration);
 			if(use == null) {
 				force = true;
 			}
 			else {
 				commitChanges(lP, nom, layer, duration, use);
-				System.out.println("End change commit: \t" + (System.currentTimeMillis() - a));
 			}
 			instructions.remove(nextDuration - 1);
 			nextDuration++;
@@ -349,6 +353,14 @@ public class Pen {
 	
 	public void setPenMode(int in) {
 		setMode = in;
+	}
+	
+	public void enable() {
+		enabled = true;
+	}
+	
+	public void disable() {
+		enabled = false;
 	}
 	
 	//-- StandardDraw  ----------------------------------------

@@ -173,6 +173,10 @@ public class DrawingPage implements InputHandler{
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
+	public boolean getContentLock(String nom) {
+		return getCorkboard(nom).getContentLocked();
+	}
+	
 	public int getOriginX() {
 		return x;
 	}
