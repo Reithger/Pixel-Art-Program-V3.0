@@ -1,6 +1,5 @@
 package manager.pen.drawing;
 
-import java.awt.Color;
 import java.util.HashMap;
 
 import manager.pen.changes.Change;
