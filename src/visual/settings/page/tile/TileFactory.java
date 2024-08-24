@@ -3,8 +3,6 @@ package visual.settings.page.tile;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import visual.settings.page.tile.grid.TileGrid;
-
 public class TileFactory {
 	
 //---  Constants   ----------------------------------------------------------------------------

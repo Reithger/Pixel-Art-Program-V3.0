@@ -2,17 +2,18 @@ package manager.pen.drawing;
 
 import java.util.HashMap;
 
+import control.code.CodeReference;
 import manager.pen.changes.Change;
 import misc.Canvas;
 
 public class RegionDraw {
 
 //---  Constants   ----------------------------------------------------------------------------
-	
-	public final static int REGION_MODE_OUTLINE = 0;
-	public final static int REGION_MODE_FILL = 1;
-	public final static int REGION_MODE_COPY = 2;
-	public final static int REGION_MODE_PASTE = 3;
+
+	public final static int REGION_MODE_OUTLINE = CodeReference.CODE_PEN_REGION_MODE_OUTLINE;
+	public final static int REGION_MODE_FILL = CodeReference.CODE_PEN_REGION_MODE_FILL;
+	public final static int REGION_MODE_COPY = CodeReference.CODE_PEN_REGION_MODE_COPY;
+	public final static int REGION_MODE_PASTE = CodeReference.CODE_PEN_REGION_MODE_PASTE;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	

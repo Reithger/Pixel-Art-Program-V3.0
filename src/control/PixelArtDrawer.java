@@ -15,7 +15,41 @@ import visual.popouts.PopoutKeybindSelect;
 
 /**
  * 
- * Key input is universal and redirected to one location (keyboard shortcuts not dependent on context (mostly))
+ * This class is the starting point for the program, setting up the underlying code systems for handling user
+ * interaction, constructing an instance of 'Manager' for the backend model and an instance of 'View' for the
+ * GUI, and reading the config files for Keyboard Shortcuts and saved Color Pallets.
+ * 
+ * This class is also the interpretor of the user's actions, taking input codes from the view and updating the
+ * Model or View as appropriate in response. Should probably break this up to some sub-classes that focus
+ * on particular components for simplifying things.
+ * 
+ * The overall program is a Model-View-Controller architecture.
+ * 
+ * The Controller handles setup and management of the Model/View, notably containing a system for managing all
+ * the code values that are responses to user behavior and associating those codes with helper text and an image
+ * for centralized management of how most buttons are set up.
+ * 
+ * The Model and View need to coordinate on some code values for convenience, and if we have to interpret code
+ * values in the Controller anyways they might as well be stored here. If the codes are all stored in one place,
+ * they might as well be side-by-side with what they mean (in a way conducive to overlay text if a user mouses over
+ * a button) and what the visual accompaniment should be.
+ * 
+ * The Model is the backend that manages the logic of how things are drawn, having its settings configured by user
+ * behavior from the View and particular drawing instructions given by where the user clicks/drags on the screen.
+ * It has a top-level Manager class that is the only Controller-facing class (besides Pen sometimes).
+ * 
+ * It's largely broken up into the Color storage, the Change History (for redo/undo options), Drawing logic (different
+ * kinds of pens, different modes, features that smooth things out to feel more natural), and the Canvases (or, Sketches)
+ * themselves where the drawings are stored with logic for layers and, eventually, animation.
+ * 
+ * The View is the frontend that displays all the program information to the user and facilitates their drawing, using a
+ * bespoke graphics library (SVI) to make it fairly efficient to draw or blend many pixels at once without the program
+ * coming to a halt. Still needs optimization but it works well if you're not updating a million pixels at once.
+ * 
+ * It's a straightforward structure of having a Drawboard, which manages multiple pages that can contain several active canvases
+ * at a time, and a Header, which has multiple variations for different kinds of settings. A Drawboard has multiple Corkboards
+ * that contain the canvases which are drawn on and correspond to the images stored in the Model, and the Header has multiple
+ * Pages which are composed of different kinds of Tiles for providing the user options they can interact with.
  * 
  * @author Ada Clevinger
  *
@@ -66,8 +100,11 @@ public class PixelArtDrawer implements InputHandler{
 	//-- Receiving Code from View  ----------------------------
 	
 	/**
-	 * active is the element that produced the code, be it a Tile in the Settings Bar or one of the
-	 * Corkboards.
+	 * active is the String name of the visual element that produced the code, be it a Tile/Grid
+	 * object in the Settings Bar or one of the Corkboards.
+	 * 
+	 * All input from any source is turned into an int code and interpreted here, so context
+	 * is mostly lost besides knowing the current Corkboard.
 	 * 
 	 * @param in
 	 * @param active
@@ -93,7 +130,7 @@ public class PixelArtDrawer implements InputHandler{
 	}
 
 	public void handleKeyInput(char code, int keyType) {
-		System.out.println(keyType + " " + code);
+		System.out.println("Key Input: " + keyType + " " + code);
 		int val = keyBind.interpretKeyInput(code, keyType);
 		handleCodeInput(val, null);
 		if(val != -1) {
@@ -102,6 +139,28 @@ public class PixelArtDrawer implements InputHandler{
 	}
 	
 	//-- Codes from Ranges  -----------------------------------
+	
+	/**
+	 * This function manages checking various code ranges for a
+	 * reaction from a particular input code value.
+	 * 
+	 * It checks if the input code sparks a reaction from
+	 * Color selection first, then changing the Pen type,
+	 * then changing the current draw Layer.
+	 * 
+	 * If any range of values sparks a reaction, it skips
+	 * any further checks from other categories.
+	 * 
+	 * Code ranges are in the scale:
+	 * 
+	 * Layer Range -> Color Range -> Draw Type Range
+	 * 1500 -> 2000 -> 2500
+	 * 
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
 	
 	private Boolean checkRanges(int in, String active) {
 		Boolean happ = checkRangeColors(in, active);
@@ -114,6 +173,16 @@ public class PixelArtDrawer implements InputHandler{
 		return happ;
 	}
 	
+	/**
+	 * 
+	 * Check input code against range of viable color codes
+	 * to update the color used in the drawing pen.
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
+	
 	private Boolean checkRangeColors(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_SELECT_COLOR && in < CodeReference.CODE_RANGE_SELECT_DRAW_TYPE) {
 			int use = (in - CodeReference.CODE_RANGE_SELECT_COLOR - manager.getPen().getCurrentPalletCodeBase());
@@ -122,6 +191,16 @@ public class PixelArtDrawer implements InputHandler{
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * Check input code against range of viable pen type codes
+	 * to update the type of pen being used (square, circle, etc.)
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
 	
 	private Boolean checkRangePenType(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_SELECT_DRAW_TYPE) {
@@ -132,15 +211,48 @@ public class PixelArtDrawer implements InputHandler{
 		return null;
 	}
 	
+	/**
+	 * 
+	 * Check input code against range of viable layer type codes to
+	 * do... something? TODO: Figure this out
+	 * 
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
+	
 	private Boolean checkRangeLayers(int in, String active) {
 		if(in >= CodeReference.CODE_RANGE_LAYER_SELECT && in < CodeReference.CODE_RANGE_SELECT_COLOR) {
 			String use = view.getActiveElement();
+			//TODO: Add functionality?
 			return true;
 		}
 		return null;
 	}
 	
 	//-- Codes from Constants  --------------------------------
+	
+	/**
+	 * 
+	 * Top level check that tests the input code against various
+	 * categories of input interpretation to find the appropriate
+	 * reaction to that input.
+	 * 
+	 * These sub-functions contain a lot of the logic for how
+	 * input influences the backend, so they are often changed
+	 * to add new behavior or fix things that did not work.
+	 * 
+	 * Could probably make some kind of mapping of code value
+	 * to a class containing a batch of reactions so that new
+	 * behaviors can be added in a modular style via new classes
+	 * instead of changing these functions, but we're still
+	 * getting baseline stuff figured out.
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
 	
 	private Boolean checkCommands(int in, String active) {
 		Boolean happ = checkFileCommand(in, active);
@@ -208,10 +320,10 @@ public class PixelArtDrawer implements InputHandler{
 				return false;
 			case CodeReference.CODE_EXIT:
 				if(view.requestConfirmation("Are you sure you want to exit?")) {
-					System.exit(0);
 					if(view.requestConfirmation("Would you like to save backups of your current work?")) {
 						saveEverything();
 					}
+					System.exit(0);
 				}
 				return true;
 			default:
@@ -546,7 +658,9 @@ public class PixelArtDrawer implements InputHandler{
 	
 	private void saveThingAs(String nom) {
 		String path = manager.getDefaultFilePath(nom);
-		path = view.requestFolderPath(path, "Where do you want to save this to?");
+		if(path == null) {
+			path = view.requestFolderPath("./", "Where do you want to save this to?");
+		}
 		String savNom = view.requestStringInput("What would you like to name the file?");
 		manager.saveThing(nom, savNom, path, 1, true);
 	}
@@ -558,6 +672,14 @@ public class PixelArtDrawer implements InputHandler{
 	//-- Updating View  ---------------------------------------
 	
 		//-- Settings Bar  ------------------------------------
+	
+	/**
+	 * 
+	 * Should probably figure out a way to isolate what needs updating
+	 * for more granular reviews, a bit overkill right now
+	 * but not in an area that needs to be delicate at least.
+	 * 
+	 */
 	
 	private void refreshSettingsBar() {
 		view.refreshActivePage();
@@ -613,7 +735,7 @@ public class PixelArtDrawer implements InputHandler{
 		for(int i : codes) {
 			paths.add(CodeReference.getCodeImagePath(i));
 		}
-		view.updateTileGridImages(ref, paths, codes, manager.getPen().getPenMode());
+		view.updateTileGridImages(ref, paths, codes, indexOf(codes, manager.getPen().getPenModeCode()));
 	}
 	
 		//-- Corkboard  ---------------------------------------
@@ -645,6 +767,15 @@ public class PixelArtDrawer implements InputHandler{
 			path = path.replaceAll("//", "/");
 		}
 		return path;
+	}
+	
+	private int indexOf(int[] arr, int key) {
+		for(int i = 0; i < arr.length; i++) {
+			if(arr[i] == key) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 }

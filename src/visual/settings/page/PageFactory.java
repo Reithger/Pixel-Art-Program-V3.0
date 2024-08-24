@@ -7,6 +7,15 @@ public class PageFactory {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
+	/**
+	 * 
+	 * This function generates an ArrayList of Page subclasses that specialize into
+	 * each type of menu for the user to interact with (File options, Drawing options, and
+	 * a Settings page eventually).
+	 * 
+	 * @return - ArrayList of Page objects
+	 */
+	
 	public static ArrayList<Page> generateStartingPages(){
 		ArrayList<Page> out = new ArrayList<Page>();
 		out.add(generateFilePage());

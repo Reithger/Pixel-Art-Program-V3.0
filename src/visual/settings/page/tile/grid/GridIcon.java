@@ -2,6 +2,21 @@ package visual.settings.page.tile.grid;
 
 import visual.composite.HandlePanel;
 
+/**
+ * 
+ * GridIcon is an interface to define the general behaviors of Grid objects; that is,
+ * the things that are drawn inside of Tiles that provide the user interactability for
+ * changing and knowing the current program state.
+ * 
+ * Most Grid objects have hovertext that describe their behavior or current state.
+ * 
+ * Subtypes are GridColor, which displays the current colors in the Pallete, GridImage,
+ * which draws an image, and TileGrid
+ * 
+ * @author Reithger
+ *
+ */
+
 public interface GridIcon {
 
 //---  Operations   ---------------------------------------------------------------------------

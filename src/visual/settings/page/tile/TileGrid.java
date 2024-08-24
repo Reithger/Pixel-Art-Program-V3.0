@@ -1,10 +1,28 @@
-package visual.settings.page.tile.grid;
+package visual.settings.page.tile;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import visual.composite.HandlePanel;
-import visual.settings.page.tile.Tile;
+import visual.settings.page.tile.grid.GridColor;
+import visual.settings.page.tile.grid.GridIcon;
+import visual.settings.page.tile.grid.GridImage;
+
+/**
+ * 
+ * Subclass of abstract class Tile.
+ * 
+ * This class is a common form of Tile that draws a 2D array of Grid objects (GridColor,
+ * GridImage); the number of rows is pre-defined and the TileGrid class will expand and
+ * shrink based on how many Grid objects are added into it.
+ * 
+ * Grid objects are added to the TileGrid by calling 'updateGridIconsImage/Color' which
+ * denotes an array of colors or images with their associated code values to fill up the
+ * TileGrid object with.
+ * 
+ * @author Reithger
+ *
+ */
 
 public class TileGrid extends Tile{
 

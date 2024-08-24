@@ -42,6 +42,7 @@ public class StandardDraw {
 		}
 
 		Change[] out = prepareChanges();
+		currMode.tellAge(duration);
 		drawSequence(x, y, col, out, aP);
 		
 		return out;
@@ -86,6 +87,20 @@ public class StandardDraw {
 		}
 	}
 	
+	/**
+	 * Thank you to https://stackoverflow.com/a/29321264 for the algorithm on how to
+	 * do correct color blending.
+	 * 
+	 * Function that takes two colors in Integer formats and blends them together in
+	 * a style that gets proper light color gradients instead of the 'rush towards grey/brown'
+	 * that a linear average would produce.
+	 * 
+	 * 
+	 * @param curr
+	 * @param newCol
+	 * @return
+	 */
+	
 	private int blend(Integer curr, Integer newCol) {
 		double keep = (1.0 - blendQuotient);
 		double bq = blendQuotient;
@@ -94,7 +109,11 @@ public class StandardDraw {
 		int broke = 255;
 		int res = 0;
 		for(int i = 0; i < 4; i++) {
-			res += (int)(((a & broke) >> (8 * i)) * keep + ((b & broke) >> (8 * i)) * bq) << (8 * i);
+			double colorOne = (a & broke) >> (8 * i);
+			double colorTwo = (b & broke) >> (8 * i);
+			double together = keep * Math.pow(colorOne, i == 3 ? 1 : 2) + bq * Math.pow(colorTwo, i == 3 ? 1 : 2);
+			together = i == 3 ? together : Math.sqrt(together);
+			res += (int)together << (8 * i);
 			broke = broke << 8;
 		} 
 		return res;

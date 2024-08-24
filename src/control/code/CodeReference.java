@@ -100,10 +100,11 @@ public class CodeReference {
 //---  TileGrid Mappings   --------------------------------------------------------------------
 
 	public final static String[] REF_DRAW_TYPE_PATHS = new String[] {CodeReference.IMAGE_PATH_SQUARE_ICON,
-			CodeReference.IMAGE_PATH_CIRCLE_ICON};
+			CodeReference.IMAGE_PATH_CIRCLE_ICON, CodeReference.IMAGE_PATH_TAPER_ICON};
 	
 		private final static String IMAGE_PATH_CIRCLE_ICON = "./assets/circle_icon.png";
 		private final static String IMAGE_PATH_SQUARE_ICON = "./assets/square_icon.png";
+		private final static String IMAGE_PATH_TAPER_ICON = "./assets/circle_icon.png";
 		
 	public final static int[] REF_COLOR_OPTION_CODES = new int[] {CodeReference.CODE_PEN_PALLETTE_PREV, CodeReference.CODE_PEN_PALLETTE_REMOVE,
 																  CodeReference.CODE_PEN_PALLETTE_NEXT, CodeReference.CODE_PEN_PALLETTE_NEW,

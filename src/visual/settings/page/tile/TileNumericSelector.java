@@ -77,7 +77,7 @@ public class TileNumericSelector extends Tile {
 		
 		lineStart = posX;
 		p.handleLine("gr_" + label + "_line", "move", 5, posX, posY, posX + 2 * size, posY, 2, Color.black);
-		p.handleButton("gr_" + label + "_slider_detect", "move", 15, posX + size, posY, 2 * size, posY, sliderCode);
+		p.handleButton("gr_" + label + "_slider_detect", "move", 15, posX + size, posY - 2, 2 * size, 4, sliderCode);
 		double prop = (double)(storedValue - minVal) / (double)(maxVal - minVal);
 
 		posX += (int)(prop * 2 * size);

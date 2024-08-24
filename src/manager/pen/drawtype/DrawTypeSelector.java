@@ -6,6 +6,7 @@ public class DrawTypeSelector {
 	
 	public final static int PEN_DRAW_SQUARE = 0;
 	public final static int PEN_DRAW_CIRCLE = 1;
+	public final static int PEN_DRAW_TAPERING = 2;
 
 	//TODO: Let user make dynamic draw patterns
 	
@@ -20,6 +21,9 @@ public class DrawTypeSelector {
 			case PEN_DRAW_CIRCLE:
 				out = new DrawTypeCircle();
 				break;
+			case PEN_DRAW_TAPERING:
+				out = new DrawTypeTapering();
+				break;
 			default:
 				out = new DrawTypeSquare();
 				break;
@@ -28,7 +32,7 @@ public class DrawTypeSelector {
 	}
 	
 	public static int[] getDrawTypes() {
-		return new int[] {PEN_DRAW_SQUARE, PEN_DRAW_CIRCLE};
+		return new int[] {PEN_DRAW_SQUARE, PEN_DRAW_CIRCLE, PEN_DRAW_TAPERING};
 	}
 	
 }

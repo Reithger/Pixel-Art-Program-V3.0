@@ -6,6 +6,26 @@ import java.util.ArrayList;
 import control.code.CodeReference;
 import visual.composite.HandlePanel;
 
+/**
+ * 
+ * Abstract Tile object definition.
+ * 
+ * Note that a "Tile" indicates a sliced section of the sidescrolling menu bars
+ * in each page of the art program, not the GridIcons that make up some types of
+ * Tiles.
+ * 
+ * Tiles are responsible for displaying UI elements to the user and sending appropriate
+ * code values to the Controller when the user prompts certain changes (clicks buttons).
+ * 
+ * Subtypes are TileBig (one large image and clickable button with a subheader), TileGrid
+ * (many GridIcons or GridColors that can be interacted with by the user with a potential
+ * display for the active selection), and TileNumericSelector (controls one variable with
+ * a slider to display info to the user, such as current pen drawing size).
+ * 
+ * @author Reithger
+ *
+ */
+
 public abstract class Tile implements Comparable<Tile>{
 
 //---  Constants   ----------------------------------------------------------------------------

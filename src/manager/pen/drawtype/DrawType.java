@@ -6,4 +6,5 @@ public interface DrawType {
 
 	public abstract Integer[][] draw(Integer col, int penSize);
 	
+	public abstract void tellAge(int in);
 }

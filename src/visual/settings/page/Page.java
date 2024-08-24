@@ -236,6 +236,16 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		addTile(ref, refresh, push, TileFactory.generateTileNumericSelector(label, minVal, maxVal, decCode, incCode, setCode));
 	}
 	
+	/**
+	 * 
+	 * Adds a Tile
+	 * 
+	 * @param ref
+	 * @param refresh
+	 * @param push
+	 * @param in
+	 */
+	
 	private void addTile(String ref, Integer refresh, Integer push, Tile in) {
 		in.setPriority(tiles.size());
 		in.setTileMetaInfo(ref, refresh, push);

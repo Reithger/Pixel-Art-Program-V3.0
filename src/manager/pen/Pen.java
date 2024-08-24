@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import control.code.CodeReference;
 import manager.curator.picture.LayerPicture;
 import manager.pen.changes.Change;
 import manager.pen.changes.VersionHistory;
@@ -41,16 +42,34 @@ public class Pen {
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
-	public final static int PEN_MODE_DRAW = 0;
-	public final static int PEN_MODE_COLOR_PICK = 2;
-	public final static int PEN_MODE_FILL = 3;
-	public final static int PEN_MODE_REGION_SELECT = 4;
-	public final static int PEN_MODE_REGION_APPLY = 5;
+	/**
+	 * 
+	 * Code values are set up here to correspond to external code input values so that
+	 * when querying the state of the Model, there is an existing standard to understand
+	 * the values by.
+	 * 
+	 * That is, if the current pen mode is Draw, that code is the same as the one the user
+	 * triggers to change the mode to Draw so that we can know what image/overlay text corresponds
+	 * to the backend model's state; thus we can tell the user with consistent visual language
+	 * what the current mode is.
+	 * 
+	 * Region Select/Apply are outliers which have sub-options from the RegionDraw class, so
+	 * they are local values that shouldn't overlap with any other code values we use which
+	 * defer to the value stored in RegionDraw when contextually appropriate.
+	 * 
+	 */
 	
-	public final static int REGION_MODE_OUTLINE = 0;
-	public final static int REGION_MODE_FILL = 1;
-	public final static int REGION_MODE_COPY = 2;
-	public final static int REGION_MODE_PASTE = 3;
+	public final static int PEN_MODE_DRAW = CodeReference.CODE_PEN_MODE_DRAW;
+	public final static int PEN_MODE_MOVE_CANVAS = CodeReference.CODE_PEN_MODE_MOVE_CANVAS;
+	public final static int PEN_MODE_COLOR_PICK = CodeReference.CODE_PEN_MODE_COLOR_PICK;
+	public final static int PEN_MODE_FILL = CodeReference.CODE_PEN_MODE_FILL;
+	public final static int PEN_MODE_REGION_SELECT = -1;
+	public final static int PEN_MODE_REGION_APPLY = -2;
+	
+	public final static int REGION_MODE_OUTLINE = RegionDraw.REGION_MODE_OUTLINE;
+	public final static int REGION_MODE_FILL = RegionDraw.REGION_MODE_FILL;
+	public final static int REGION_MODE_COPY = RegionDraw.REGION_MODE_COPY;
+	public final static int REGION_MODE_PASTE = RegionDraw.REGION_MODE_PASTE;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -187,10 +206,14 @@ public class Pen {
 			case PEN_MODE_FILL:
 				return duration == 0 ? fill(can, new Point(x, y), use) : new Change[] {new Change(), new Change()};
 			case PEN_MODE_REGION_SELECT:
+				// Reinitializes the first corner of the area the user is selecting
 				if(!region.hasActivePoint()) {
 					region.resetPoints();
 					region.assignPoint(new Point(x, y));
 				}
+				// Once the user releases (continuous value range of input resets to -1), take the two points and apply
+				// a result based on their positions and the other modes currently selected and remove the effect from
+				// the overlay.
 				else if(release) {
 					region.assignPoint(new Point(x, y));
 					Change[] out = region.applyPointEffect(can, regionMode, use);
@@ -198,6 +221,8 @@ public class Pen {
 					overlay.get(nom).release(Overlay.REF_SELECT_BORDER);
 					return out;
 				}
+				// Otherwise, tracks current position to know where to draw the two corners for visual aid in the selection being
+				// performed, using the inversion of the underlying color for visibility.
 				else {
 					Change c = new Change();
 					Point a = region.getFirstPoint();
@@ -237,8 +262,7 @@ public class Pen {
 	}
 	
 	private int inverse(Integer in) {
-		int out = (in.intValue() ^ (-1)) | (-16777216);
-		return out;
+		return ~in.intValue() | 0xff000000;
 	}
 	
 	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {
@@ -353,6 +377,7 @@ public class Pen {
 	
 	public void setPenMode(int in) {
 		setMode = in;
+		enable();
 	}
 	
 	public void enable() {
@@ -428,8 +453,20 @@ public class Pen {
 		return pencil.getDrawTypes();
 	}
 	
+	/**
+	 * 
+	 * This is relied on by DrawInstructions which needs to know that we are in a selection/application
+	 * mode for a region on the pen, as well as by the Controller for updating the visuals.
+	 * 
+	 * @return
+	 */
+	
 	public int getPenMode() {
 		return setMode;
+	}
+	
+	public int getPenModeCode() {
+		return !enabled ? PEN_MODE_MOVE_CANVAS : setMode < 0 ? region.getMode() : setMode;
 	}
 	
 	//-- ColorManager  ----------------------------------------

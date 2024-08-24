@@ -14,5 +14,9 @@ public class DrawTypeSquare implements DrawType{
 		}
 		return out;
 	}
-
+	
+	@Override
+	public void tellAge(int in) {
+		
+	}
 }
