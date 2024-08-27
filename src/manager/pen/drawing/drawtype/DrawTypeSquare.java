@@ -1,4 +1,4 @@
-package manager.pen.drawtype;
+package manager.pen.drawing.drawtype;
 
 public class DrawTypeSquare implements DrawType{
 

@@ -3,8 +3,8 @@ package manager.pen.drawing;
 import java.util.HashSet;
 
 import manager.pen.changes.Change;
-import manager.pen.drawtype.DrawType;
-import manager.pen.drawtype.DrawTypeSelector;
+import manager.pen.drawing.drawtype.DrawType;
+import manager.pen.drawing.drawtype.DrawTypeSelector;
 
 public class StandardDraw {
 

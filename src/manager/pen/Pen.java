@@ -74,6 +74,9 @@ public class Pen {
 	public Pen() {
 		color = new ColorManager();
 		drawControl = new DrawingManager();
+		DrawingManager.assignPenModeCodes(PEN_MODE_DRAW, PEN_MODE_MOVE_CANVAS, PEN_MODE_COLOR_PICK, PEN_MODE_FILL);
+		DrawingManager.assignRegionModeCodes(REGION_MODE_OUTLINE, REGION_MODE_FILL, REGION_MODE_COPY, REGION_MODE_PASTE);
+		drawControl.setPenMode(PEN_MODE_DRAW);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------

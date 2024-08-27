@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import manager.curator.picture.LayerPicture;
-import manager.pen.Overlay;
-import manager.pen.Pen;
 import misc.Canvas;
 import manager.pen.changes.Change;
 import manager.pen.changes.DrawInstruction;
@@ -34,17 +32,9 @@ public class DrawingManager {
 	 * 
 	 */
 
-	public final static int PEN_MODE_DRAW = Pen.PEN_MODE_DRAW;
-	public final static int PEN_MODE_MOVE_CANVAS = Pen.PEN_MODE_MOVE_CANVAS;
-	public final static int PEN_MODE_COLOR_PICK = Pen.PEN_MODE_COLOR_PICK;
-	public final static int PEN_MODE_FILL = Pen.PEN_MODE_FILL;
-	public final static int PEN_MODE_REGION_SELECT = -1;
-	public final static int PEN_MODE_REGION_APPLY = -2;
+	public static int PEN_MODE_REGION_SELECT = -1;
+	public static int PEN_MODE_REGION_APPLY = -2;
 
-	public final static int REGION_MODE_OUTLINE = Pen.REGION_MODE_OUTLINE;
-	public final static int REGION_MODE_FILL = Pen.REGION_MODE_FILL;
-	public final static int REGION_MODE_COPY = Pen.REGION_MODE_COPY;
-	public final static int REGION_MODE_PASTE = Pen.REGION_MODE_PASTE;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -60,6 +50,16 @@ public class DrawingManager {
 
 	private int setMode;
 	private volatile boolean mutex;
+
+	public static int PEN_MODE_DRAW;
+	public static int PEN_MODE_MOVE_CANVAS;
+	public static int PEN_MODE_COLOR_PICK;
+	public static int PEN_MODE_FILL;
+	
+	public static int REGION_MODE_OUTLINE;
+	public static int REGION_MODE_FILL;
+	public static int REGION_MODE_COPY;
+	public static int REGION_MODE_PASTE;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -76,6 +76,21 @@ public class DrawingManager {
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
+	
+	public static void assignPenModeCodes(int draw, int moveCanvas, int colorPick, int fill) {
+		PEN_MODE_DRAW = draw;
+		PEN_MODE_MOVE_CANVAS = moveCanvas;
+		PEN_MODE_COLOR_PICK = colorPick;
+		PEN_MODE_FILL = fill;
+	}
+	
+	public static void assignRegionModeCodes(int outline, int fill, int copy, int paste) {
+		REGION_MODE_OUTLINE = outline;
+		REGION_MODE_FILL = fill;
+		REGION_MODE_COPY = copy;
+		REGION_MODE_PASTE = paste;
+		RegionDraw.assignRegionCodes(outline, fill, copy, paste);
+	}
 	
 	//-- Setup  -----------------------------------------------
 
@@ -170,65 +185,89 @@ public class DrawingManager {
 	
 	private Change[] interpretInput(String nom, int penMode, int regionMode, Integer[][] can, Integer use, int x, int y, int duration) {
 		boolean release = duration == -1;
-		switch(penMode) {
-			case PEN_MODE_DRAW:
-				return pencil.draw(can, x, y, duration, use);
-			case PEN_MODE_FILL:
-				return duration == 0 ? fill(can, new Point(x, y), use) : new Change[] {new Change(), new Change()};
-			case PEN_MODE_REGION_SELECT:
-				// Reinitializes the first corner of the area the user is selecting
-				if(!region.hasActivePoint()) {
-					region.resetPoints();
-					region.assignPoint(new Point(x, y));
-				}
-				// Once the user releases (continuous value range of input resets to -1), take the two points and apply
-				// a result based on their positions and the other modes currently selected and remove the effect from
-				// the overlay.
-				else if(release) {
-					region.assignPoint(new Point(x, y));
-					Change[] out = region.applyPointEffect(can, regionMode, use);
-					region.resetPoints();
-					overlay.get(nom).release(Overlay.REF_SELECT_BORDER);
+		if(penMode == PEN_MODE_DRAW) {
+			return interpretDraw(can, x, y, duration, use);
+		}
+		else if(penMode == PEN_MODE_FILL) {
+			return interpretFill(can, x, y, duration, use);
+		}
+		else if(penMode == PEN_MODE_REGION_SELECT) {
+			// Reinitializes the first corner of the area the user is selecting
+			if(!region.hasActivePoint()) {
+				region.resetPoints();
+				region.assignPoint(new Point(x, y));
+			}
+			else {
+				Change[] out = interpretRegionSelect(can, x, y, use, release, nom, regionMode);
+				if(out != null) {
 					return out;
 				}
-				// Otherwise, tracks current position to know where to draw the two corners for visual aid in the selection being
-				// performed, using the inversion of the underlying color for visibility.
-				else {
-					Change c = new Change();
-					Point a = region.getFirstPoint();
-					int x2 = a.getX();
-					int y2 = a.getY();
-					for(int i = x; (x < x2 ? i < x + can.length/20 : i > x - can.length/20) && i < can.length && i >= 0; i += (x < x2 ? 1 : -1)) {
-						for(int j = y; (y < y2 ? j < y + can[0].length/20 : j > y - can[0].length/20) && j < can[0].length && j >= 0; j += (y < y2 ? 1 : -1)) {
-							if((i == x || j == y )) {
-								c.addChange(i, j, inverse(can[i][j]));
-								int otX = x2 + (i - x) * -1;
-								int otY = y2 + (j - y) * -1;
-								otX = otX < 0 ? 0 : otX >= can.length ? can.length - 1 : otX;
-								otY = otY < 0 ? 0 : otY >= can[0].length ? can[0].length - 1 : otY;
-								c.addChange(otX, otY, inverse(can[otX][otY]));
-							}
-						}
-					}
-					overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, c);
+			}
+		}
+		else if(penMode == PEN_MODE_REGION_APPLY) {
+				Change[] out = interpretRegionApply(can, x, y, duration, release, nom, regionMode);
+				if(out != null) {
+					return out;
 				}
-				break;
-			case PEN_MODE_REGION_APPLY:
-				if(release || duration == 0) {
-					overlay.get(nom).release(Overlay.REF_PASTE);
-				}
-				Change[] useC = region.applySavedRegion(can, regionMode, new Point(x, y));
-				if(release) {
-					return useC;
-				}
-				else {
-					overlay.get(nom).instruct(Overlay.REF_PASTE, useC[1]);
-				}
-				break;
-			default:
-				break;
 		}
 		return new Change[] {new Change(), new Change()};
+	}
+	
+	private Change[] interpretDraw(Integer[][] can, int x, int y, int duration, Integer use) {
+		return pencil.draw(can, x, y, duration, use);
+	}
+	
+	private Change[] interpretFill(Integer[][] can, int x, int y, int duration, Integer use) {
+		return duration == 0 ? fill(can, new Point(x, y), use) : new Change[] {new Change(), new Change()};
+	}
+	
+	private Change[] interpretRegionSelect(Integer[][] can, int x, int y, Integer use, boolean release, String nom, int regionMode) {
+		// Once the user releases (continuous value range of input resets to -1), take the two points and apply
+		// a result based on their positions and the other modes currently selected and remove the effect from
+		// the overlay.
+		if(release) {
+			region.assignPoint(new Point(x, y));
+			Change[] out = region.applyPointEffect(can, regionMode, use);
+			region.resetPoints();
+			overlay.get(nom).release(Overlay.REF_SELECT_BORDER);
+			return out;
+		}
+		// Otherwise, tracks current position to know where to draw the two corners for visual aid in the selection being
+		// performed, using the inversion of the underlying color for visibility.
+		else {
+			Change c = new Change();
+			Point a = region.getFirstPoint();
+			int x2 = a.getX();
+			int y2 = a.getY();
+			for(int i = x; (x < x2 ? i < x + can.length/20 : i > x - can.length/20) && i < can.length && i >= 0; i += (x < x2 ? 1 : -1)) {
+				for(int j = y; (y < y2 ? j < y + can[0].length/20 : j > y - can[0].length/20) && j < can[0].length && j >= 0; j += (y < y2 ? 1 : -1)) {
+					if((i == x || j == y )) {
+						c.addChange(i, j, inverse(can[i][j]));
+						int otX = x2 + (i - x) * -1;
+						int otY = y2 + (j - y) * -1;
+						otX = otX < 0 ? 0 : otX >= can.length ? can.length - 1 : otX;
+						otY = otY < 0 ? 0 : otY >= can[0].length ? can[0].length - 1 : otY;
+						c.addChange(otX, otY, inverse(can[otX][otY]));
+					}
+				}
+			}
+			overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, c);
+			return null;
+		}
+	}
+
+	private Change[] interpretRegionApply(Integer[][] can, int x, int y, int duration, boolean release, String nom, int regionMode) {
+		if(release || duration == 0) {
+			overlay.get(nom).release(Overlay.REF_PASTE);
+		}
+		Change[] useC = region.applySavedRegion(can, regionMode, new Point(x, y));
+		if(release) {
+			return useC;
+		}
+		else {
+			overlay.get(nom).instruct(Overlay.REF_PASTE, useC[1]);
+			return null;
+		}
 	}
 
 	private void commitChanges(LayerPicture lP, String ref, int layer, int duration, Change[] changesIn) {

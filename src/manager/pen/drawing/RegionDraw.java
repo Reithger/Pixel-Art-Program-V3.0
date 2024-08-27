@@ -9,10 +9,10 @@ public class RegionDraw {
 
 //---  Constants   ----------------------------------------------------------------------------
 
-	public final static int REGION_MODE_OUTLINE = DrawingManager.REGION_MODE_OUTLINE;
-	public final static int REGION_MODE_FILL = DrawingManager.REGION_MODE_FILL;
-	public final static int REGION_MODE_COPY = DrawingManager.REGION_MODE_COPY;
-	public final static int REGION_MODE_PASTE = DrawingManager.REGION_MODE_PASTE;
+	public static int REGION_MODE_OUTLINE;
+	public static int REGION_MODE_FILL;
+	public static int REGION_MODE_COPY;
+	public static int REGION_MODE_PASTE;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -34,45 +34,68 @@ public class RegionDraw {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
+	public static void assignRegionCodes(int outline, int fill, int copy, int paste) {
+		REGION_MODE_OUTLINE = outline;
+		REGION_MODE_FILL = fill;
+		REGION_MODE_COPY = copy;
+		REGION_MODE_PASTE = paste;
+	}
+	
 	public Change[] applyPointEffect(Integer[][] c, int inMode, Integer use) {
 		Change[] out = new Change[] {new Change(), new Change()};
 		if(pointA == null || pointB == null) {
 			return out;
 		}
+
+		out[0].setOverwrite(false);
+		if(regionMode == REGION_MODE_OUTLINE) {
+			interpretRegionOutline(c, out, use);
+		}
+		else if(regionMode == REGION_MODE_FILL) {
+			interpretRegionFill(c, out, use);
+		}
+		else if(regionMode == REGION_MODE_COPY) {
+			copySelectedRegion(c);
+		}
+		return out;
+	}
+	
+	private void interpretRegionFill(Integer[][] c, Change[] out, Integer use) {
 		int x1 = pointA.getX();
 		int y1 = pointA.getY();
 		int x2 = pointB.getX();
 		int y2 = pointB.getY();
-
-		out[0].setOverwrite(false);
-		switch(inMode) {
-			case REGION_MODE_OUTLINE:
-				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
-					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
-						if((i == x1 || i == x2 || j == y1 || j == y2) && i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
-							out[0].addChange(i, j, c[i][j]);
-							out[1].addChange(i, j, use);
-						}
-					}
+		for(int i = smaller(x1, x2); i <= (larger(x1, x2)); i++) {
+			for(int j = smaller(y1, y2); j <= larger(y1, y2); j++) {
+				if(i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
+					out[0].addChange(i, j, c[i][j]);
+					out[1].addChange(i, j, use);
 				}
-				break;
-			case REGION_MODE_FILL:
-				for(int i = x1 < x2 ? x1 : x2; i <= (x1 < x2 ? x2 : x1); i++) {
-					for(int j = y1 < y2 ? y1 : y2; j <= (y1 < y2 ? y2 : y1); j++) {
-						if(i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
-							out[0].addChange(i, j, c[i][j]);
-							out[1].addChange(i, j, use);
-						}
-					}
-				}
-				break;
-			case REGION_MODE_COPY:
-				copySelectedRegion(c, x1, y1, x2, y2);
-				break;
-			default:
-				break;
+			}
 		}
-		return out;
+	}
+	
+	private void interpretRegionOutline(Integer[][] c, Change[] out, Integer use) {
+		int x1 = pointA.getX();
+		int y1 = pointA.getY();
+		int x2 = pointB.getX();
+		int y2 = pointB.getY();
+		for(int i = smaller(x1, x2); i <= larger(x1, x2); i++) {
+			for(int j = smaller(y1, y2); j <= larger(y1, y2); j++) {
+				if((i == x1 || i == x2 || j == y1 || j == y2) && i >= 0 && i < c.length && j >= 0 && j < c[i].length) {
+					out[0].addChange(i, j, c[i][j]);
+					out[1].addChange(i, j, use);
+				}
+			}
+		}
+	}
+	
+	private int smaller(int a, int b) {
+		return a < b ? a : b;
+	}
+	
+	private int larger(int a, int b) {
+		return a < b ? b : a;
 	}
 	
 	public Change[] applySavedRegion(Integer[][] cIn, int inMode, Point loc) {
@@ -80,27 +103,28 @@ public class RegionDraw {
 		out[0].setOverwrite(false);
 		int wid = cIn.length;
 		int hei = cIn[0].length;
-		switch(inMode) {
-			case REGION_MODE_PASTE:
-				Canvas c = saved.get(activeSelect);
-				if(c == null) {
-					return out;
-				}
-				int x = loc.getX();
-				int y = loc.getY();
-				for(int i = 0; i < c.getCanvasWidth(); i++) {
-					for(int j = 0; j < c.getCanvasHeight(); j++) {
-						Integer curCol = c.getCanvasIntValue(i, j);
-						int usX = x + i;
-						int usY = y + j;
-						if(curCol != null && usX > 0 && usY > 0 && usX < wid && usY < hei)
-							out[0].addChange(x + i, j + y, cIn[usX][usY]);
-							out[1].addChange(x + i, y + j, curCol);
-					}
-				}
-				break;
-			default:
-				break;
+		if(regionMode == REGION_MODE_PASTE) {
+			Canvas c = saved.get(activeSelect);
+			if(c == null) {
+				return out;
+			}
+			return interpretRegionPaste(loc, c, wid, hei, out, cIn);
+		}
+		return out;
+	}
+	
+	private Change[] interpretRegionPaste(Point loc, Canvas c, int wid, int hei, Change[] out, Integer[][] cIn) {
+		int x = loc.getX();
+		int y = loc.getY();
+		for(int i = 0; i < c.getCanvasWidth(); i++) {
+			for(int j = 0; j < c.getCanvasHeight(); j++) {
+				Integer curCol = c.getCanvasIntValue(i, j);
+				int usX = x + i;
+				int usY = y + j;
+				if(curCol != null && usX > 0 && usY > 0 && usX < wid && usY < hei)
+					out[0].addChange(x + i, j + y, cIn[usX][usY]);
+					out[1].addChange(x + i, y + j, curCol);
+			}
 		}
 		return out;
 	}
@@ -119,7 +143,12 @@ public class RegionDraw {
 		pointB = null;
 	}
 	
-	public void copySelectedRegion(Integer[][] in, int x1, int y1, int x2, int y2) {
+	public void copySelectedRegion(Integer[][] in) {
+		int x1 = pointA.getX();
+		int y1 = pointA.getY();
+		int x2 = pointB.getX();
+		int y2 = pointB.getY();
+		
 		int wid = Math.abs(x2 - x1);
 		int hei = Math.abs(y2 - y1);
 		Canvas can = new Canvas(wid, hei);

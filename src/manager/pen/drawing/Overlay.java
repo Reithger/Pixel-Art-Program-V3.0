@@ -1,4 +1,4 @@
-package manager.pen;
+package manager.pen.drawing;
 
 import java.util.HashMap;
 
