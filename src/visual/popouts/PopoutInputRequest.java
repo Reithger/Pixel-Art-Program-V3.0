@@ -26,29 +26,41 @@ public class PopoutInputRequest extends PopoutWindow{
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private volatile boolean ready;
-	private String out;
+	private String[] out;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public PopoutInputRequest(String text) {
+	public PopoutInputRequest(String ... text) {
 		super(POPUP_WIDTH, POPUP_HEIGHT);
 		
+		out = new String[text.length];
+		
 		ready = false;
-		int posX = POPUP_WIDTH / 2;
+
+		int posX = POPUP_WIDTH / (text.length + 1);
 		int posY = POPUP_HEIGHT / 6;
-		
-		int labelWidth = POPUP_WIDTH * 3 / 4;
+		int labelWidth = POPUP_WIDTH * 3 / (2 * (text.length + 1));
 		int labelHeight = POPUP_HEIGHT / 3;
-		this.handleText("tex", "move", 15, posX, posY, labelWidth, labelHeight, null, text);
 		
+		for(int i = 0; i < text.length; i++){
+			String s = text[i];
+			this.handleText("tex_" + i, "move", 15, posX, posY, labelWidth, labelHeight, null, s);
+			posX += (POPUP_WIDTH / (text.length + 1));
+		}
+		
+		posX = POPUP_WIDTH / (text.length + 1);
 		posY += POPUP_HEIGHT / 3;
-		int entryWidth = POPUP_WIDTH / 2;
+		int entryWidth = POPUP_WIDTH / (text.length + 2);
 		int entryHeight = POPUP_HEIGHT / 5;
-		this.handleTextEntry(ELEMENT_NAME_ENTRY, "move", 15, posX, posY, entryWidth, entryHeight, -55, null, "");
-		this.handleRectangle("rect", "move", 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
 		
+		for(int i = 0; i < text.length; i++){
+			this.handleTextEntry(ELEMENT_NAME_ENTRY + "_" + i, "move", 15, posX, posY, entryWidth, entryHeight, -55 - i, null, "");
+			this.handleRectangle("rect_" + i, "move", 5, posX, posY, entryWidth, entryHeight, Color.white, Color.black);
+			posX += (POPUP_WIDTH / (text.length + 1));
+		}
 		getHandlePanel().setFocusElement(ELEMENT_NAME_ENTRY);
 		
+		posX = POPUP_WIDTH / 2;
 		posY += POPUP_HEIGHT / 3;
 		int submitWidth = POPUP_WIDTH / 2;
 		int submitHeight = POPUP_HEIGHT / 4;
@@ -57,7 +69,7 @@ public class PopoutInputRequest extends PopoutWindow{
 
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public String getSubmitted() {
+	public String[] getSubmitted() {
 		while(!ready) {
 		};
 		return out;
@@ -66,7 +78,9 @@ public class PopoutInputRequest extends PopoutWindow{
 //---  Input Handling   -----------------------------------------------------------------------
 	
 	private void enableEnd() {
-		out = this.getStoredText(ELEMENT_NAME_ENTRY);
+		for(int i = 0; i < out.length; i++) {
+			out[i] = this.getStoredText(ELEMENT_NAME_ENTRY + "_" + i);
+		}
 		ready = true;
 	}
 	

@@ -55,5 +55,10 @@ public class TileBig extends Tile{
 		out.add(code);
 		return out;
 	}
+
+	@Override
+	public String getTooltipText(int code) {
+		return label;
+	}
 	
 }

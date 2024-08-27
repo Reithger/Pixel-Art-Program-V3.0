@@ -1,6 +1,5 @@
 package visual.drawboard.corkboard;
 
-import control.code.CodeReference;
 import misc.Canvas;
 
 public class DisplayPicture extends Corkboard{
@@ -40,7 +39,7 @@ public class DisplayPicture extends Corkboard{
 		getPanel().removeElementPrefixed("display_picture_img");
 		int usX = CONTENT_X_BUFFER;
 		int usY = CONTENT_Y_BUFFER;
-		getPanel().addCanvas("display_picture_img", 5, "move", usX, usY, getContentWidth(), getContentHeight(), disp, CodeReference.CODE_INTERACT_CONTENT);
+		getPanel().addCanvas("display_picture_img", 5, "move", usX, usY, getContentWidth(), getContentHeight(), disp, INTERACT_CODE);
 		if(overlay != null)
 			getPanel().addCanvas("display_picture_img2", 8, "move", usX, usY, getContentWidth(), getContentHeight(), overlay, OVERLAY_INTERACT_CODE);
 	}

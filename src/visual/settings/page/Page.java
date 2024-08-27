@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import control.InputHandler;
-import control.code.CodeReference;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
+import visual.CodeMetaAccess;
+import visual.InputHandler;
 import visual.composite.HandlePanel;
 import visual.settings.page.tile.Tile;
 import visual.settings.page.tile.TileFactory;
 
-public abstract class Page extends HandlePanel implements InputHandler{
+public class Page extends HandlePanel implements InputHandler{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -30,6 +30,8 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	private volatile boolean mutexHere;
 	
 	private static boolean displayTooltip;
+	
+	private static CodeMetaAccess codeReference;
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
@@ -156,6 +158,10 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		reference = ref;
 	}
 
+	public static void assignCodeReference(CodeMetaAccess cma) {
+		codeReference = cma;
+	}
+	
 	public void drawPage() {
 		int buffer = getWidth() / 50;
 		int posX = buffer / 2;
@@ -221,7 +227,7 @@ public abstract class Page extends HandlePanel implements InputHandler{
 	//-- Tiles  -----------------------------------------------
 	
 	public void addTileBig(String ref, Integer refresh, Integer push, String label, int code) {
-		addTile(ref, refresh, push, TileFactory.generateTileBig(CodeReference.getCodeImagePath(code), label, code));
+		addTile(ref, refresh, push, TileFactory.generateTileBig(codeReference.getCodeImagePath(code), label, code));
 	}
 	
 	public void addTileBig(String ref, Integer refresh, Integer push, String label, String path, int code) {
@@ -274,9 +280,9 @@ public abstract class Page extends HandlePanel implements InputHandler{
 		closeLockHere();
 	}
 	
-	public void assignTileGridImages(String ref, ArrayList<String> paths, int[] codes) {
+	public void assignTileGridImages(String ref, int[] codes) {
 		openLockHere();
-		TileFactory.updateTileGridImages(getTile(ref), paths, codes);
+		TileFactory.updateTileGridImages(getTile(ref), codes, codeReference.getCodeImagePaths(codes), codeReference.getCodeLabels(codes));
 		updateCodeAssociations(getTile(ref));
 		closeLockHere();
 	}

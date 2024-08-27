@@ -3,16 +3,26 @@ package visual.drawboard.corkboard;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 
-import control.InputHandler;
-import control.code.CodeInfo;
-import control.code.CodeReference;
 import misc.Canvas;
+import visual.CodeMetaAccess;
+import visual.InputHandler;
 import visual.composite.HandlePanel;
+import visual.drawboard.corkboard.buttons.ButtonManager;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
 
+/**
+ * 
+ * Need to remove the dependency to CodeReference here, but a lot of specific code values
+ * are relevant for reacting to user behaviors in very specific ways.
+ * 
+ * A static assignment for each one feels an overwrought solution.
+ * 
+ * @author Reithger
+ *
+ */
 public abstract class Corkboard {
 
 	/*
@@ -28,42 +38,51 @@ public abstract class Corkboard {
 	 */
 	
 //---  Constants   ----------------------------------------------------------------------------
-	
-	private final static int[] NAME_BAR_CODES = new int[] {CodeReference.CODE_CLOSE_THING, CodeReference.CODE_MAXIMIZE_CANVAS};
+
 	protected static final int HEADER_HEIGHT = 30;
 	protected static final int SIDEBAR_WIDTH = 46;
 	protected final static int MINIMUM_SIZE = 150;
+	
 	protected final static int CONTENT_X_BUFFER = 1;
 	protected final static int CONTENT_Y_BUFFER = HEADER_HEIGHT + 1;
-	private final static Font HOVER_TEXT_FONT = new Font("Serif", Font.BOLD, 16);
-
 	
-	public final static int CODE_CHECK_POSITION = 55;
+	private final static Font HOVER_TEXT_FONT = new Font("Serif", Font.BOLD, 16);
 	private final static Font TITLE_FONT = new Font("Serif", Font.BOLD, 16);
+	
 	protected final static int OVERLAY_INTERACT_CODE = -42;
+	protected final static int INTERACT_CODE = -43;
+	
+	public final static int CODE_CHECK_POSITION = -44;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
 	private String name;
 	private String panelName;
+	
 	private HandlePanel panel;
-	private ArrayList<CodeInfo> buttons;
-	private HashSet<Integer> buttonCodes;
+	private ButtonManager canvasButtons;
+	private ButtonManager headerButtons;
+	
+	private HashMap<Integer, String> buttonCodesToLabel;
 	private InputHandler reference;
+	
 	private boolean mutex;
 	private static boolean contentLocked;
 	private int zoom;
 	private static boolean displayTooltip;
-	private boolean toggleButtons;
+	
+	private static CodeMetaAccess codeReference;
+	private static int CODE_HEADER;
+	private static int CODE_RESIZE;
 
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public Corkboard(String inNom, String inPanel, int inWidth, int inHeight) {
-		toggleButtons = true;
 		setName(inNom);
 		setPanelName(inPanel);
-		buttons = new ArrayList<CodeInfo>();
-		buttonCodes = new HashSet<Integer>();
+		canvasButtons = new ButtonManager();
+		headerButtons = new ButtonManager();
+		buttonCodesToLabel = new HashMap<Integer, String>();
 		displayTooltip = true;
 		mutex = false;
 		int wid = inWidth < MINIMUM_SIZE ? MINIMUM_SIZE : inWidth;
@@ -74,6 +93,15 @@ public abstract class Corkboard {
 	
 //---  Operations   ---------------------------------------------------------------------------
 
+	public static void assignCodeReference(CodeMetaAccess cma) {
+		codeReference = cma;
+	}
+	
+	public static void assignHeaderCodes(int header, int resize) {
+		CODE_HEADER = header;
+		CODE_RESIZE = resize;
+	}
+	
 	protected void generatePanel(int width, int height) {
 		HandlePanel hand = new HandlePanel(0, 0, width + SIDEBAR_WIDTH, height + HEADER_HEIGHT);
 		hand.setEventReceiver(new CustomEventReceiver() {
@@ -103,14 +131,10 @@ public abstract class Corkboard {
 			@Override
 			public void clickEvent(int code, int x, int y, int clickStart) {
 				switch(code) {
-					case CodeReference.CODE_INTERACT_CONTENT :
+					case INTERACT_CODE:
 						if(!contentLocked) {
 							processDrawing(x, y);
 						}
-						break;
-					case CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS:
-						toggleButtons = !toggleButtons;
-						updatePanel();
 						break;
 					default:
 						onClick(code, x, y);
@@ -124,13 +148,13 @@ public abstract class Corkboard {
 				drawCounter = 0;
 				lastX = x;
 				lastY = y;
-				if(code == CodeReference.CODE_HEADER) {
+				if(code == CODE_HEADER) {
 					draggingHeader = true;
 				}
-				else if(code == CodeReference.CODE_RESIZE) {
+				else if(code == CODE_RESIZE) {
 					draggingResize = true;
 				}
-				else if(code == CodeReference.CODE_INTERACT_CONTENT) {
+				else if(code == INTERACT_CODE) {
 					processDrawing(x, y);
 				}
 				onClickPress(code, x, y);
@@ -145,7 +169,7 @@ public abstract class Corkboard {
 				draggingResize = false;
 				draggingHeader = false;
 				drawCounter = -1;
-				if(code == CodeReference.CODE_INTERACT_CONTENT) {
+				if(code == INTERACT_CODE) {
 					processDrawing(x, y);
 				}
 				onClickRelease(code, x, y);
@@ -154,7 +178,7 @@ public abstract class Corkboard {
 			@Override
 			public void dragEvent(int code, int x, int y, int clickStart) {
 				processDragging(x, y);
-				if((code == CodeReference.CODE_INTERACT_CONTENT || canvasDrag) && !draggingResize) {
+				if((code == INTERACT_CODE || canvasDrag) && !draggingResize) {
 					if(!contentLocked) {
 						processDrawing(x, y);
 					}
@@ -174,12 +198,12 @@ public abstract class Corkboard {
 			
 			@Override
 			public void mouseMoveEvent(int code, int x, int y) {
-				if(displayTooltip && (buttonCodes.contains(code) || code == CodeReference.CODE_RESIZE)) {
+				if(displayTooltip && (buttonCodesToLabel.get(code) != null || code == CODE_RESIZE)) {
 					if(tooltipWaitTime == -1) {
 						tooltipWaitTime = System.currentTimeMillis();
 					}
 					else if(System.currentTimeMillis() - tooltipWaitTime > 100) {
-						String disp = CodeReference.getCodeLabel(code);
+						String disp = codeReference.getCodeLabel(code);
 						int posX = x;
 						int posY = y;
 						int wid = hand.getTextWidth(disp, HOVER_TEXT_FONT) + 3;
@@ -252,7 +276,7 @@ public abstract class Corkboard {
 		
 		posY = hei - size;
 		
-		p.handleImageButton("imgB", "no_move", 15, posX, posY, size, size, CodeReference.getCodeImagePath(CodeReference.CODE_RESIZE), CodeReference.CODE_RESIZE);
+		p.handleImageButton("imgB", "no_move", 15, posX, posY, size, size, codeReference.getCodeImagePath(CODE_RESIZE), CODE_RESIZE);
 		
 		drawTitle();
 		
@@ -269,17 +293,17 @@ public abstract class Corkboard {
 	}
 
 	private void drawTitle() {
-		getPanel().removeElementPrefixed("name_bar_title");
+		getPanel().removeElementPrefixed("name_bar");
 		int butHei = HEADER_HEIGHT * 9/10;
 		int texWid = getPanel().getTextWidth(getName(), TITLE_FONT) * 2;
 		if(texWid < 0) {
-			texWid = getWidth() - butHei * (NAME_BAR_CODES.length + 1);
+			texWid = getWidth() - butHei * (headerButtons.getNumButtons() + 1);
 			texWid = texWid < 20 ? 20 : texWid;
 		}
-		getPanel().handleTextButton("name_bar_title", "no_move", 15, texWid / 2, butHei / 2, texWid, butHei, TITLE_FONT, getName(), CodeReference.CODE_HEADER, Color.white, Color.black);
+		getPanel().handleTextButton("name_bar_title", "no_move", 15, texWid / 2, butHei / 2, texWid, butHei, TITLE_FONT, getName(), CODE_HEADER, Color.white, Color.black);
 		
-		for(int i = 0 ; i < NAME_BAR_CODES.length; i++) {
-			getPanel().handleImageButton("name_bar_button_" + i, "no_move", 15, getWidth() - (int)((i + .5) * butHei) - 3, butHei / 2, butHei, butHei, CodeReference.getCodeImagePath(NAME_BAR_CODES[i]), NAME_BAR_CODES[i]);
+		for(int i = 0 ; i < headerButtons.getNumButtons(); i++) {
+			getPanel().handleImageButton("name_bar_button_" + headerButtons.getLabelAtPosition(i), "no_move", 15, getWidth() - (int)((i + .5) * butHei) - 3, butHei / 2, butHei, butHei, headerButtons.getImagePathAtPosition(i), headerButtons.getCodeAtPosition(i));
 		}
 	}
 	
@@ -287,26 +311,26 @@ public abstract class Corkboard {
 		HandlePanel p = getPanel();
 		p.removeElementPrefixed("button");
 		
-		ArrayList<CodeInfo> butt = toggleButtons ? buttons : new ArrayList<CodeInfo>();
-		
+		if(canvasButtons.getNumButtons() == -1) {
+			return;
+		}
+
 		int displaceY = size * 3 / 2;
 		int displaceX = size * 5 / 4;
 		int vert = hei / displaceY - 2;
-		int colum = butt.size() / vert + (butt.size() % vert == 0 ? 0 : 1);
+		int numButtons = canvasButtons.getNumButtons();
+		int colum = numButtons / vert + (numButtons % vert == 0 ? 0 : 1);
 		int useY = posY;
 		posX -= displaceX * (colum);
-		
-		CodeInfo bI = CodeReference.getCodeInfo(CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS);
-		p.handleImageButton("button_" + bI.getLabel(), "no_move", 15, posX, useY, size, size, bI.getImagePath(), bI.getCode());
-		
+
 		for(int i = colum - 1; i >= 0; i--) {
 			useY = posY;
 			for(int j = 0; j < vert; j++) {
-				if(i * vert + j >= butt.size()) {
+				if(i * vert + j >= numButtons) {
 					break;
 				}
-				bI = butt.get(i * vert + j);
-				p.handleImageButton("button_" + bI.getLabel(), "no_move", 15, posX + displaceX * (colum - i), useY, size, size, bI.getImagePath(), bI.getCode());
+				int use = i * vert + j;
+				p.handleImageButton("button_" + canvasButtons.getLabelAtPosition(use), "no_move", 15, posX + displaceX * (colum - i), useY, size, size, canvasButtons.getImagePathAtPosition(use), canvasButtons.getCodeAtPosition(use));
 				useY += displaceY;
 			}
 		}
@@ -336,40 +360,81 @@ public abstract class Corkboard {
 		mutex = false;
 	}
 
+	public void toggleButtons() {
+		canvasButtons.toggleDisplay();
+		updatePanel();
+	}
+	
 	//-- Buttons  ---------------------------------------------
+
+		//- Canvas  -------------------------------------------
 	
-	public void assignCodeInfo(ArrayList<CodeInfo> in) {
-		buttons = in;
-		buttonCodes = new HashSet<Integer>();
-		for(CodeInfo ci : in) {
-			buttonCodes.add(ci.getCode());
+	public void addButtonCanvas(int code, String path, String label) {
+		canvasButtons.addButton(code, path, label);
+		buttonCodesToLabel.put(code, label);
+	}
+	
+	public void addButtonsCanvas(int[] codes, ArrayList<String> paths, ArrayList<String> labels) {
+		if(codes.length != paths.size() || paths.size() != labels.size()) {
+			System.out.println("Error: in 'Corkboard' class, 'addButtonsCanvas' function (~line 349), length of lists of Codes, Paths, and Labels not the same.");
+			return;
+		}
+		for(int i = 0; i < codes.length; i++) {
+			addButtonCanvas(codes[i], paths.get(i), labels.get(i));
 		}
 	}
 	
-	public void addButton(CodeInfo bI) {
-		buttons.add(bI);
-		buttonCodes.add(bI.getCode());
-	}
-	
-	public void removeButton(String nom) {
-		for(int i = 0; i < buttons.size(); i++) {
-			if(buttons.get(i).getLabel().equals(nom)) {
-				buttonCodes.remove(buttons.get(i).getCode());
-				buttons.remove(i);
-				return;
-			}
+	public void removeButtonCanvas(int codeIn) {
+		int code = canvasButtons.removeButton(codeIn);
+		if(code != -1) {
+			buttonCodesToLabel.remove(codeIn);
 		}
 	}
 	
-	public void removeAllButtons() {
-		buttons.clear();
-		buttonCodes.clear();
+	public void removeAllButtonsCanvas() {
+		for(int i : canvasButtons.getCodes()) {
+			buttonCodesToLabel.remove(i);
+		}
+		canvasButtons.clear();
 	}
 	
-	public void moveButton(int i, int j) {
-		CodeInfo b = buttons.get(i);
-		buttons.remove(i);
-		buttons.add(j + (i < j ? -1 : 0), b);
+	public void moveButtonCanvas(int positionOne, int positionDestination) {
+		canvasButtons.moveButton(positionOne, positionDestination);
+	}
+	
+		//- Header  -------------------------------------------
+	
+	public void addButtonHeader(int code, String path, String label) {
+		headerButtons.addButton(code, path, label);
+		buttonCodesToLabel.put(code, label);
+	}
+	
+	public void addButtonsHeader(int[] codes, ArrayList<String> paths, ArrayList<String> labels) {
+		if(codes.length != paths.size() || paths.size() != labels.size()) {
+			System.out.println("Error: in 'Corkboard' class, 'addButtonsHeader' function (~line 382), length of lists of Codes, Paths, and Labels not the same.");
+			return;
+		}
+		for(int i = 0; i < codes.length; i++) {
+			addButtonHeader(codes[i], paths.get(i), labels.get(i));
+		}
+	}
+	
+	public void removeButtonHeader(int codeIn) {
+		int code = headerButtons.removeButton(codeIn);
+		if(code != -1) {
+			buttonCodesToLabel.remove(codeIn);
+		}
+	}
+	
+	public void removeAllButtonsHeader() {
+		for(int i : headerButtons.getCodes()) {
+			buttonCodesToLabel.remove(i);
+		}
+		headerButtons.clear();
+	}
+	
+	public void moveButtonHeader(int positionOne, int positionDestination) {
+		headerButtons.moveButton(positionOne, positionDestination);
 	}
 	
 	//-- Abstract  --------------------------------------------

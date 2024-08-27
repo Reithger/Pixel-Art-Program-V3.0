@@ -57,6 +57,11 @@ public class ArtPicture implements Comparable<ArtPicture>{
 		}
 	}
 	
+	public void resize(int newWid, int newHei) {
+		setWidth(newWid);
+		setHeight(newHei);
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
 	public void setWidth(int wid) {

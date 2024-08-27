@@ -5,16 +5,18 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import control.InputHandler;
 import control.code.CodeReference;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
 import misc.Canvas;
+import visual.CodeMetaAccess;
+import visual.InputHandler;
 import visual.composite.HandlePanel;
+import visual.drawboard.corkboard.CorkboardGenerator;
 import visual.frame.WindowFrame;
 import visual.popouts.PopoutConfirm;
 
-public class DrawingBoard implements InputHandler{
+public class DrawingBoard implements InputHandler, CodeMetaAccess {
 
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -23,7 +25,12 @@ public class DrawingBoard implements InputHandler{
 	private final static int PROPORTION_TOP_SELECT = 25;
 	private final static int SELECT_BAR_MIN_SECTIONS = 12;
 	private final static Font MENU_FONT = new Font("Serif", Font.BOLD, 12);
-	private final static int CODE_NEW_PAGE = 500;
+	
+	private final static int CODE_NEW_PAGE = CodeReference.CODE_NEW_DRAWING_PAGE;
+	private final static int CODE_CLOSE_PAGE = CodeReference.CODE_CLOSE_THING;
+	
+	private final static int CODE_HEADER = CodeReference.CODE_HEADER;
+	private final static int CODE_RESIZE = CodeReference.CODE_RESIZE;
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -57,6 +64,8 @@ public class DrawingBoard implements InputHandler{
 		height = hei;
 		pages = new HashMap<Integer, DrawingPage>();
 		parent = par;
+		CorkboardGenerator.assignCodeAccess(this);
+		CorkboardGenerator.assignCodeHeaders(CODE_HEADER, CODE_RESIZE);
 		reserveWindows();
 		generateSelectBar(inX, inY, wid, hei / PROPORTION_TOP_SELECT);
 		addNewPage();
@@ -70,6 +79,11 @@ public class DrawingBoard implements InputHandler{
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
+
+	public void assignDefaultCorkboardButtonConfigs(int[] codesCanvas, int[] codesHeader) {
+		CorkboardGenerator.assignDefaultCanvasButtonConfig(codesCanvas);
+		CorkboardGenerator.assignDefaultHeaderButtonConfig(codesHeader);
+	}
 	
 	public void resizeComponent(int newWid, int newHei) {
 		width = newWid;
@@ -87,6 +101,14 @@ public class DrawingBoard implements InputHandler{
 		for(DrawingPage p : pages.values()) {
 			p.reposition(newX, newY + height / PROPORTION_TOP_SELECT);
 		}
+	}
+	
+	public void maximizeCanvas() {
+		getCurrentPage().maximizeCanvas();
+	}
+	
+	public void toggleCanvasButtons() {
+		getCurrentPage().toggleCanvasButtons();
 	}
 	
 	//-- Input  -----------------------------------------------
@@ -231,7 +253,7 @@ public class DrawingBoard implements InputHandler{
 		selectBar.removeElementPrefixed("page_");
 		for(int i = 0; i < pages.keySet().size(); i++) {
 			selectBar.handleTextButton("page_" + i, "move", 15, posX, butSize, wid, hei, MENU_FONT, "Page " + (i + 1), i, i == active ? Color.green : Color.gray, Color.black);
-			selectBar.addImage("page_close_" + i, 20, "move", posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, CodeReference.getCodeImagePath(CodeReference.CODE_CLOSE_THING), true);
+			selectBar.addImage("page_close_" + i, 20, "move", posX + wid / 2 - butSize / 2, butSize / 2, butSize, 2 * hei / 3, true, getCodeImagePath(CODE_CLOSE_PAGE), true);
 			selectBar.addButton("page_close_butt_" + i, 20, "move", posX + wid / 2 - butSize / 2, butSize/2, butSize, 2 * hei / 3, i + pages.keySet().size(), true);
 			posX += wid;
 		}
@@ -268,6 +290,38 @@ public class DrawingBoard implements InputHandler{
 	
 	public void setContentLock(String nom, boolean set) {
 		getCurrentPage().setContentLock(nom, set);
+	}
+	
+	//-- Code Meta Access  ------------------------------------
+	
+	@Override
+	public String getCodeImagePath(int code) {
+		return CodeReference.getCodeImagePath(code);
+	}
+
+	@Override
+	public String getCodeLabel(int code) {
+		return CodeReference.getCodeLabel(code);
+	}
+
+	@Override
+	public ArrayList<String> getCodeImagePaths(int[] codes){
+		ArrayList<String> out = new ArrayList<String>();
+		
+		for(int i = 0; i < codes.length; i++) {
+			out.add(getCodeImagePath(codes[i]));
+		}
+		return out;
+	}
+
+	@Override
+	public ArrayList<String> getCodeLabels(int[] codes){
+		ArrayList<String> out = new ArrayList<String>();
+		
+		for(int i = 0; i < codes.length; i++) {
+			out.add(getCodeLabel(codes[i]));
+		}
+		return out;
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

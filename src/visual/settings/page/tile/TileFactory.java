@@ -33,10 +33,10 @@ public class TileFactory {
 		}
 	}
 	
-	public static void updateTileGridImages(Tile in, ArrayList<String> paths, int[] codes) {
+	public static void updateTileGridImages(Tile in, int[] codes, ArrayList<String> paths, ArrayList<String> labels) {
 		TileGrid tCG = castTileGrid(in);
 		if(tCG != null) {
-			tCG.updateGridIconsImage(paths, codes);
+			tCG.updateGridIconsImage(codes, paths, labels);
 		}
 	}
 	

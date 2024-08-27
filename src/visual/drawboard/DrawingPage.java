@@ -3,13 +3,13 @@ package visual.drawboard;
 import java.awt.Font;
 import java.util.HashMap;
 
-import control.InputHandler;
-import control.code.CodeReference;
 import misc.Canvas;
+import visual.InputHandler;
 import visual.drawboard.corkboard.Corkboard;
 import visual.drawboard.corkboard.CorkboardGenerator;
 import visual.frame.WindowFrame;
 import visual.panel.ElementPanel;
+
 
 public class DrawingPage implements InputHandler{
 
@@ -82,11 +82,6 @@ public class DrawingPage implements InputHandler{
 				cX = cX + c.getSidebarWidth() > x + width ? x + width - c.getSidebarWidth() : cX;
 				cY = cY + c.getHeaderHeight() > y + height ? y + height - c.getHeaderHeight() : cY;
 				c.setLocation(cX, cY);
-				break;
-			case CodeReference.CODE_MAXIMIZE_CANVAS:
-				Corkboard max = getCorkboard(nom);
-				max.setLocation(x, y);
-				max.resizePanel(width, height);
 				break;
 			default:
 				reference.handleCodeInput(code, nom);
@@ -169,6 +164,16 @@ public class DrawingPage implements InputHandler{
 	
 	public void setContentLock(String nom, boolean set) {
 		getCorkboard(nom).setContentLocked(set);
+	}
+	
+	public void maximizeCanvas() {
+		Corkboard max = getCorkboard(active);
+		max.setLocation(x, y);
+		max.resizePanel(width, (int) (9.0 / 10.0 * height));
+	}
+	
+	public void toggleCanvasButtons() {
+		getCorkboard(active).toggleButtons();
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

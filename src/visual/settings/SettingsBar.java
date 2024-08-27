@@ -4,15 +4,17 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 
-import control.InputHandler;
+import control.code.CodeReference;
 import input.CustomEventReceiver;
 import input.manager.actionevent.KeyActionEvent;
+import visual.CodeMetaAccess;
+import visual.InputHandler;
 import visual.composite.HandlePanel;
 import visual.frame.WindowFrame;
 import visual.settings.page.Page;
 import visual.settings.page.PageFactory;
 
-public class SettingsBar implements InputHandler{
+public class SettingsBar implements InputHandler, CodeMetaAccess{
 	
 //---  Constants   ----------------------------------------------------------------------------
 	
@@ -34,6 +36,7 @@ public class SettingsBar implements InputHandler{
 	public SettingsBar(int x, int y, int wid, int hei, WindowFrame par, InputHandler ref) {
 		parent = par;
 		reference = ref;
+		PageFactory.assignCodeReference(this);
 		formatPages(x, y + (int)(hei * (RATIO_MENU_SELECTION)), wid, (int)(hei * (1 - RATIO_MENU_SELECTION)));
 		menu = generateMenuBar(x, y, wid, (int)(hei * RATIO_MENU_SELECTION));
 		drawMenuBar();
@@ -54,8 +57,8 @@ public class SettingsBar implements InputHandler{
 		getActivePage().drawPage();
 	}
 	
-	public void updateTileGridImages(String ref, ArrayList<String> paths, int[] codes, int active) {
-		getActivePage().assignTileGridImages(ref, paths, codes);
+	public void updateTileGridImages(String ref, int[] codes, int active) {
+		getActivePage().assignTileGridImages(ref, codes);
 		getActivePage().assignTileGridActive(ref, active);
 		getActivePage().drawPage();
 	}
@@ -177,6 +180,38 @@ public class SettingsBar implements InputHandler{
 	
 	public String getTileContents(String ref) {
 		return getActivePage().getTileInfo(ref);
+	}
+	
+	//-- Code Meta Access  ------------------------------------
+	
+	@Override
+	public String getCodeImagePath(int code) {
+		return CodeReference.getCodeImagePath(code);
+	}
+
+	@Override
+	public String getCodeLabel(int code) {
+		return CodeReference.getCodeLabel(code);
+	}
+
+	@Override
+	public ArrayList<String> getCodeImagePaths(int[] codes){
+		ArrayList<String> out = new ArrayList<String>();
+		
+		for(int i = 0; i < codes.length; i++) {
+			out.add(getCodeImagePath(codes[i]));
+		}
+		return out;
+	}
+
+	@Override
+	public ArrayList<String> getCodeLabels(int[] codes){
+		ArrayList<String> out = new ArrayList<String>();
+		
+		for(int i = 0; i < codes.length; i++) {
+			out.add(getCodeLabel(codes[i]));
+		}
+		return out;
 	}
 	
 //---  Setter Methods   -----------------------------------------------------------------------

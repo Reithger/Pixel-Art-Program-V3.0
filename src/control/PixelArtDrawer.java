@@ -10,8 +10,8 @@ import control.config.DataAccess;
 import manager.Manager;
 import manager.pen.Pen;
 import misc.Canvas;
+import visual.InputHandler;
 import visual.View;
-import visual.popouts.PopoutKeybindSelect;
 
 /**
  * 
@@ -51,6 +51,16 @@ import visual.popouts.PopoutKeybindSelect;
  * that contain the canvases which are drawn on and correspond to the images stored in the Model, and the Header has multiple
  * Pages which are composed of different kinds of Tiles for providing the user options they can interact with.
  * 
+ * The general goal of most of the design is simple ways to add new user interactions; adding a button
+ * should be straightforward and happen at a high level which filters information down efficiently.
+ * Adding a code to an array in CodeReference that has data in the 'setup.txt' folder should be all
+ * that's needed for that button to show up and be able to send its code value back to be interpreted
+ * here.
+ * 
+ * Similarly, new kinds of pen drawing types should also be able to be defined at a high level, albeit
+ * maybe requiring a new class in manager>pen>drawtype and it being referenced in the appropriate
+ * array of such objects. This part could use some tidying for clarity.
+ * 
  * @author Ada Clevinger
  *
  */
@@ -62,6 +72,11 @@ public class PixelArtDrawer implements InputHandler{
 	 * Fill tool
 	 * Select tool
 	 * Replace all of one color with another
+	 * 
+	 * 
+	 * Figure out the name structures (what name is sent back from View and what
+	 * should it refer to in the Curator? Is the suffix removable consistently?
+	 * Where is the _0 generated?)
 	 */
 	
 //---  Constants   ----------------------------------------------------------------------------
@@ -88,7 +103,7 @@ public class PixelArtDrawer implements InputHandler{
 	public PixelArtDrawer() {
 		CodeReference.setup();
 		manager = new Manager();
-		view = new View(this);
+		view = new View(this, CodeReference.REF_CORKBOARD_DEFAULT_BUTTONS, CodeReference.REF_CORKBOARD_HEADER_BUTTONS);
 		dataAccess = new DataAccess();
 		keyBind = new KeyBindings(dataAccess.getKeyMappings());
 		manager.setupPallettes(dataAccess.getColorPallettes());
@@ -280,10 +295,19 @@ public class PixelArtDrawer implements InputHandler{
 				if(old == null) {
 					return false;
 				}
-				String newName = view.requestStringInput("Please provide the new image name");
-				HashMap<String, String> mappings = manager.rename(old, newName);
-				view.rename(mappings);
-				return true;
+				String newName = view.requestStringInput("Please provide the new image name")[0];
+				if(!manager.thingExists(newName)) {
+					HashMap<String, String> mappings = manager.rename(old, newName);
+					view.rename(mappings);
+					return true;
+				}
+				if(view.requestConfirmation("Canvas with new name already exists; overwrite it?")) {
+					removeThing(newName);
+					HashMap<String, String> mappings = manager.rename(old, newName);
+					view.rename(mappings);
+					return true;
+				}
+				return false;
 			case CodeReference.CODE_CLOSE_THING:
 				String thng = view.getActiveElement();
 				if(thng == null) {
@@ -497,15 +521,43 @@ public class PixelArtDrawer implements InputHandler{
 					dataAccess.saveKeyMappings(result);
 				}
 				return false;
+			case CodeReference.CODE_MAXIMIZE_CANVAS:
+				if(use != null) {
+					view.maximizeCurrentCanvas();
+				}
+				return true;
+			case CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS:
+				view.toggleCanvasButtons();
+				return true;
 			default:
 				return null;
 		}
 	}
 	
+	/**
+	 * 
+	 * Range of input code reactions that affect the width and height
+	 * of the current canvas being drawn on.
+	 * 
+	 * Likely needs to affect all related canvases for different layers of the same
+	 * drawing, so may be weirdly complicated in the backend?
+	 * 
+	 * TODO: This, today.
+	 * 
+	 * @param in
+	 * @param active
+	 * @return
+	 */
+	
 	private Boolean checkResizeCommands(int in, String active) {
 		String use = view.getActiveElement();
 		switch(in) {
 			case CodeReference.CODE_RESIZE_CANVAS:
+				if(use != null) {
+					System.out.println("Target: " + use);
+					String[] vals = view.requestStringInput("Width", "Height");
+					manager.resize(use, Integer.parseInt(vals[0]), Integer.parseInt(vals[1]));
+				}
 				return true;
 			case CodeReference.CODE_INCREMENT_CANVAS_HEI:
 				return true;
@@ -661,7 +713,7 @@ public class PixelArtDrawer implements InputHandler{
 		if(path == null) {
 			path = view.requestFolderPath("./", "Where do you want to save this to?");
 		}
-		String savNom = view.requestStringInput("What would you like to name the file?");
+		String savNom = view.requestStringInput("What would you like to name the file?")[0];
 		manager.saveThing(nom, savNom, path, 1, true);
 	}
 
@@ -706,6 +758,18 @@ public class PixelArtDrawer implements InputHandler{
 		view.updateTileNumericSelector(ref, 0, 100, (int)(100.0 * manager.getPen().getBlendQuotient()));
 	}
 	
+	/**
+	 * 
+	 * TODO: Make dynamic way of displaying these pen types for potential future
+	 * case of wanting user-defined pen types made during run-time (and saved to
+	 * config, loaded back in, etc.)
+	 * 
+	 * For now, update code associations in setup.txt for the value range of draw type
+	 * paths.
+	 * 
+	 * @param ref
+	 */
+	
 	private void updatePenType(String ref) {
 		ArrayList<String> paths = new ArrayList<String>();
 		for(int i : manager.getPen().getPenDrawTypes()) {
@@ -717,25 +781,16 @@ public class PixelArtDrawer implements InputHandler{
 		for(int i = 0; i < out.length; i++) {
 			out[i] = CodeReference.CODE_RANGE_SELECT_DRAW_TYPE + i;
 		}
-		view.updateTileGridImages(ref, paths, out, manager.getPen().getPenType());
+		view.updateTileGridImages(ref, out, manager.getPen().getPenType());
 	}
 	
 	private void updateColorOptions(String ref) {
-		ArrayList<String> paths = new ArrayList<String>();
-		int[] info = CodeReference.REF_COLOR_OPTION_CODES;
-		for(int i : info) {
-			paths.add(CodeReference.getCodeImagePath(i));
-		}
-		view.updateTileGridImages(ref, paths, CodeReference.REF_COLOR_OPTION_CODES, 0);
+		view.updateTileGridImages(ref, CodeReference.REF_COLOR_OPTION_CODES, 0);
 	}
 	
 	private void updateSelectionMode(String ref) {
 		int[] codes = CodeReference.REF_PEN_MODE_CODES;
-		ArrayList<String> paths = new ArrayList<String>();
-		for(int i : codes) {
-			paths.add(CodeReference.getCodeImagePath(i));
-		}
-		view.updateTileGridImages(ref, paths, codes, indexOf(codes, manager.getPen().getPenModeCode()));
+		view.updateTileGridImages(ref, codes, indexOf(codes, manager.getPen().getPenModeCode()));
 	}
 	
 		//-- Corkboard  ---------------------------------------

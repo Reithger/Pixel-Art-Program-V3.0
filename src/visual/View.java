@@ -6,7 +6,6 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import control.InputHandler;
 import filemeta.FileChooser;
 import misc.Canvas;
 import visual.composite.popout.PopoutAlert;
@@ -43,12 +42,13 @@ public class View implements InputHandler{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public View(InputHandler in) {
+	public View(InputHandler in, int[] canvasCodes, int[] headerCodes) {
 		fullScreenSize();
 		setupFrame();
 		reference = in;
 		options = new SettingsBar(0, 0, screenWidth, (int)(screenHeight * SETTINGS_VERT_RATIO), frame, this);
 		body = new DrawingBoard(0, (int)(screenHeight * SETTINGS_VERT_RATIO), screenWidth, (int)(screenHeight * (1 - SETTINGS_VERT_RATIO)), frame, this);
+		body.assignDefaultCorkboardButtonConfigs(canvasCodes, headerCodes);
 	}
 
 	private void setupFrame() {
@@ -80,7 +80,7 @@ public class View implements InputHandler{
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
-	
+
 	private void resizeComponents() {
 		if(options != null && body != null) {
 			options.resizeComponent(screenWidth, (int)(screenHeight * SETTINGS_VERT_RATIO));
@@ -111,10 +111,10 @@ public class View implements InputHandler{
 	
 	public int requestIntInput(String text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
-		String out = piR.getSubmitted();
+		String[] out = piR.getSubmitted();
 		piR.dispose();
 		try {
-			return Integer.parseInt(out);
+			return Integer.parseInt(out[0]);
 		}
 		catch(Exception e) {
 			new PopoutAlert(300, 250, "Error in text entry: non-integer value provided");
@@ -129,9 +129,9 @@ public class View implements InputHandler{
 		return out;
 	}
 	
-	public String requestStringInput(String text) {
+	public String[] requestStringInput(String ... text) {
 		PopoutInputRequest piR = new PopoutInputRequest(text);
-		String out = piR.getSubmitted();
+		String[] out = piR.getSubmitted();
 		piR.dispose();
 		return out;
 	}
@@ -179,8 +179,8 @@ public class View implements InputHandler{
 		options.updateNumericSelector(ref, min, max, size);
 	}
 	
-	public void updateTileGridImages(String ref, ArrayList<String> paths, int[] codes, int index) {
-		options.updateTileGridImages(ref, paths, codes, index);
+	public void updateTileGridImages(String ref, int[] codes, int index) {
+		options.updateTileGridImages(ref, codes, index);
 	}
 	
 	public void toggleTooltips() {
@@ -215,6 +215,14 @@ public class View implements InputHandler{
 	
 	public void setContentLock(String nom, boolean set) {
 		body.setContentLock(nom, set);
+	}
+	
+	public void maximizeCurrentCanvas() {
+		body.maximizeCanvas();
+	}
+	
+	public void toggleCanvasButtons() {
+		body.toggleCanvasButtons();
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

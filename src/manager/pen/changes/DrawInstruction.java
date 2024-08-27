@@ -1,4 +1,4 @@
-package manager.pen.drawing;
+package manager.pen.changes;
 
 import java.awt.Color;
 

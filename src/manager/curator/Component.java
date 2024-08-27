@@ -22,6 +22,8 @@ public abstract class Component {
 	protected void closeLock() {
 		mutex = false;
 	}
+
+	public abstract void resize(int newWid, int newHei);
 	
 	public abstract void export(String filePath, String name, String fileType, int scale, boolean composite);
 	

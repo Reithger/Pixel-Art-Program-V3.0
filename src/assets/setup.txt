@@ -64,4 +64,6 @@
 113;,;./assets/toggle_buttons.png;,;toggle buttons
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
-2500;,;null;,;range select draw type
+2500;,;./assets/square_icon.png;,;square pen
+2501;,;./assets/circle_icon.png;,;circle pen
+2502;,;null;,;tapering pen

@@ -23,6 +23,10 @@ public class LayerAnimation extends Component{
 		
 	}
 	
+	public void resize(int newWid, int newHei) {
+		//TODO: Filter this into ArtAnimation once we have animations.
+	}
+	
 	public String getDefaultFilePath() {
 		return defaultPath;
 	}

@@ -3,7 +3,6 @@ package visual.settings.page.tile;
 import java.awt.Font;
 import java.util.ArrayList;
 
-import control.code.CodeReference;
 import visual.composite.HandlePanel;
 
 /**
@@ -77,9 +76,7 @@ public abstract class Tile implements Comparable<Tile>{
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public String getTooltipText(int code) {
-		return CodeReference.getCodeLabel(code);
-	}
+	public abstract String getTooltipText(int code);
 	
 	public abstract ArrayList<Integer> getAssociatedCodes();
 	

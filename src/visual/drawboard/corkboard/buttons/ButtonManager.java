@@ -1,62 +1,96 @@
 package visual.drawboard.corkboard.buttons;
 
 import java.util.ArrayList;
-
-import control.code.CodeInfo;
-import control.code.CodeReference;
-import visual.drawboard.corkboard.Corkboard;
+import java.util.HashSet;
 
 public class ButtonManager {
 
-//---  Constants   ----------------------------------------------------------------------------
-
-	private static int[] DEFAULT_BUTTONS = new int[] {
-		CodeReference.CODE_PEN_MODE_MOVE_CANVAS,
-		CodeReference.CODE_INCREASE_ZOOM,
-		CodeReference.CODE_DECREASE_ZOOM,
-		CodeReference.CODE_UNDO_CHANGE,
-		CodeReference.CODE_REDO_CHANGE,
-		CodeReference.CODE_LAYER_DISPLAY_ALL,
-		CodeReference.CODE_LAYER_DISPLAY_BENEATH,
-		CodeReference.CODE_LAYER_DISPLAY_ACTIVE,
-		CodeReference.CODE_ADD_LAYER,
-		CodeReference.CODE_ACTIVE_LAYER_UP,
-		CodeReference.CODE_ACTIVE_LAYER_DOWN,
-		CodeReference.CODE_MOVE_LAYER_UP,
-		CodeReference.CODE_MOVE_LAYER_DOWN,
-	};
-
 //---  Instance Variables   -------------------------------------------------------------------
 	
-	private static ArrayList<CodeInfo> defaultButtons;
+	private ArrayList<CorkboardButton> currButtons;
+	
+	private boolean display;
 
+//---  Constructors   -------------------------------------------------------------------------
+	
+	public ButtonManager() {
+		currButtons = new ArrayList<CorkboardButton>();
+		display = true;
+	}
+	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public static void fillButtons(Corkboard given) {
-		ensureSetup();
-		given.assignCodeInfo(defaultButtons);
+	public void addButton(int code, String path, String label) {
+		currButtons.add(new CorkboardButton(code, path, label));
 	}
 	
-	public static void linkCorkboard(Corkboard in) {
-		ensureSetup();
-		fillButtons(in);
-	}
-	
-	public static void unlinkCorkboard(Corkboard in) {
-		ensureSetup();
-		ArrayList<CodeInfo> use = new ArrayList<CodeInfo>();
-		use.addAll(defaultButtons);
-		in.assignCodeInfo(use);
-	}
-	
-	private static void ensureSetup() {
-		if(defaultButtons != null) {
-			return;
+	public int removeButton(int code) {
+		for(int i = 0; i < currButtons.size(); i++) {
+			if(currButtons.get(i).getCode() == code) {
+				currButtons.remove(i);
+				return i;
+			}
 		}
-		defaultButtons = new ArrayList<CodeInfo>();
-		for(int bI : DEFAULT_BUTTONS) {
-			defaultButtons.add(CodeReference.getCodeInfo(bI));
-		}
+		return -1;
 	}
+	
+	public void moveButton(int positOne, int positDestination) {
+		//TODO: Get the whole thing figured out
+	}
+	
+	public void toggleDisplay() {
+		display = !display;
+	}
+	
+	public void clear() {
+		currButtons.clear();
+	}
+	
+	public boolean contains(int in) {
+		return getCodes().contains(in);
+	}
+	
+//---  Getter Methods   -----------------------------------------------------------------------
+	
+	/**
+	 * 
+	 * For some reason this needs to return a non-zero value
+	 * when nothing should be drawn.
+	 * 
+	 * If it just returns 0, the visuals aren't removed. -1 or 1,
+	 * they are. It's weird.
+	 * 
+	 * So, this function returns the number of buttons currently
+	 * assigned to this ButtonManager, or -1 if it is
+	 * currently disabled (i.e, should not display).
+	 * 
+	 * @return
+	 */
+	
+	public int getNumButtons() {
+		return !display ? -1 : currButtons.size();
+	}
+	
+	public int getCodeAtPosition(int i) {
+		return currButtons.get(i).getCode();
+	}
+	
+	public String getImagePathAtPosition(int i) {
+		return currButtons.get(i).getImagePath();
+	}
+	
+	public String getLabelAtPosition(int i) {
+		return currButtons.get(i).getLabel();
+	}
+	
+	public HashSet<Integer> getCodes(){
+		HashSet<Integer> out = new HashSet<Integer>();
+		
+		for(CorkboardButton cb : currButtons) {
+			out.add(cb.getCode());
+		}
+		return out;
+	}
+	
 	
 }

@@ -1,6 +1,6 @@
-package control.code;
+package visual.drawboard.corkboard.buttons;
 
-public class CodeInfo {
+public class CorkboardButton {
 
 	private int code;
 	private String imagePath;
@@ -8,7 +8,7 @@ public class CodeInfo {
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public CodeInfo(int inCode, String path, String inLabel) {
+	public CorkboardButton(int inCode, String path, String inLabel) {
 		code = inCode;
 		imagePath = path;
 		label = inLabel;
@@ -27,5 +27,4 @@ public class CodeInfo {
 	public String getLabel() {
 		return label;
 	}
-	
 }

@@ -100,9 +100,10 @@ public class Manager {
 	}
 	
 	public HashMap<String, String> rename(String old, String newName) {
+		removeThing(newName);
 		Sketch sk = sketches.get(old);
 		String ref = sk.getReference();
-		curator.rename(ref, newName);
+			curator.rename(ref, newName);
 		ArrayList<Sketch> addBack = new ArrayList<Sketch>();
 		ArrayList<String> remove = new ArrayList<String>();
 		HashMap<String, String> out = new HashMap<String, String>();
@@ -127,7 +128,15 @@ public class Manager {
 		
 		return out;
 	}
-
+	
+	public boolean thingExists(String nom) {
+		return curator.hasComponent(nom);
+	}
+	
+	public void resize(String nom, int newWid, int newHei) {
+		curator.resize(nom, newWid, newHei);
+	}
+	
 	public void removeThing(String name) {
 		sketches.remove(name);
 	}
@@ -179,6 +188,7 @@ public class Manager {
 		sketches.put(skName, sk);
 		return skName;
 	}
+
 		
 		//-- Animations  --------------------------------------
 		

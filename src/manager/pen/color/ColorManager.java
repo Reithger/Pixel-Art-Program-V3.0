@@ -26,9 +26,7 @@ public class ColorManager {
 	
 	public void editColor(int index, int chngR, int chngG, int chngB, int chngA) {
 		Color grab = new Color(getColor(index), true);
-		if(grab == null) {
-			return;
-		}
+
 		int[] cols = new int[] {grab.getRed() + chngR, grab.getGreen() + chngG, grab.getBlue() + chngB, grab.getAlpha() + chngA};
 		for(int i = 0; i < cols.length; i++) {
 			cols[i] %= 255;

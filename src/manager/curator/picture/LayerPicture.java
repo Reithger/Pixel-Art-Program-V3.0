@@ -65,6 +65,12 @@ public class LayerPicture extends Component{
 		closeLock();
 	}
 	
+	public void resize(int newWid, int newHei) {
+		for(ArtPicture aP : layers) {
+			aP.resize(newWid, newHei);
+		}
+	}
+	
 	//-- Meta Behaviour  --------------------------------------
 	
 	public void export(String path, String name, String typ, int scale, boolean composite) {

@@ -2,6 +2,7 @@ package visual.settings.page.tile;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import visual.composite.HandlePanel;
 import visual.settings.page.tile.grid.GridColor;
@@ -28,7 +29,7 @@ public class TileGrid extends Tile{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
-	private GridImage DEFAULT_EMERGENCY = new GridImage("./assets/placeholder.png", -1);
+	private GridImage DEFAULT_EMERGENCY = new GridImage("./assets/placeholder.png", -1, "?");
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -91,10 +92,10 @@ public class TileGrid extends Tile{
 		}
 	}
 
-	public void updateGridIconsImage(ArrayList<String> imagePaths, int[] codes) {
+	public void updateGridIconsImage(int[] codes, ArrayList<String> imagePaths, ArrayList<String> labels) {
 		GridIcon[] newIcons = new GridIcon[imagePaths.size()];
 		for(int i = 0; i < imagePaths.size(); i++) {
-			newIcons[i] = new GridImage(imagePaths.get(i), codes[i]);
+			newIcons[i] = new GridImage(imagePaths.get(i), codes[i], labels.get(i));
 		}
 		assignGridIcons(newIcons);
 	}
@@ -135,7 +136,6 @@ public class TileGrid extends Tile{
 
 //---  Getter Methods   -----------------------------------------------------------------------
 
-	@Override
 	public String getTooltipText(int code) {
 		GridIcon gI = getGridIcon(code);
 		if(gI == null) {

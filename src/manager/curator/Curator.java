@@ -69,12 +69,24 @@ public class Curator {
 		if(animations.get(ref) != null) {
 			LayerAnimation lA = animations.get(ref);
 			animations.remove(ref);
+			animations.remove(newName);
 			animations.put(newName, lA);
 		}
 		if(pictures.get(ref) != null) {
 			LayerPicture lP = pictures.get(ref);
 			pictures.remove(ref);
+			pictures.remove(newName);
 			pictures.put(newName, lP);
+		}
+	}
+	
+	public void resize(String ref, int newWid, int newHei) {
+		System.out.println("Recipients: " + pictures.keySet());
+		if(animations.get(ref) != null) {
+			animations.get(ref).resize(newWid, newHei);
+		}
+		if(pictures.get(ref) != null) {
+			pictures.get(ref).resize(newWid, newHei);
 		}
 	}
 
@@ -136,6 +148,10 @@ public class Curator {
 			return animations.get(nom);
 		}
 		return null;
+	}
+	
+	public boolean hasComponent(String nom) {
+		return getComponent(nom) != null;
 	}
 	
 	public String getDefaultPath(String nom) {

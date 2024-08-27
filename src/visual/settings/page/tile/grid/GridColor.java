@@ -42,10 +42,11 @@ public class GridColor implements GridIcon{
 	
 	@Override
 	public String getTooltipText() {
-		String r = Integer.toHexString(col.getRed());
-		String g = Integer.toHexString(col.getGreen());
-		String b = Integer.toHexString(col.getBlue());
-		return "#" + r + g + b;
+		String r = adjustLength(Integer.toHexString(col.getRed()));
+		String g = adjustLength(Integer.toHexString(col.getGreen()));
+		String b = adjustLength(Integer.toHexString(col.getBlue()));
+		String a = adjustLength(Integer.toHexString(col.getAlpha()));
+		return "#" + r + g + b + a;
 	}
 	
 	@Override
@@ -69,4 +70,11 @@ public class GridColor implements GridIcon{
 		selected = !selected;
 	}
 
+	private String adjustLength(String in) {
+		if(in.length() == 1) {
+			return "0" + in;
+		}
+		return in;
+	}
+	
 }
