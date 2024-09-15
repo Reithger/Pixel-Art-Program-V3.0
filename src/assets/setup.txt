@@ -62,6 +62,7 @@
 111;,;./assets/remove_pallette.png;,;remove pallette
 112;,;null;,;update keybindings
 113;,;./assets/toggle_buttons.png;,;toggle buttons
+114;,;null;,;toggle checkerboard
 1500;,;null;,;range layer select
 2000;,;null;,;range select color
 2500;,;./assets/square_icon.png;,;square pen

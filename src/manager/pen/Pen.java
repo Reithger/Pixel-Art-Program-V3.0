@@ -85,6 +85,14 @@ public class Pen {
 		drawControl.initializeCanvas(lP, layer);
 	}
 
+	public void toggleCheckerboard(String nom, int wid, int hei, int zoom) {
+		drawControl.toggleCheckerboard(nom, wid, hei, zoom);
+	}
+	
+	public void updateCheckerboard(String nom, int wid, int hei, int zoom) {
+		drawControl.updateCheckerboard(nom, wid, hei, zoom);
+	}
+	
 	//-- StandardDraw  ----------------------------------------
 	
 	public boolean draw(String nom, LayerPicture lP, int layer, int x, int y, int duration) {

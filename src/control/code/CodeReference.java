@@ -179,6 +179,7 @@ public class CodeReference {
 	public final static int CODE_RESIZE =61;
 	public final static int CODE_HEADER =62;
 	public final static int CODE_ADD_LAYER =64;
+	public final static int CODE_DISPLAY_PIXEL_OUTLINE=114;
 
 	public final static int CODE_UNDO_CHANGE =84;
 	public final static int CODE_REDO_CHANGE =85;
@@ -216,25 +217,26 @@ public class CodeReference {
 	
 	
 	public final static int[] REF_CORKBOARD_DEFAULT_BUTTONS = new int[] {
-			CodeReference.CODE_PEN_MODE_MOVE_CANVAS,
-			CodeReference.CODE_INCREASE_ZOOM,
-			CodeReference.CODE_DECREASE_ZOOM,
-			CodeReference.CODE_UNDO_CHANGE,
-			CodeReference.CODE_REDO_CHANGE,
-			CodeReference.CODE_LAYER_DISPLAY_ALL,
-			CodeReference.CODE_LAYER_DISPLAY_BENEATH,
-			CodeReference.CODE_LAYER_DISPLAY_ACTIVE,
-			CodeReference.CODE_ADD_LAYER,
-			CodeReference.CODE_ACTIVE_LAYER_UP,
-			CodeReference.CODE_ACTIVE_LAYER_DOWN,
-			CodeReference.CODE_MOVE_LAYER_UP,
-			CodeReference.CODE_MOVE_LAYER_DOWN,
+			CODE_PEN_MODE_MOVE_CANVAS,
+			CODE_INCREASE_ZOOM,
+			CODE_DECREASE_ZOOM,
+			CODE_UNDO_CHANGE,
+			CODE_REDO_CHANGE,
+			CODE_LAYER_DISPLAY_ALL,
+			CODE_LAYER_DISPLAY_BENEATH,
+			CODE_LAYER_DISPLAY_ACTIVE,
+			CODE_ADD_LAYER,
+			CODE_ACTIVE_LAYER_UP,
+			CODE_ACTIVE_LAYER_DOWN,
+			CODE_MOVE_LAYER_UP,
+			CODE_MOVE_LAYER_DOWN,
 		};
 	
 	public final static int[] REF_CORKBOARD_HEADER_BUTTONS = new int[] {
-			CodeReference.CODE_CLOSE_THING,
-			CodeReference.CODE_TOGGLE_CORKBOARD_BUTTONS,
-			CodeReference.CODE_MAXIMIZE_CANVAS,
+			CODE_CLOSE_THING,
+			CODE_TOGGLE_CORKBOARD_BUTTONS,
+			CODE_MAXIMIZE_CANVAS,
+			CODE_DISPLAY_PIXEL_OUTLINE
 	};
 	
 	

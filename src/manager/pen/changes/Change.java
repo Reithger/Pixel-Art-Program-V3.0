@@ -49,19 +49,9 @@ public class Change{
 		int maxY = (yIn + colsIn[0].length > y + cols[0].length) ? (yIn + colsIn[0].length) : (y + cols[0].length);
 		int wid = maxX - minX;
 		int hei = maxY - minY;
-		if(wid != cols.length || hei != cols[0].length) {
-			Integer[][] newCol = new Integer[wid][hei];
-			for(int i = 0; i < cols.length; i++) {
-				for(int j =  0; j < cols[i].length; j++) {
-					int usX = x - minX + i;
-					int usY = y - minY + j;
-					newCol[usX][usY] = cols[i][j];
-				}
-			}
-			cols = newCol;
-			x = minX;
-			y = minY;
-		}
+
+		
+		cols = resizeColors(wid, hei, minX, minY);
 		
 		for(int i = 0; i < colsIn.length; i++) {
 			for(int j = 0; j < colsIn[i].length; j++) {
@@ -73,6 +63,23 @@ public class Change{
 			}
 		}
 		closeLock();
+	}
+	
+	private Integer[][] resizeColors(int wid, int hei, int minX, int minY){
+		if(wid != cols.length || hei != cols[0].length) {
+			Integer[][] newCol = new Integer[wid][hei];
+			for(int i = 0; i < cols.length; i++) {
+				for(int j =  0; j < cols[i].length; j++) {
+					int usX = x - minX + i;
+					int usY = y - minY + j;
+					newCol[usX][usY] = cols[i][j];
+				}
+			}
+			x = minX;
+			y = minY;
+			return newCol;
+		}
+		return cols;
 	}
 	
 	public void addChange(int xIn, int yIn, int rgb) {

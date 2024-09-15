@@ -358,6 +358,9 @@ public class PixelArtDrawer implements InputHandler{
 	private Boolean checkDrawingCommands(int in, String active) {
 		Pen p = manager.getPen();
 		switch(in) {
+			case CodeReference.CODE_DISPLAY_PIXEL_OUTLINE:
+				manager.toggleCheckerboard(view.getActiveElement());
+				return true;
 			case CodeReference.CODE_PEN_SIZE_INCREMENT:
 				p.setPenSize(p.getPenSize() + 1);
 				return true;

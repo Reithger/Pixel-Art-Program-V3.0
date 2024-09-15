@@ -266,11 +266,36 @@ public class Manager {
 		Sketch k = getSketch(nom);
 		k.setZoom(k.getZoom() + 1);
 		flagUpdate(k);
+		updateCheckerboard(nom);
 	}
 	
 	public void decreaseZoom(String nom) {
 		Sketch k = getSketch(nom);
 		k.setZoom(k.getZoom() - 1);
+		flagUpdate(k);
+		updateCheckerboard(nom);
+	}
+	
+	public void updateCheckerboard(String nom) {
+		Sketch k = getSketch(nom);
+		int zoom = k.getZoom();
+
+		LayerPicture pic = curator.getLayerPicture(k.getReference());
+		int wid = pic.getWidth();
+		int hei = pic.getHeight();
+		
+		pen.updateCheckerboard(k.getReference(), wid, hei, zoom);
+	}
+	
+	public void toggleCheckerboard(String nom) {
+		Sketch k = getSketch(nom);
+		int zoom = k.getZoom();
+
+		LayerPicture pic = curator.getLayerPicture(k.getReference());
+		int wid = pic.getWidth();
+		int hei = pic.getHeight();
+		
+		pen.toggleCheckerboard(k.getReference(), wid, hei, zoom);
 		flagUpdate(k);
 	}
 	

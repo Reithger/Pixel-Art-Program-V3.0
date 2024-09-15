@@ -12,6 +12,7 @@ public class Overlay {
 	public final static String REF_PASTE = "ref_paste";
 	public final static String REF_SELECT_ORIGIN = "ref_select_origin";
 	public final static String REF_SELECT_BORDER = "ref_select_border";
+	public final static String REF_CHECKERBOARD = "ref_checkerboard";
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -62,6 +63,10 @@ public class Overlay {
 	
 	public Canvas getCanvas() {
 		return can;
+	}
+
+	public boolean containsOverlayFeature(String in) {
+		return instruct.containsKey(in);
 	}
 	
 }

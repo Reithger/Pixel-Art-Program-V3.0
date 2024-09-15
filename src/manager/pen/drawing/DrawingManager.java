@@ -235,26 +235,64 @@ public class DrawingManager {
 		// Otherwise, tracks current position to know where to draw the two corners for visual aid in the selection being
 		// performed, using the inversion of the underlying color for visibility.
 		else {
-			Change c = new Change();
-			Point a = region.getFirstPoint();
-			int x2 = a.getX();
-			int y2 = a.getY();
-			for(int i = x; (x < x2 ? i < x + can.length/20 : i > x - can.length/20) && i < can.length && i >= 0; i += (x < x2 ? 1 : -1)) {
-				for(int j = y; (y < y2 ? j < y + can[0].length/20 : j > y - can[0].length/20) && j < can[0].length && j >= 0; j += (y < y2 ? 1 : -1)) {
-					if((i == x || j == y )) {
-						c.addChange(i, j, inverse(can[i][j]));
-						int otX = x2 + (i - x) * -1;
-						int otY = y2 + (j - y) * -1;
-						otX = otX < 0 ? 0 : otX >= can.length ? can.length - 1 : otX;
-						otY = otY < 0 ? 0 : otY >= can[0].length ? can[0].length - 1 : otY;
-						c.addChange(otX, otY, inverse(can[otX][otY]));
-					}
-				}
-			}
-			overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, c);
+			overlay.get(nom).instruct(Overlay.REF_SELECT_BORDER, constructOverlayRegionCorners(x, y, can));
 			return null;
 		}
 	}
+	
+	private Change constructOverlayGridCheckerboard(int wid, int hei, int zoom) {
+		Change c = new Change();
+		
+		int shorter = zoom + 1; //(int) Math.pow(2, zoom - 1);
+		wid *= zoom;
+		hei *= zoom;
+		
+		Integer[][] use = makeColorSpace(1, hei, Color.black.getRGB());
+		
+		for(int i = 0; i < wid; i += shorter) {
+			c.addChange(i, 0, use);
+		}
+		
+		use = makeColorSpace(wid, 1, Color.black.getRGB());
+		
+		for(int i = 0; i < hei; i += shorter) {
+			c.addChange(0, i, use);
+		}
+		
+		
+		return c;
+	}
+	
+	private Integer[][] makeColorSpace(int wid, int hei, Integer color){
+		Integer[][] out = new Integer[wid][hei];
+		for(int i = 0; i < wid; i++) {
+			for(int j = 0; j < hei; j++) {
+				out[i][j] = color;
+			}
+		}
+		return out;
+	}
+	
+	private Change constructOverlayRegionCorners(int x, int y, Integer[][] can) {
+		Change c = new Change();
+		Point a = region.getFirstPoint();
+		int x2 = a.getX();
+		int y2 = a.getY();
+		for(int i = x; (x < x2 ? i < x + can.length/20 : i > x - can.length/20) && i < can.length && i >= 0; i += (x < x2 ? 1 : -1)) {
+			for(int j = y; (y < y2 ? j < y + can[0].length/20 : j > y - can[0].length/20) && j < can[0].length && j >= 0; j += (y < y2 ? 1 : -1)) {
+				if((i == x || j == y )) {
+					c.addChange(i, j, inverse(can[i][j]));
+					int otX = x2 + (i - x) * -1;
+					int otY = y2 + (j - y) * -1;
+					otX = otX < 0 ? 0 : otX >= can.length ? can.length - 1 : otX;
+					otY = otY < 0 ? 0 : otY >= can[0].length ? can[0].length - 1 : otY;
+					c.addChange(otX, otY, inverse(can[otX][otY]));
+				}
+			}
+		}
+		return c;
+	}
+
 
 	private Change[] interpretRegionApply(Integer[][] can, int x, int y, int duration, boolean release, String nom, int regionMode) {
 		if(release || duration == 0) {
@@ -355,6 +393,35 @@ public class DrawingManager {
 
 	public void toggleShading() {
 		pencil.toggleShading();
+	}
+	
+	public void updateCheckerboard(String nom, int wid, int hei, int zoom) {
+		Overlay ov = overlay.get(nom);
+		if(ov == null) {
+			overlay.put(nom, new Overlay(wid, hei));
+			initializeCanvas(overlay.get(nom).getCanvas());
+			ov = overlay.get(nom);
+		}
+		if(ov.containsOverlayFeature(Overlay.REF_CHECKERBOARD)) {
+			ov.release(Overlay.REF_CHECKERBOARD);
+			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid, hei, zoom));
+		}
+	}
+	
+	public void toggleCheckerboard(String nom, int wid, int hei, int zoom) {
+		System.out.println("Word: " + nom);
+		Overlay ov = overlay.get(nom);
+		if(ov == null) {
+			overlay.put(nom, new Overlay(wid, hei));
+			initializeCanvas(overlay.get(nom).getCanvas());
+			ov = overlay.get(nom);
+		}
+		if(ov.containsOverlayFeature(Overlay.REF_CHECKERBOARD)) {
+			ov.release(Overlay.REF_CHECKERBOARD);
+		}
+		else {
+			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid, hei, zoom));
+		}
 	}
 	
 	//-- StandardDraw  ----------------------------------------
