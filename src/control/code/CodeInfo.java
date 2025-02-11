@@ -23,7 +23,7 @@ public class CodeInfo {
 	}
 	
 	public String getImagePath() {
-		return imagePath == null ? "./assets/placeholder.png" : imagePath;
+		return imagePath == null ? DEFAULT_IMAGE : imagePath;
 	}
 	
 	public String getLabel() {

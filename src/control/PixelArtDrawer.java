@@ -101,7 +101,13 @@ public class PixelArtDrawer implements InputHandler{
 //---  Constructors   -------------------------------------------------------------------------
 	
 	public PixelArtDrawer() {
-		CodeReference.setup();
+		try {
+			CodeReference.setup(CodeReference.SETUP_FILE_PATH);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return;
+		}
 		manager = new Manager();
 		view = new View(this, CodeReference.REF_CORKBOARD_DEFAULT_BUTTONS, CodeReference.REF_CORKBOARD_HEADER_BUTTONS);
 		dataAccess = new DataAccess();

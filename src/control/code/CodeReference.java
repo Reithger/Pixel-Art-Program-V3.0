@@ -1,6 +1,7 @@
 package control.code;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -25,7 +26,8 @@ public class CodeReference {
 //---  Constants   ----------------------------------------------------------------------------
 	
 	public final static String SETUP_FILE_PATH = "src/assets/setup.txt";
-	private final static String SEPARATOR = ";,;";
+	protected final static String SEPARATOR = ";,;";
+	protected final static String DEFAULT_BACKUP_PATH = "./assets/placeholder.png";
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -33,30 +35,41 @@ public class CodeReference {
 	
 //---  Operations   ---------------------------------------------------------------------------
 	
-	public static void setup() {
-		codeInfo = new HashMap<Integer, CodeInfo>();
-		BufferedReader br = Config.retrieveFileReader(SETUP_FILE_PATH);
+	public static void setup(String filePath) throws Exception{
+		ArrayList<String> lines = pullFromFile(filePath);
+		setup(lines);
+	}
+	
+	private static ArrayList<String> pullFromFile(String filePath){
+		BufferedReader br = Config.retrieveFileReader(filePath);
+		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			Scanner sc = new Scanner(br);
 			while(sc.hasNextLine()) {
-				String line = sc.nextLine();
-				try {
-					readInSetupLine(line);
-				}
-				catch(Exception e) {
-					sc.close();
-					e.printStackTrace();
-				}
+				lines.add(sc.nextLine());
 			}
 			sc.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+		return lines;
+	}
+	
+	public static void setup(ArrayList<String> codeRefLines) throws Exception{
+		if(codeInfo == null) {
+			codeInfo = new HashMap<Integer, CodeInfo>();
+		}
+		for(String s : codeRefLines) {
+			readInSetupLine(s);
+		}
 	}
 	
 	public static void tearDown() {
-		//TODO: Empty out the codeInfo mapping
+		if(codeInfo == null) {
+			codeInfo = new HashMap<Integer, CodeInfo>();
+		}
+		codeInfo.clear();
 	}
 	
 	//TODO: Extract bits and pieces so it's easier to test in the JUnit class
@@ -93,18 +106,16 @@ public class CodeReference {
 	
 	public static String getCodeImagePath(int code) {
 		CodeInfo use = getCodeInfo(code);
-		if(use != null) {
-			return use.getImagePath();
-		}
-		return "./assets/placeholder.png";
+		return use.getImagePath();
 	}
 	
 	public static String getCodeLabel(int code) {
 		CodeInfo use = getCodeInfo(code);
-		if(use != null) {
-			return use.getLabel();
-		}
-		return "";
+		return use.getLabel();
+	}
+	
+	public static int getNumberCodes() {
+		return codeInfo.size();
 	}
 	
 	public static HashMap<Integer, String> getCodeTooltips(){
