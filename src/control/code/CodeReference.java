@@ -24,6 +24,7 @@ public class CodeReference {
 
 //---  Constants   ----------------------------------------------------------------------------
 	
+	public final static String SETUP_FILE_PATH = "src/assets/setup.txt";
 	private final static String SEPARATOR = ";,;";
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -34,32 +35,49 @@ public class CodeReference {
 	
 	public static void setup() {
 		codeInfo = new HashMap<Integer, CodeInfo>();
-		BufferedReader br = Config.retrieveFileReader("src/assets/setup.txt");
+		BufferedReader br = Config.retrieveFileReader(SETUP_FILE_PATH);
 		try {
 			Scanner sc = new Scanner(br);
 			while(sc.hasNextLine()) {
 				String line = sc.nextLine();
-				String[] pieces = line.split(SEPARATOR);
-				if(pieces.length != 3) {
-					continue;
+				try {
+					readInSetupLine(line);
 				}
-				int ref = Integer.parseInt(pieces[0]);
-				String path = pieces[1];
-				if(path.equals("null")) {
-					path = null;
-				}
-				String label = pieces[2];
-				if(codeInfo.containsKey(ref)) {
+				catch(Exception e) {
 					sc.close();
-					throw new Exception("Double usage of same code-value in CodeReference");
+					e.printStackTrace();
 				}
-				codeInfo.put(ref, new CodeInfo(ref, path, label));
 			}
 			sc.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void tearDown() {
+		//TODO: Empty out the codeInfo mapping
+	}
+	
+	//TODO: Extract bits and pieces so it's easier to test in the JUnit class
+	//TODO: Primarily make a way to send in a custom file we can read expectedly
+	//TODO: Add more diagnostic functions too
+	
+	private static void readInSetupLine(String line) throws Exception{
+		String[] pieces = line.split(SEPARATOR);
+		if(pieces.length != 3) {
+			return;
+		}
+		int ref = Integer.parseInt(pieces[0]);
+		String path = pieces[1];
+		if(path.equals("null")) {
+			path = null;
+		}
+		String label = pieces[2];
+		if(codeInfo.containsKey(ref)) {
+			throw new Exception("Double usage of same code-value in CodeReference");
+		}
+		codeInfo.put(ref, new CodeInfo(ref, path, label));
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

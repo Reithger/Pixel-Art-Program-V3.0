@@ -1,6 +1,8 @@
 package control.code;
 
 public class CodeInfo {
+	
+	public final static String DEFAULT_IMAGE = "./assets/placeholder.png";
 
 	private int code;
 	private String imagePath;
