@@ -7,7 +7,17 @@ public class Pallet {
 
 //---  Constants   ----------------------------------------------------------------------------
 	
-	private final static int MAXIMUM_SIZE = 30;
+	protected final static int MAXIMUM_SIZE = 30;
+	public final static Color[] DEFAULT_COLORS = new Color[] {Color.black,
+	                                              Color.white,
+	                                              new Color(255, 255, 255, 0),
+	                                              Color.blue,
+	                                              Color.yellow,
+	                                              Color.green,
+	                                              Color.red,
+	                                              Color.pink,
+	                                              Color.orange,
+	                                              Color.magenta};
 	
 //---  Instance Variables   -------------------------------------------------------------------
 	
@@ -18,24 +28,21 @@ public class Pallet {
 	
 	public Pallet() {
 		colors = new ArrayList<Integer>();
-		colors.add(Color.black.getRGB());
-		colors.add(Color.white.getRGB());
-		colors.add(new Color(255, 255, 255, 0).getRGB());
-		colors.add(Color.blue.getRGB());
-		colors.add(Color.yellow.getRGB());
-		colors.add(Color.green.getRGB());
-		colors.add(Color.red.getRGB());
-		colors.add(Color.pink.getRGB());
-		colors.add(Color.orange.getRGB());
-		colors.add(Color.magenta.getRGB());
+		addDefaultColors();
 		active = 0;
+	}
+	
+	private void addDefaultColors() {
+		for(Color c : DEFAULT_COLORS) {
+			colors.add(c.getRGB());
+		}
 	}
 	
 	public Pallet(ArrayList<Integer> cols) {
 		colors = cols;
 		active = 0;
 		if(colors.size() == 0) {
-			addColor(Color.black.getRGB());
+			addDefaultColors();
 		}
 	}
 	
@@ -53,14 +60,14 @@ public class Pallet {
 	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
-	public void setColor(int index) {
+	public void setActiveColor(int index) {
 		active = fixIndex(index);
 	}
 	
 	public void setColor(int index, Integer col) {
 		colors.set(fixIndex(index), col);
 	}
-	
+
 //---  Getter Methods   -----------------------------------------------------------------------
 	
 	public int getMaximumPalletSize() {
@@ -75,8 +82,16 @@ public class Pallet {
 		return colors;
 	}
 	
-	public int getActiveColor() {
+	public int getActiveColorIndex() {
 		return active;
+	}
+	
+	public Integer getActiveColor() {
+		return colors.get(fixIndex(active));
+	}
+	
+	public int getNumberColors() {
+		return colors.size();
 	}
 	
 //---  Mechanics   ----------------------------------------------------------------------------

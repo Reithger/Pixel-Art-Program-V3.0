@@ -29,8 +29,7 @@ public class ColorManager {
 
 		int[] cols = new int[] {grab.getRed() + chngR, grab.getGreen() + chngG, grab.getBlue() + chngB, grab.getAlpha() + chngA};
 		for(int i = 0; i < cols.length; i++) {
-			cols[i] %= 255;
-			cols[i] = cols[i] < 0 ? 255 - cols[i] : cols[i];
+			cols[i] = cols[i] < 0 ? 0 : cols[i] > 255 ? 255 : cols[i];
 		}
 		getCurrentPallet().setColor(index, grab.getRGB());
 	}
@@ -67,18 +66,14 @@ public class ColorManager {
 	
 //---  Setter Methods   -----------------------------------------------------------------------
 	
-	public void setPallet(int index) {
+	public void setCurrPallet(int index) {
 		currPallet = fixIndex(index, savedColors.size());
 	}
 	
-	public void setColor(int index) {
-		getCurrentPallet().setColor(fixIndex(index, getCurrentPallet().getColors().size()));
+	public void setActiveColor(int index) {
+		getCurrentPallet().setActiveColor(fixIndex(index, getCurrentPallet().getColors().size()));
 	}
-	
-	public void setColor(Integer in) {
-		addColor(in);
-		getCurrentPallet().setColor(getCurrentPallet().getColors().size() - 1);
-	}
+
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 

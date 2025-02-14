@@ -95,23 +95,34 @@ public class CodeReference {
 	
 //---  Getter Methods   -----------------------------------------------------------------------
 	
-	public static CodeInfo getCodeInfo(int code) {
+	public static CodeInfo getCodeInfo(int code) throws Exception{
 		CodeInfo out = codeInfo.get(code);
 		if(out == null) {
-			System.out.println("Attempted to access CodeInfo object that had not been setup for code value: " + code);
-			return new CodeInfo(code, null, "?");
+			throw new Exception("Attempted to access CodeInfo object that had not been setup for code value: " + code);
 		}
 		return out;
 	}
 	
+	/**
+	 * 
+	 * TODO: Should this throw an exception if you ask for an extant code?
+	 * 
+	 * @param code
+	 * @return
+	 */
+	
+	public static CodeInfo getMysteryCodeInfo(int code) {
+		return new CodeInfo(code, null, "?");
+	}
+	
 	public static String getCodeImagePath(int code) {
-		CodeInfo use = getCodeInfo(code);
-		return use.getImagePath();
+		CodeInfo use = codeInfo.get(code);
+		return use == null ? DEFAULT_BACKUP_PATH : use.getImagePath();
 	}
 	
 	public static String getCodeLabel(int code) {
-		CodeInfo use = getCodeInfo(code);
-		return use.getLabel();
+		CodeInfo use = codeInfo.get(code);
+		return use == null ? "?" : use.getLabel();
 	}
 	
 	public static int getNumberCodes() {

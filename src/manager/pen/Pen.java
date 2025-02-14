@@ -99,7 +99,7 @@ public class Pen {
 		if(getPenMode() == PEN_MODE_COLOR_PICK) {
 			Integer nCol = lP.getColor(x, y, layer).getRGB();
 			color.addColor(nCol);
-			color.setColor(30);
+			color.setActiveColor(30);
 			setPenMode(PEN_MODE_DRAW);
 			return true;
 		}
@@ -191,15 +191,16 @@ public class Pen {
 	//-- ColorManager  ----------------------------------------
 	
 	public void setActiveColor(int ind) {
-		color.setColor(ind);
+		color.setActiveColor(ind);
 	}
 	
 	public void setActiveColor(Color in) {
-		color.setColor(in.getRGB());
+		color.addColor(in.getRGB());
+		color.setActiveColor(30);
 	}
 
 	public void setPallet(int in) {
-		color.setPallet(in);
+		color.setCurrPallet(in);
 	}
 
 	//-- RegionDraw  ------------------------------------------
