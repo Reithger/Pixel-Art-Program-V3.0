@@ -31,6 +31,7 @@ public class ColorManager {
 		for(int i = 0; i < cols.length; i++) {
 			cols[i] = cols[i] < 0 ? 0 : cols[i] > 255 ? 255 : cols[i];
 		}
+		grab = new Color(cols[0], cols[1], cols[2], cols[3]);
 		getCurrentPallet().setColor(index, grab.getRGB());
 	}
 	
@@ -71,7 +72,7 @@ public class ColorManager {
 	}
 	
 	public void setActiveColor(int index) {
-		getCurrentPallet().setActiveColor(fixIndex(index, getCurrentPallet().getColors().size()));
+		getCurrentPallet().setActiveColor(index);
 	}
 
 	
@@ -86,15 +87,15 @@ public class ColorManager {
 	}
 	
 	public Integer getColor(int index) {
-		return getCurrentPallet().getColor(fixIndex(index, getCurrentPallet().getColors().size()));
+		return getCurrentPallet().getColor(index);
 	}
 	
 	public int getActiveColorIndex() {
-		return getCurrentPallet().getActiveColor();
+		return getCurrentPallet().getActiveColorIndex();
 	}
 
 	public Integer getActiveColor() {
-		return getColor(getCurrentPallet().getActiveColor());
+		return getCurrentPallet().getActiveColor();
 	}
 	
 	public int getCurrentPalletIndex() {
@@ -107,6 +108,10 @@ public class ColorManager {
 	
 	public int getNumPallettes() {
 		return savedColors.size();
+	}
+	
+	public int getCurrentPalletSize() {
+		return getCurrentPallet().getNumberColors();
 	}
 	
 //---  Mechanics   ----------------------------------------------------------------------------
