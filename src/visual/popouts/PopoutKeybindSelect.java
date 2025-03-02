@@ -9,6 +9,7 @@ import java.util.HashSet;
 
 import visual.composite.HandlePanel;
 import visual.composite.popout.PopoutWindow;
+import visual.frame.Frame;
 
 public class PopoutKeybindSelect extends PopoutWindow{
 	
@@ -34,8 +35,8 @@ public class PopoutKeybindSelect extends PopoutWindow{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public PopoutKeybindSelect(int width, int height, HashMap<Integer, String> codeDescription, HashMap<Character, Integer> currentMappings) {
-		super(width, height);
+	public PopoutKeybindSelect(int width, int height, HashMap<Integer, String> codeDescription, HashMap<Character, Integer> currentMappings, Frame ref) {
+		super(width, height, ref);
 		p = getHandlePanel();
 		ready = false;
 		active = -1;

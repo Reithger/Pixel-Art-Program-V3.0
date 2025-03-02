@@ -25,7 +25,7 @@ public class TileNumericSelector extends Tile {
 	
 	private static String DECREMENT_IMAGE_PATH = "./assets/placeholder.png";
 	private static String INCREMENT_IMAGE_PATH = "./assets/placeholder.png";
-	private static String SLIDER_IMAGE_PATH = "./assets/placeholder.png";
+	private static String SLIDER_IMAGE_PATH = "./assets/planchette_mini.png";
 	
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -98,7 +98,7 @@ public class TileNumericSelector extends Tile {
 
 		posX += (int)(prop * 2 * size);
 		p.handleButton("gr_" + label + "_slider_detect", "move", 15, posX, posY, iconSize, size, sliderCode);
-		p.handleImage("gr_" + label + "_slider", "move", 15, posX, posY, iconSize, size, true, SLIDER_IMAGE_PATH);
+		p.handleImage("gr_" + label + "_slider", "move", 15, posX, posY - iconSize / 3, iconSize, iconSize, true, SLIDER_IMAGE_PATH);
 	}
 	
 //---  Getter Methods   -----------------------------------------------------------------------

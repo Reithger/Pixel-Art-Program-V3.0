@@ -62,7 +62,7 @@ public class View implements InputHandler{
 			
 		};
 		frame.setResizable(true);;
-		frame.getFrame().getContentPane().setBackground(COLOR_BACKGROUND);
+		frame.setBackgroundColor(COLOR_BACKGROUND);
 		frame.setName("Pixel Art Program v3.0");
 	}
 	
@@ -110,7 +110,7 @@ public class View implements InputHandler{
 	//-- User Request  ----------------------------------------
 	
 	public int requestIntInput(String text) {
-		PopoutInputRequest piR = new PopoutInputRequest(text);
+		PopoutInputRequest piR = new PopoutInputRequest(frame, text);
 		String[] out = piR.getSubmitted();
 		piR.dispose();
 		try {
@@ -123,14 +123,14 @@ public class View implements InputHandler{
 	}
 	
 	public Color requestColorChoice(Color def) {
-		PopoutColorDesigner pCD = new PopoutColorDesigner(300, 300, def);
+		PopoutColorDesigner pCD = new PopoutColorDesigner(300, 300, def, frame);
 		Color out = pCD.getChoice();
 		pCD.dispose();
 		return out;
 	}
 	
 	public String[] requestStringInput(String ... text) {
-		PopoutInputRequest piR = new PopoutInputRequest(text);
+		PopoutInputRequest piR = new PopoutInputRequest(frame, text);
 		String[] out = piR.getSubmitted();
 		piR.dispose();
 		return out;
@@ -152,14 +152,14 @@ public class View implements InputHandler{
 	}
 
 	public HashMap<Character, Integer> requestKeybindUpdate(HashMap<Integer, String> descript, HashMap<Character, Integer> curr){
-		PopoutKeybindSelect pks = new PopoutKeybindSelect(900, 600, descript, curr);
+		PopoutKeybindSelect pks = new PopoutKeybindSelect(900, 600, descript, curr, frame);
 		HashMap<Character, Integer> result = pks.getResult();
 		pks.dispose();
 		return result;
 	}
 	
 	public boolean requestConfirmation(String display) {
-		PopoutConfirm pC = new PopoutConfirm(200, 150, display);
+		PopoutConfirm pC = new PopoutConfirm(200, 150, display, frame);
 		boolean out = pC.getChoice();
 		pC.dispose();
 		return out;

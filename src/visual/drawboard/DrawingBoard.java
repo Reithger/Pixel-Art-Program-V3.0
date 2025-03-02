@@ -228,7 +228,7 @@ public class DrawingBoard implements InputHandler, CodeMetaAccess {
 	}
 	
 	private void confirmPageDeletion(int offCode) {
-		PopoutConfirm pC = new PopoutConfirm(200, 150, "Are you sure?");
+		PopoutConfirm pC = new PopoutConfirm(200, 150, "Are you sure?", parent);
 		boolean choice = pC.getChoice();
 		pC.dispose();
 		if(choice) {

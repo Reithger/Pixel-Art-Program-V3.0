@@ -3,6 +3,7 @@ package visual.popouts;
 import java.awt.Color;
 
 import visual.composite.popout.PopoutWindow;
+import visual.frame.Frame;
 
 public class PopoutConfirm extends PopoutWindow{
 	
@@ -18,8 +19,8 @@ public class PopoutConfirm extends PopoutWindow{
 
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public PopoutConfirm(int width, int height, String defPhrase) {
-		super(width, height);
+	public PopoutConfirm(int width, int height, String defPhrase, Frame ref) {
+		super(width, height, ref);
 		drawConfirmation(defPhrase);
 	}
 	

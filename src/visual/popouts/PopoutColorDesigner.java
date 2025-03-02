@@ -3,14 +3,17 @@
 import java.awt.Color;
 
 import visual.composite.popout.PopoutWindow;
+import visual.frame.Frame;
 
 public class PopoutColorDesigner extends PopoutWindow{
 
 //---  Constants   ----------------------------------------------------------------------------
 	
 	private final static String[] SUBMIT_NAMES = new String[] {"Red", "Green", "Blue", "Alpha"};
+	private final static String SLIDER_TILE_IMAGE_PATH = "./assets/planchette_mini.png";
 	private final static int CODE_COLOR_MAKE = 55;
 	private final static int CODE_COLOR_SUBMIT = 56;
+	private final static int CODE_SLIDER_BASE = 100;
 	private final static char KEY_ENTER = (char)10;
 	
 //---  Instance Variables   -------------------------------------------------------------------
@@ -19,10 +22,14 @@ public class PopoutColorDesigner extends PopoutWindow{
 	
 	private volatile boolean ready;
 	
+	private Integer currentSlide;
+	
+	private Integer startX;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public PopoutColorDesigner(int wid, int hei, Color defCol) {
-		super(wid, hei);
+	public PopoutColorDesigner(int wid, int hei, Color defCol, Frame ref) {
+		super(wid, hei, ref);
 		if(defCol == null) {
 			defCol = Color.white;
 		}
@@ -41,13 +48,21 @@ public class PopoutColorDesigner extends PopoutWindow{
 		handleRectangle("col", "move", 1, getWidth() / 2, getHeight() / 2, getWidth(), getHeight(), currColor, currColor);
 		
 		int[] vals = getColorValues();
-		int hei = getHeight() / (rows + 2);
+		int hei = getHeight() / (rows + 3);
 		
 		for(int i = 0; i < SUBMIT_NAMES.length; i++) {
 			int wid = getWidth() / 4;
-			handleText(SUBMIT_NAMES[i] + "_tex", "move", 15, posX - getWidth() / 6, posY, wid, hei, null, SUBMIT_NAMES[i]);
-			handleRectangle(SUBMIT_NAMES[i] + "_rect", "move", 5, posX + getWidth() / 6, posY, wid, hei, Color.white, Color.black);
-			handleTextEntry(SUBMIT_NAMES[i], "move", 15, posX + getWidth() / 6, posY, wid, hei, i, null, ""+vals[i]);
+			handleText(SUBMIT_NAMES[i] + "_tex", "move", 15, posX - getWidth() / 3, posY, wid, hei, null, SUBMIT_NAMES[i]);
+			handleRectangle(SUBMIT_NAMES[i] + "_tex_box", "move", 10, posX - getWidth() / 3, posY, wid, hei, Color.white, Color.black);
+			
+			handleRectangle(SUBMIT_NAMES[i] + "_line", "move", 15, posX, posY, getWidth() / 3, 4, Color.white, Color.black);
+			
+			int val = vals[i];
+			setOffsetX("slider_" + SUBMIT_NAMES[i], (int) (((double)val / 255.0) * (double) (getWidth() / 3)));
+			handleImageButton(SUBMIT_NAMES[i] + "_slider", "slider_" + SUBMIT_NAMES[i], 20, posX - getWidth() / 6, posY, wid / 4, wid / 2, SLIDER_TILE_IMAGE_PATH, CODE_SLIDER_BASE + i);
+			
+			handleRectangle(SUBMIT_NAMES[i] + "_rect", "move", 5, posX + getWidth() / 3, posY, wid, hei, Color.white, Color.black);
+			handleTextEntry(SUBMIT_NAMES[i], "move", 15, posX + getWidth() / 3, posY, wid, hei, i, null, ""+vals[i]);
 			posY += getHeight() / (rows + 1);
 		}
 		posX = getWidth() / 2;
@@ -78,6 +93,15 @@ public class PopoutColorDesigner extends PopoutWindow{
 		int newG = fixColor(currColor.getGreen() + g);
 		int newB = fixColor(currColor.getBlue() + b);
 		int newA = fixColor(currColor.getAlpha() + a);
+		currColor = new Color(newR, newG, newB, newA);
+		redraw();
+	}
+	
+	private void colorSet(int[] cols) {
+		int newR = fixColor(cols[0]);
+		int newG = fixColor(cols[1]);
+		int newB = fixColor(cols[2]);
+		int newA = fixColor(cols[3]);
 		currColor = new Color(newR, newG, newB, newA);
 		redraw();
 	}
@@ -116,7 +140,40 @@ public class PopoutColorDesigner extends PopoutWindow{
 			case CODE_COLOR_SUBMIT:
 				ready = true;
 				break;
+			default:
+				break;
 			}
+	}
+	
+	@Override
+	public void clickPressAction(int code, int x, int y) {
+		for(int i = 0; i < 4; i++) {
+			int prac = CODE_SLIDER_BASE + i;
+			if(code == prac) {
+				currentSlide = prac;
+				startX = getWidth() / 2 - getWidth() / 6;
+			}
+		}
+	}
+	
+	@Override
+	public void clickReleaseAction(int code, int x, int y) {
+		currentSlide = null;
+		startX = null;
+	}
+	
+	@Override
+	public void dragAction(int code, int x, int y) {
+		if(currentSlide != null) {
+			int newOffset = x -startX;
+			newOffset = newOffset < 0 ? 0 : newOffset > getWidth() / 3 ? getWidth() / 3 : newOffset;
+			setOffsetX("slider_" + SUBMIT_NAMES[currentSlide - CODE_SLIDER_BASE], newOffset);
+			double perc = (double) newOffset / (getWidth() / 3.0);
+			int newCol = (int)(perc * 255);
+			int[] cols = getColorValues();
+			cols[currentSlide - CODE_SLIDER_BASE] = newCol;
+			colorSet(cols);
+		}
 	}
 
 	@Override

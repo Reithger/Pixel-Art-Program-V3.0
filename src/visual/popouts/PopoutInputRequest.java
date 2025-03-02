@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import input.CustomEventReceiver;
 import visual.composite.popout.PopoutWindow;
+import visual.frame.Frame;
 
 /**
  * 
@@ -30,8 +31,8 @@ public class PopoutInputRequest extends PopoutWindow{
 	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public PopoutInputRequest(String ... text) {
-		super(POPUP_WIDTH, POPUP_HEIGHT);
+	public PopoutInputRequest(Frame ref, String ... text) {
+		super(POPUP_WIDTH, POPUP_HEIGHT, ref);
 		
 		out = new String[text.length];
 		
