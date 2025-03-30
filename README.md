@@ -3,4 +3,8 @@
 
 ## Example image of the program in-action
 
-![panel-159453912-image-e854abca-e043-4b5a-b432-da7eece5e033](https://github.com/user-attachments/assets/9a420936-85f7-4369-bf83-d543762ae04f)
+![art program](https://github.com/user-attachments/assets/c1cb782b-6eb0-4af5-ad61-8684f1425cc1)
+
+## Program UML Class Diagram
+
+![Uploading Pixel Art Program - March 2025.jpg…]()
