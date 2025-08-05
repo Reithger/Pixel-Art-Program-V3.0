@@ -1,5 +1,6 @@
 package manager.pen.drawing;
 
+import java.awt.Color;
 import java.util.HashMap;
 
 import manager.pen.changes.Change;
@@ -19,10 +20,17 @@ public class Overlay {
 	private HashMap<String, Change> instruct;
 	private Canvas can;
 	
+	private int baseWid;
+	private int baseHei;
+	private int zoom;
+	
 //---  Constructors   -------------------------------------------------------------------------
 	
-	public Overlay(int wid, int hei) {
-		can = new Canvas(wid, hei);
+	public Overlay(int wid, int hei, int inZoom) {
+		can = new Canvas(wid * inZoom, hei * inZoom);
+		zoom = inZoom;
+		baseWid = wid;
+		baseHei = hei;
 		can.setSubGridSizeMaximum(32);
 		instruct = new HashMap<String, Change>();
 	}
@@ -56,6 +64,24 @@ public class Overlay {
 		if(instruct.get(ref) != null) {
 			instruct.get(ref).apply(can);
 			instruct.remove(ref);
+		}
+	}
+	
+	public void updateZoom(int inZoom) {
+		System.out.println("Z: " + inZoom);
+		if(zoom != inZoom) {
+			zoom = inZoom;
+			can.updateCanvasSize(baseWid * zoom, baseHei * zoom);
+			initializeCanvas();
+			instruct = new HashMap<String, Change>();
+		}
+	}
+	
+	public void initializeCanvas() {
+		for(int i = 0; i < can.getCanvasWidth(); i++) {
+			for(int j = 0; j < can.getCanvasHeight(); j++) {
+				can.setCanvasColor(i, j, new Color(255, 255, 255, 0));
+			}
 		}
 	}
 	

@@ -40,8 +40,11 @@ public class DisplayPicture extends Corkboard{
 		int usX = CONTENT_X_BUFFER;
 		int usY = CONTENT_Y_BUFFER;
 		getPanel().addCanvas("display_picture_img", 5, "move", usX, usY, getContentWidth(), getContentHeight(), disp, INTERACT_CODE);
-		if(overlay != null)
+		if(overlay != null) {
 			getPanel().addCanvas("display_picture_img2", 8, "move", usX, usY, getContentWidth(), getContentHeight(), overlay, OVERLAY_INTERACT_CODE);
+			System.out.println(disp.getCanvasWidth() + " " + disp.getCanvasHeight());
+			System.out.println(overlay.getCanvasWidth() + " " + overlay.getCanvasHeight());
+		}
 	}
 
 	@Override

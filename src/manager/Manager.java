@@ -263,15 +263,18 @@ public class Manager {
 	}
 	
 	public void increaseZoom(String nom) {
+		System.out.println("Update Zoom: " + nom);
 		Sketch k = getSketch(nom);
-		k.setZoom(k.getZoom() + 1);
+		k.setZoom(k.getZoom() * 2);
+		pen.updateZoom(nom, k.getZoom());
 		flagUpdate(k);
 		updateCheckerboard(nom);
 	}
 	
 	public void decreaseZoom(String nom) {
 		Sketch k = getSketch(nom);
-		k.setZoom(k.getZoom() - 1);
+		k.setZoom(k.getZoom() / 2);
+		pen.updateZoom(nom, k.getZoom());
 		flagUpdate(k);
 		updateCheckerboard(nom);
 	}
@@ -337,7 +340,6 @@ public class Manager {
 		if(over == null) {
 			return out;
 		}
-		over.setZoom(ska.getZoom());
 		Canvas[] use = new Canvas[out.length + 1];
 		for(int i = 0; i < out.length; i++) {
 			use[i] = out[i];

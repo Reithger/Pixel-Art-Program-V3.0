@@ -91,7 +91,7 @@ public class DrawingManager {
 		REGION_MODE_PASTE = paste;
 		RegionDraw.assignRegionCodes(outline, fill, copy, paste);
 	}
-	
+		
 	//-- Setup  -----------------------------------------------
 
 	public void initializeCanvas(LayerPicture lP, int layer) {
@@ -112,7 +112,7 @@ public class DrawingManager {
 			}
 		}
 	}
-	
+
 	//-- Meta Control  ----------------------------------------
 	
 	private void openLock() {
@@ -133,8 +133,8 @@ public class DrawingManager {
 			return false;
 		}
 		if(overlay.get(nom) == null) {
-			overlay.put(nom, new Overlay(lP.getWidth(), lP.getHeight()));
-			initializeCanvas(overlay.get(nom).getCanvas());
+			overlay.put(nom, new Overlay(lP.getWidth(), lP.getHeight(), 1));
+			overlay.get(nom).initializeCanvas();
 			force = true;
 		}
 		
@@ -172,7 +172,8 @@ public class DrawingManager {
 			else {
 				commitChanges(lP, nom, layer, duration, use);
 			}
-			instructions.remove(nextDuration - 1);
+			//TODO: Note, I had set this to 'nextDuration - 1' for some reason, if a thing goes weird be aware of this change
+			instructions.remove(nextDuration);
 			nextDuration++;
 		}
 		closeLock();
@@ -243,9 +244,9 @@ public class DrawingManager {
 	private Change constructOverlayGridCheckerboard(int wid, int hei, int zoom) {
 		Change c = new Change();
 		
-		int shorter = zoom + 1; //(int) Math.pow(2, zoom - 1);
-		wid *= zoom;
-		hei *= zoom;
+		int shorter = zoom; //(int) Math.pow(2, zoom - 1);
+		//wid *= zoom;
+		//hei *= zoom;
 		
 		Integer[][] use = makeColorSpace(1, hei, Color.black.getRGB());
 		
@@ -292,7 +293,6 @@ public class DrawingManager {
 		}
 		return c;
 	}
-
 
 	private Change[] interpretRegionApply(Integer[][] can, int x, int y, int duration, boolean release, String nom, int regionMode) {
 		if(release || duration == 0) {
@@ -376,6 +376,13 @@ public class DrawingManager {
 		changes = new VersionHistory();
 	}
 	
+	public void updateZoom(String nom, int zoom) {
+		Overlay ov = overlay.get(nom);
+		if(ov != null) {
+			ov.updateZoom(zoom);
+		}
+	}
+	
 //---  Setter Methods   -----------------------------------------------------------------------
 
 	public void setPenMode(int in) {
@@ -398,13 +405,17 @@ public class DrawingManager {
 	public void updateCheckerboard(String nom, int wid, int hei, int zoom) {
 		Overlay ov = overlay.get(nom);
 		if(ov == null) {
-			overlay.put(nom, new Overlay(wid, hei));
+			System.out.println("Initializing OV: " + nom);
+			overlay.put(nom, new Overlay(wid, hei, zoom));
 			initializeCanvas(overlay.get(nom).getCanvas());
 			ov = overlay.get(nom);
 		}
+		else {
+			ov.updateZoom(zoom);
+		}
 		if(ov.containsOverlayFeature(Overlay.REF_CHECKERBOARD)) {
 			ov.release(Overlay.REF_CHECKERBOARD);
-			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid, hei, zoom));
+			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid * zoom, hei * zoom, zoom));
 		}
 	}
 	
@@ -412,7 +423,8 @@ public class DrawingManager {
 		System.out.println("Word: " + nom);
 		Overlay ov = overlay.get(nom);
 		if(ov == null) {
-			overlay.put(nom, new Overlay(wid, hei));
+			System.out.println("Initializing OV");
+			overlay.put(nom, new Overlay(wid, hei, zoom));
 			initializeCanvas(overlay.get(nom).getCanvas());
 			ov = overlay.get(nom);
 		}
@@ -420,7 +432,7 @@ public class DrawingManager {
 			ov.release(Overlay.REF_CHECKERBOARD);
 		}
 		else {
-			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid, hei, zoom));
+			ov.instruct(Overlay.REF_CHECKERBOARD, constructOverlayGridCheckerboard(wid * zoom, hei * zoom, zoom));
 		}
 	}
 	

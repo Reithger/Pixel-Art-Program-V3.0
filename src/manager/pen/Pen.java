@@ -85,6 +85,10 @@ public class Pen {
 		drawControl.initializeCanvas(lP, layer);
 	}
 
+	public void updateZoom(String nom, int zoom) {
+		drawControl.updateZoom(nom, zoom);
+	}
+	
 	public void toggleCheckerboard(String nom, int wid, int hei, int zoom) {
 		drawControl.toggleCheckerboard(nom, wid, hei, zoom);
 	}

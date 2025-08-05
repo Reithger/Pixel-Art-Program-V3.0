@@ -411,7 +411,7 @@ public abstract class Corkboard {
 	
 	public void addButtonsHeader(int[] codes, ArrayList<String> paths, ArrayList<String> labels) {
 		if(codes.length != paths.size() || paths.size() != labels.size()) {
-			System.out.println("Error: in 'Corkboard' class, 'addButtonsHeader' function (~line 382), length of lists of Codes, Paths, and Labels not the same.");
+			System.out.println("Error: in 'Corkboard' class, 'addButtonsHeader' function (~line 414), length of lists of Codes, Paths, and Labels not the same.");
 			return;
 		}
 		for(int i = 0; i < codes.length; i++) {

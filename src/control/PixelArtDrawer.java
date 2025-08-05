@@ -113,7 +113,7 @@ public class PixelArtDrawer implements InputHandler{
 		dataAccess = new DataAccess();
 		keyBind = new KeyBindings(dataAccess.getKeyMappings());
 		manager.setupPallettes(dataAccess.getColorPallettes());
-		generateEmptyImage("Default", 320, 320);
+		generateEmptyImage("Default", 32, 32);
 	}
 	
 //---  Operations   ---------------------------------------------------------------------------
